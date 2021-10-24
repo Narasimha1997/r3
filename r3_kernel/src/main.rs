@@ -3,10 +3,15 @@
 
 #![feature(asm)] // enable asm
 
+extern crate bootloader;
+
 pub mod cpu;
+pub mod drivers;
+pub mod boot_proto;
 
 use core::panic::PanicInfo;
-use cpu::io::Port;
+use bootloader::BootInfo;
+use boot_proto::BootProtocol;
 
 /// This function is called on panic.
 #[panic_handler]
@@ -15,17 +20,8 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 #[no_mangle] // don't mangle the name of this function
-pub extern "C" fn _start() -> ! {
-
-    // print some characters on the screen and loop
-    let text = "Hello, World!!!";
-
-    let io_port = Port::new(0x3f8, false);
-
-    for ch in text.as_bytes().iter() {
-        io_port.write_u8(*ch);
-    }
-
+pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
+    BootProtocol::create(boot_info);
     loop {}
 }
 
