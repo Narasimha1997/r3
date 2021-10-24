@@ -1,0 +1,142 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - '*'
+  schedule:
+    - cron: '40 4 * * *'   # every day at 4:40
+  pull_request:
+
+jobs:
+  test:
+    name: "Test"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [
+          ubuntu-latest,
+          macos-latest,
+          windows-latest
+        ]
+
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 15
+
+    steps:
+    - name: "Checkout Repository"
+      uses: actions/checkout@v1
+
+    - name: Set up Rustup
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+
+    - name: "Print Rust Version"
+      run: |
+        rustc -Vv
+        cargo -Vv
+
+    - name: "Run cargo build"
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+
+    - name: "Run cargo test"
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+
+    - name: "Deny Warnings"
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+      env:
+        RUSTFLAGS: "-D warnings"
+
+    - name: "Install it"
+      run: cargo install --path .
+
+    - name: "Switch to Rust nightly"
+      run: rustup default nightly
+
+    - name: "Install Rustup Components"
+      run: rustup component add rust-src llvm-tools-preview
+
+     # install QEMU
+    - name: Install QEMU (Linux)
+      run: |
+        sudo apt update
+        sudo apt install qemu-system-x86
+      if: runner.os == 'Linux'
+    - name: Install QEMU (macOS)
+      run: brew install qemu
+      if: runner.os == 'macOS'
+      env:
+        HOMEBREW_NO_AUTO_UPDATE: 1
+        HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK: 1
+        HOMEBREW_NO_INSTALL_CLEANUP: 1
+    - name: Install QEMU (Windows)
+      run: |
+        choco install qemu --version 2021.5.5
+        echo "$Env:Programfiles\qemu" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      if: runner.os == 'Windows'
+      shell: pwsh
+
+    - name: "Print QEMU Version"
+      run: qemu-system-x86_64 --version
+
+    - name: 'Build "basic" Kernel'
+      run: cargo bootimage --target ../x86_64-bootimage-example-kernels.json
+      working-directory: example-kernels/basic
+
+    - name: 'Run QEMU with "basic" Kernel'
+      run: |
+        qemu-system-x86_64 -drive format=raw,file=target/x86_64-bootimage-example-kernels/debug/bootimage-basic.bin -device isa-debug-exit,iobase=0xf4,iosize=0x04 -display none
+        if [ $? -eq 103 ]; then (exit 0); else (exit 1); fi
+      shell: bash {0}
+      working-directory: example-kernels
+
+    - name: 'Run `cargo run` for "runner" kernel'
+      run: |
+        cargo run
+        if [ $? -eq 109 ]; then (exit 0); else (exit 1); fi
+      shell: bash {0}
+      working-directory: example-kernels/runner
+
+    - run: cargo test
+      working-directory: example-kernels/runner-test
+      name: 'Run `cargo test` for "runner-test" kernel'
+
+    - run: cargo test -Z doctest-xcompile
+      working-directory: example-kernels/runner-doctest
+      name: 'Run `cargo test -Z doctest-xcompile` for "runner-doctest" kernel'
+
+    - run: cargo test
+      working-directory: example-kernels/runner-fail-reboot
+      name: 'Run `cargo test` for "runner-fail-reboot" kernel'
+
+  check_formatting:
+    name: "Check Formatting"
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+    - uses: actions/checkout@v1
+    - run: rustup toolchain install nightly --profile minimal --component rustfmt
+    - run: cargo +nightly fmt -- --check
+
+  clippy:
+    name: "Clippy"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v1
+    - run: rustup toolchain install nightly --profile minimal --component clippy
+    - name: "Run `cargo clippy`"
+      uses: actions-rs/cargo@v1
+      with:
+        command: clippy

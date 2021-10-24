@@ -1,0 +1,25 @@
+[package]
+authors = ["Philipp Oppermann <dev@phil-opp.com>"]
+description = "Tool to create a bootable OS image from a kernel binary."
+license = "MIT/Apache-2.0"
+name = "bootimage"
+version = "0.10.3"
+repository = "https://github.com/rust-osdev/bootimage"
+edition = "2018"
+
+[dependencies]
+toml = "0.5.6"
+wait-timeout = "0.2.0"
+llvm-tools = "0.1.1"
+locate-cargo-manifest = "0.2.0"
+json = "0.12.4"
+anyhow = "1.0.28"
+thiserror = "1.0.16"
+cargo_metadata = "0.9.1"
+
+[package.metadata.release]
+no-dev-version = true
+pre-release-replacements = [
+    { file="Changelog.md", search="# Unreleased", replace="# Unreleased\n\n# {{version}} – {{date}}", exactly=1 },
+]
+pre-release-commit-message = "Release version {{version}}"

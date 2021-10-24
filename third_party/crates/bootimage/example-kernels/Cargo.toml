@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "basic",
+    "runner",
+    "runner-doctest",
+    "runner-fail-reboot",
+    "runner-test",
+]

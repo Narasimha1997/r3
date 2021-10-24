@@ -1,0 +1,11 @@
+Creates a bootable disk image from a Rust kernel
+
+USAGE:
+    cargo bootimage [BUILD_OPTS]                Create a bootable disk image
+    bootimage runner EXECUTABLE [RUN_OPTS]      Convert and run an executable
+
+For more information about a subcommand run `[subcommand] --help`.
+
+GENERAL OPTIONS:
+    -h, --help     Prints help information and exit
+    --version      Prints version information and exit

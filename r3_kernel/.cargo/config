@@ -1,0 +1,6 @@
+[build]
+target = "x86_64.json"
+target-dir = "../kbin"
+
+[target.'cfg(target_os = "none")']
+runner = "bootimage runner"
