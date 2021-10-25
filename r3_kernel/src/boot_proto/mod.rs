@@ -2,7 +2,7 @@ extern crate bootloader;
 extern crate log;
 extern crate spin;
 
-use bootloader::boot_info::{FrameBufferInfo, MemoryRegion, MemoryRegions};
+use bootloader::boot_info::{FrameBufferInfo, MemoryRegions};
 use bootloader::BootInfo;
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -56,6 +56,18 @@ impl BootProtocol {
         None
     }
 
+    pub fn get_framebuffer_info() -> Option<FrameBufferInfo> {
+        if let Some(bi) = BootProtocol::get_boot_proto() {
+            if let Some(fb_struct) = bi.framebuffer.as_ref() {
+                return Some(fb_struct.info());
+            }
+
+            return None;
+        }
+
+        None
+    }
+
     pub fn print_boot_info() {
         if let Some(bi) = BootProtocol::get_boot_proto() {
             // display version:
@@ -77,6 +89,16 @@ impl BootProtocol {
                 }
             } else {
                 log::warn!("Boot info doesn't contain memory map information.");
+            }
+
+            if let Some(fb_info) = BootProtocol::get_framebuffer_info() {
+                log::info!(
+                    "Framebuffer info: width={} height={} bps={} pixel_format={:?}",
+                    fb_info.horizontal_resolution, fb_info.vertical_resolution,
+                    fb_info.bytes_per_pixel, fb_info.pixel_format
+                );
+            } else {
+                log::warn!("Boot info doesn't contain framebuffer information.");
             }
         }
     }
