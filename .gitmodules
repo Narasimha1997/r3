@@ -1,9 +1,4 @@
-[submodule "third_party/crates/bootimage"]
-	path = third_party/crates/bootimage
-	url = https://github.com/rust-osdev/bootimage.git
-	branch = main
-
-[submodule "third_party/crates/multiboot2"]
-	path = third_party/crates/multiboot2
-	url = https://github.com/rust-osdev/multiboot2.git
+[submodule "third_party/crates/bootloader"]
+	path = third_party/crates/bootloader
+	url = https://github.com/rust-osdev/bootloader.git
 	branch = main

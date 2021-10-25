@@ -1,1 +1,13 @@
-r3_kernel                                          INFO  Saving boot info
+r3_kernel            INFO  Saving boot info
+r3_kernel            INFO  Hello, kernel world!
+r3_kernel::boot_proto INFO  Bootloader version: 0.10.9
+r3_kernel::boot_proto INFO  RSDT Address: Some(1009872)
+r3_kernel::boot_proto INFO  Memory offset: None
+r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 4452352, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4452352, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }

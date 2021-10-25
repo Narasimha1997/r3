@@ -1,6 +1,9 @@
 // provides macros for basic logging with log levels
 extern crate log;
+
 use core::fmt::Write;
+use core::panic::PanicInfo;
+
 use log::{LevelFilter, Metadata, Record};
 
 use crate::drivers::uart;
@@ -50,4 +53,11 @@ pub fn init() {
     // unuse the result
     let _ = log::set_logger(&KERNEL_LOGGER);
     log::set_max_level(LevelFilter::Debug);
+}
+
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    // write the panic info and loop infinitely:
+    log::error!("{}", info);
+    loop {}
 }

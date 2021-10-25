@@ -9,6 +9,10 @@ function install_qemu () {
         sudo apt install -y qemu-kvm libvirt-dev bridge-utils libvirt-daemon-system \
             libvirt-daemon virtinst bridge-utils libosinfo-bin libguestfs-tools \
             virt-top
+
+        # install ovmf for UEFI boot:
+        sudo apt install -y ovmf
+
         echo "Installed Qemu + KVM"
     else
         echo "Qemu with kvm is already installed"
@@ -33,9 +37,6 @@ function setup_toolchain_env () {
     echo "Configuring project to use rust nightly cross compiler."
     ./tools/sub/get_cargo_prerequsites.sh
 
-    echo "Building bootimage generator binary locally."
-    ./tools/sub/build_bootimage_binary.sh
-
     echo "Done configuring."
 }
 
@@ -53,7 +54,7 @@ function configure_vscode () {
     mkdir -p .vscode
     mkdir -p r3_kernel/.vscode
 
-    targetpath=$PWD/r3_kernel/x86_64.json_text
+    targetpath=$PWD/r3_kernel/x86_64.json
     sysrootpath=$PWD/r3_kernel/target/sysroot
     deppath="-L dependency=$sysrootpath/lib/rustlib/x86_64-unknown-linux-gnu/lib"
 

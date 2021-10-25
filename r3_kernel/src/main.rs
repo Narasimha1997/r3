@@ -11,15 +11,11 @@ pub mod drivers;
 pub mod logging;
 pub mod boot_proto;
 
-use core::panic::PanicInfo;
 use bootloader::BootInfo;
 use boot_proto::BootProtocol;
 
 /// This function is called on panic.
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
-}
+
 
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
@@ -28,10 +24,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     logging::init();
     BootProtocol::create(boot_info);
     log::info!("Saving boot info");
+    log::info!("Hello, kernel world!");
+
+    BootProtocol::print_boot_info();
 
     loop {}
-}
-
-pub unsafe fn exit_qemu() {
-   
 }
