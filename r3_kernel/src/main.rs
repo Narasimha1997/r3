@@ -4,9 +4,11 @@
 #![feature(asm)] // enable asm
 
 extern crate bootloader;
+extern crate log;
 
 pub mod cpu;
 pub mod drivers;
+pub mod logging;
 pub mod boot_proto;
 
 use core::panic::PanicInfo;
@@ -21,7 +23,12 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
+
+    // init basic logging through UART as of now:
+    logging::init();
     BootProtocol::create(boot_info);
+    log::info!("Saving boot info");
+
     loop {}
 }
 
