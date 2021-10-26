@@ -1,4 +1,6 @@
+use crate::cpu::rflags;
 
+use rflags::{RFlags, RFlagsStruct};
 
 pub fn enable() {
     unsafe {
@@ -12,6 +14,6 @@ pub fn disable() {
     }
 }
 
-pub fn are_enabled() {
-    
+pub fn are_enabled() -> bool {
+    RFlags::is_set(RFlagsStruct::INTERRUPT_FLAG)
 }
