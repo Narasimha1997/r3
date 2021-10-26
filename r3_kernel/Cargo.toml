@@ -8,6 +8,7 @@ edition = "2018"
 bootloader = {version = "0.10.9", path = "../third_party/crates/bootloader"}
 spin = "0.5.2"
 log = "0.4.13"
+bit_field = "0.10.1"
 
 [package.metadata.bootimage]
 build-command = ["xbuild"]

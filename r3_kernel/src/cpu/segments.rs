@@ -1,6 +1,8 @@
-use lazy_static::lazy_static;
+extern crate bit_field;
 
+use lazy_static::lazy_static;
 use core::mem;
+use bit_field::BitField;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 #[repr(u8)]
@@ -197,25 +199,17 @@ impl TaskStateDescriptor {
         let mut low: u64 = SEGMENT_PRESENT;
         let tss_addr = (tss as *const _) as u64;
 
-        let mut bits_0_24 = tss_addr & 0xffffff;
-        let mut bits_24_32 = tss_addr & 0xff000000;
+        low.set_bits(16..40, tss_addr.get_bits(0..24));
+        low.set_bits(56..64, tss_addr.get_bits(24..32));
+        // limit (the `-1` in needed since the bound is inclusive)
+        low.set_bits(0..16, (mem::size_of::<TaskStateSegment>() - 1) as u64);
+        // type (0b1001 = available 64-bit tss)
+        low.set_bits(40..44, 0b1001);
 
-        bits_0_24 = bits_0_24 << 16;
-        bits_24_32 = bits_24_32 << 32;
-        low = low | bits_0_24 | bits_24_32;
+        let mut high = 0;
+        high.set_bits(0..32, tss_addr.get_bits(32..64));
 
-        let mut tss_size_16 = (mem::size_of::<TaskStateSegment>() - 1) as u64;
-        tss_size_16 = tss_size_16 & 0xffff;
-
-        low = low | tss_size_16;
-
-        let tss_bit_64_avail: u64 = 0b1001 << 40;
-        low = low | tss_bit_64_avail;
-
-        // set high
-        let high = 0 | ((tss_addr & 0xffffffff00000000) >> 32);
-
-        log::debug!("TSS descriptor high=0x{:x}, low=0x{}", high, low);
+        log::debug!("TSS descriptor high=0x{:x}, low=0x{:x}", high, low);
 
         TaskStateDescriptor { high, low }
     }
