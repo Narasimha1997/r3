@@ -1,2 +1,2 @@
 pub mod io;
-pub mod gdt;
+pub mod segments;
