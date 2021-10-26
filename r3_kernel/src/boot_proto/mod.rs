@@ -80,7 +80,7 @@ impl BootProtocol {
 
             log::info!("RSDT Address: {:?}", bi.rsdp_addr);
 
-            log::info!("Memory offset: {:?}", bi.physical_memory_offset);
+            log::info!("Memory offset: 0x{:x}", bi.physical_memory_offset.into_option().unwrap());
 
             if let Some(memory_regions) = BootProtocol::get_memory_regions() {
                 for region_idx in 0..memory_regions.len() {

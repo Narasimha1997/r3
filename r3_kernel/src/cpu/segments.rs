@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+
 use core::mem;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -9,6 +11,36 @@ pub enum PrevillageLevel {
     Ring3 = 3,
 }
 
+// core assembly functions:
+
+// Loads the GDT, after this, the segment register must be reloaded.
+fn lgdt(ptr: &GDTPointer) {
+    unsafe {
+        asm!(
+            "lgdt [{0}]", in(reg) ptr,
+            options(readonly, nostack, preserves_flags)
+        )
+    }
+}
+
+// CS register cannot be reloaded with the new value like
+// other DS, ES, SS, FS or GS registeres. So this is a special case.
+fn special_set_cs(value: u16) {
+    unsafe {
+        asm!(
+            "push {sel}",
+            "lea {tmp}, [1f + rip]",
+            "push {tmp}",
+            "retfq",
+            "1:",
+            sel = in(reg) u64::from(value),
+            tmp = lateout(reg) _,
+            options(preserves_flags),
+        );
+    }
+}
+
+#[derive(Debug)]
 pub struct SegmentSelector(pub u16);
 
 impl SegmentSelector {
@@ -32,12 +64,7 @@ pub enum SegmentRegister {
 impl SegmentRegister {
     pub fn set(&self, value: u16) {
         match self {
-            SegmentRegister::CS => unsafe {
-                asm!(
-                    "mov cs, {:x}", in(reg) value,
-                    options(nostack, preserves_flags)
-                )
-            },
+            SegmentRegister::CS => special_set_cs(value),
             SegmentRegister::DS => unsafe {
                 asm!(
                     "mov ds, {:x}", in(reg) value,
@@ -114,6 +141,11 @@ impl SegmentRegister {
 
         return value;
     }
+
+    pub fn assert_reg(&self, value: u16) {
+        let read_value = self.get();
+        assert_eq!(read_value, value);
+    } 
 }
 
 const MAX_GDT_ENTRIES: usize = 8;
@@ -170,18 +202,13 @@ impl GlobalDescritorTable {
     pub fn as_pointer(&self) -> GDTPointer {
         GDTPointer {
             base_addr: self.entries.as_ptr() as u64,
-            size_limit: (mem::size_of::<u64>() * self.filled - 1) as u16,
+            size_limit: (self.filled * mem::size_of::<u64>() - 1) as u16,
         }
     }
 
-    pub fn load_into_cpu(&self) {
+    pub fn load_into_cpu(&'static self) {
         let gdt_pointer = self.as_pointer();
-        unsafe {
-            asm!(
-                "lgdt [{}]", in(reg) &gdt_pointer,
-                options(readonly, nostack, preserves_flags)
-            )
-        }
+        lgdt(&gdt_pointer);
     }
 
     #[inline]
@@ -201,12 +228,11 @@ impl GlobalDescritorTable {
 
         // add a new entry:
         self.entries[self.filled] = entry;
+        let current_index = self.filled;
         self.filled += 1;
 
-        Ok(SegmentSelector::new(
-            self.filled as u16,
-            GlobalDescritorTable::get_user_seg_ring(entry),
-        ))
+        let ring = GlobalDescritorTable::get_user_seg_ring(entry);
+        Ok(SegmentSelector::new(current_index as u16, ring))
     }
 
     #[inline]
@@ -216,12 +242,41 @@ impl GlobalDescritorTable {
     }
 }
 
-// init GDT for the base processor:
-pub fn init_bp_gdt() {
+pub struct GDTContainer {
+    gdt_table: GlobalDescritorTable,
+    kernel_code_selector: SegmentSelector,
+}
 
-    log::info!("Initializing GDT for the base processor.");
-
+// create GDT for the base processor:
+pub fn create_for_bp() -> GDTContainer {
     // create a GDT with empty segment
-    let gdt = GlobalDescritorTable::empty();
-    
+    let mut gdt = GlobalDescritorTable::empty();
+    let k_code_segment_res = gdt.set_user_segment(LinuxKernelSegments::KernelCode as u64);
+    if k_code_segment_res.is_err() {
+        panic!("{}", k_code_segment_res.unwrap_err());
+    }
+
+    GDTContainer {
+        gdt_table: gdt,
+        kernel_code_selector: k_code_segment_res.unwrap(),
+    }
+}
+
+lazy_static! {
+    static ref KERNEL_BASE_GDT: GDTContainer = create_for_bp();
+}
+
+// create the GDT
+pub fn init() {
+    let gdt_table = &KERNEL_BASE_GDT.gdt_table;
+    gdt_table.load_into_cpu();
+
+    // set the code segment register
+    let kernel_cs = &KERNEL_BASE_GDT.kernel_code_selector;
+    SegmentRegister::CS.set(kernel_cs.0);
+
+    // assert the register value:
+    SegmentRegister::CS.assert_reg(kernel_cs.0);
+    log::debug!("Verified Code Segment Register value: 0x{:x}", kernel_cs.0);
+    log::info!("Initialized GDT.");
 }

@@ -28,5 +28,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     BootProtocol::print_boot_info();
 
+    cpu::segments::init();
+
     loop {}
 }
