@@ -205,7 +205,7 @@ impl TaskStateDescriptor {
         low = low | bits_0_24 | bits_24_32;
 
         let mut tss_size_16 = (mem::size_of::<TaskStateSegment>() - 1) as u64;
-        tss_size_16 = tss_size_16 | 0xffff;
+        tss_size_16 = tss_size_16 & 0xffff;
 
         low = low | tss_size_16;
 
@@ -213,7 +213,9 @@ impl TaskStateDescriptor {
         low = low | tss_bit_64_avail;
 
         // set high
-        let high = 0 | (tss_addr & 0xffffffff00000000) >> 32;
+        let high = 0 | ((tss_addr & 0xffffffff00000000) >> 32);
+
+        log::debug!("TSS descriptor high=0x{:x}, low=0x{}", high, low);
 
         TaskStateDescriptor { high, low }
     }
@@ -399,4 +401,5 @@ pub fn init_gdt() {
 
     let tss_sel = &KERNEL_BASE_GDT.kernel_tss_selector;
     load_tss(tss_sel.0);
+    log::info!("Initialized TSS.");
 }
