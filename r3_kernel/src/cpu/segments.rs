@@ -4,7 +4,7 @@ use core::mem;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 #[repr(u8)]
-pub enum PrevillageLevel {
+pub enum PrivilegeLevel {
     Ring0 = 0,
     Ring1 = 1,
     Ring2 = 2,
@@ -40,12 +40,21 @@ fn special_set_cs(value: u16) {
     }
 }
 
+fn load_tss(value: u16) {
+    unsafe {
+        asm! (
+            "ltr {:x}", in(reg) value,
+            options(nomem, nostack, preserves_flags)
+        );
+    }
+}
+
 #[derive(Debug)]
 pub struct SegmentSelector(pub u16);
 
 impl SegmentSelector {
     #[inline]
-    pub fn new(index: u16, ring: PrevillageLevel) -> SegmentSelector {
+    pub fn new(index: u16, ring: PrivilegeLevel) -> SegmentSelector {
         SegmentSelector(index << 3 | (ring as u16))
     }
 }
@@ -145,11 +154,70 @@ impl SegmentRegister {
     pub fn assert_reg(&self, value: u16) {
         let read_value = self.get();
         assert_eq!(read_value, value);
-    } 
+    }
 }
 
 const MAX_GDT_ENTRIES: usize = 8;
 const RING_3_DPL_FLAG: u64 = 3 << 45;
+const SEGMENT_PRESENT: u64 = 1 << 47;
+
+#[derive(Debug, Copy, Clone)]
+#[repr(C, packed)]
+pub struct TaskStateSegment {
+    pub reserved_1: u32,
+    pub privilege_stack_table: [u64; 3],
+    pub reserved_2: u64,
+    pub interrupt_stack_table: [u64; 7],
+    pub reserved_3: u64,
+    pub reserved_4: u16,
+    pub iomap_base: u16,
+}
+
+impl TaskStateSegment {
+    pub fn empty() -> Self {
+        TaskStateSegment {
+            reserved_1: 0,
+            privilege_stack_table: [0; 3],
+            reserved_2: 0,
+            interrupt_stack_table: [0; 7],
+            reserved_3: 0,
+            reserved_4: 0,
+            iomap_base: 0,
+        }
+    }
+}
+
+struct TaskStateDescriptor {
+    pub high: u64,
+    pub low: u64,
+}
+
+impl TaskStateDescriptor {
+    pub fn new(tss: &'static TaskStateSegment) -> Self {
+        let mut low: u64 = SEGMENT_PRESENT;
+        let tss_addr = (tss as *const _) as u64;
+
+        let mut bits_0_24 = tss_addr & 0xffffff;
+        let mut bits_24_32 = tss_addr & 0xff000000;
+
+        bits_0_24 = bits_0_24 << 16;
+        bits_24_32 = bits_24_32 << 32;
+        low = low | bits_0_24 | bits_24_32;
+
+        let mut tss_size_16 = (mem::size_of::<TaskStateSegment>() - 1) as u64;
+        tss_size_16 = tss_size_16 | 0xffff;
+
+        low = low | tss_size_16;
+
+        let tss_bit_64_avail: u64 = 0b1001 << 40;
+        low = low | tss_bit_64_avail;
+
+        // set high
+        let high = 0 | (tss_addr & 0xffffffff00000000) >> 32;
+
+        TaskStateDescriptor { high, low }
+    }
+}
 
 #[derive(Debug, Copy, Clone)]
 #[repr(C, packed)]
@@ -212,13 +280,13 @@ impl GlobalDescritorTable {
     }
 
     #[inline]
-    fn get_user_seg_ring(entry: u64) -> PrevillageLevel {
+    fn get_user_seg_ring(entry: u64) -> PrivilegeLevel {
         // check if it is DPL3:
         if entry & RING_3_DPL_FLAG == RING_3_DPL_FLAG {
-            return PrevillageLevel::Ring3;
+            return PrivilegeLevel::Ring3;
         }
 
-        PrevillageLevel::Ring0
+        PrivilegeLevel::Ring0
     }
 
     pub fn set_user_segment(&mut self, entry: u64) -> Result<SegmentSelector, &'static str> {
@@ -235,6 +303,29 @@ impl GlobalDescritorTable {
         Ok(SegmentSelector::new(current_index as u16, ring))
     }
 
+    pub fn set_system_segment(
+        &mut self,
+        high: u64,
+        low: u64,
+    ) -> Result<SegmentSelector, &'static str> {
+        if self.filled >= MAX_GDT_ENTRIES {
+            return Err("GDT is already full, can't add new entry.");
+        }
+
+        // add a low and high entries:
+        let current_index = self.filled;
+        self.entries[self.filled] = low;
+        self.filled += 1;
+
+        self.entries[self.filled] = high;
+        self.filled += 1;
+
+        Ok(SegmentSelector::new(
+            current_index as u16,
+            PrivilegeLevel::Ring0,
+        ))
+    }
+
     #[inline]
     // asserts the given flag is in ring 3
     pub fn assert_ring_3(entry: u64) {
@@ -245,10 +336,28 @@ impl GlobalDescritorTable {
 pub struct GDTContainer {
     gdt_table: GlobalDescritorTable,
     kernel_code_selector: SegmentSelector,
+    kernel_tss_selector: SegmentSelector,
+}
+
+const STACK_SIZE: usize = 4096;
+static mut TSS_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+
+pub fn create_tss_for_bp() -> TaskStateSegment {
+    let mut tss = TaskStateSegment::empty();
+    tss.interrupt_stack_table[0] = {
+        let k_stack_start = (unsafe { &TSS_STACK } as *const _) as u64;
+        k_stack_start + STACK_SIZE as u64
+    };
+
+    tss
+}
+
+lazy_static! {
+    static ref KERNEL_TSS: TaskStateSegment = create_tss_for_bp();
 }
 
 // create GDT for the base processor:
-pub fn create_for_bp() -> GDTContainer {
+pub fn create_gdt_for_bp() -> GDTContainer {
     // create a GDT with empty segment
     let mut gdt = GlobalDescritorTable::empty();
     let k_code_segment_res = gdt.set_user_segment(LinuxKernelSegments::KernelCode as u64);
@@ -256,18 +365,26 @@ pub fn create_for_bp() -> GDTContainer {
         panic!("{}", k_code_segment_res.unwrap_err());
     }
 
+    let tss_descriptor = TaskStateDescriptor::new(&KERNEL_TSS);
+
+    let k_tss_segment_result = gdt.set_system_segment(tss_descriptor.high, tss_descriptor.low);
+    if k_tss_segment_result.is_err() {
+        panic!("{}", k_tss_segment_result.unwrap_err());
+    }
+
     GDTContainer {
         gdt_table: gdt,
         kernel_code_selector: k_code_segment_res.unwrap(),
+        kernel_tss_selector: k_tss_segment_result.unwrap(),
     }
 }
 
 lazy_static! {
-    static ref KERNEL_BASE_GDT: GDTContainer = create_for_bp();
+    static ref KERNEL_BASE_GDT: GDTContainer = create_gdt_for_bp();
 }
 
 // create the GDT
-pub fn init() {
+pub fn init_gdt() {
     let gdt_table = &KERNEL_BASE_GDT.gdt_table;
     gdt_table.load_into_cpu();
 
@@ -279,4 +396,7 @@ pub fn init() {
     SegmentRegister::CS.assert_reg(kernel_cs.0);
     log::debug!("Verified Code Segment Register value: 0x{:x}", kernel_cs.0);
     log::info!("Initialized GDT.");
+
+    let tss_sel = &KERNEL_BASE_GDT.kernel_tss_selector;
+    load_tss(tss_sel.0);
 }
