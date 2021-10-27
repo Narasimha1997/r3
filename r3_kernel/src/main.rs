@@ -28,7 +28,12 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     BootProtocol::print_boot_info();
 
-    cpu::segments::init_gdt();
+
+    cpu::init_base_processor_tables();
+
+    // raise a breakpoint:
+    cpu::create_breakpoint();
+    log::debug!("After breakpoint!");
 
     loop {}
 }

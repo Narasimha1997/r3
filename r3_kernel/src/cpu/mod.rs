@@ -1,8 +1,8 @@
+pub mod exceptions;
+pub mod interrupts;
 pub mod io;
 pub mod rflags;
 pub mod segments;
-pub mod interrupts;
-pub mod exceptions;
 
 pub fn enable_interrupts() {
     unsafe {
@@ -42,4 +42,9 @@ pub fn halt_no_interrupts() -> ! {
             asm!("hlt", options(nomem, nostack));
         }
     }
+}
+
+pub fn init_base_processor_tables() {
+    segments::init_gdt();
+    exceptions::init_exceptions();
 }

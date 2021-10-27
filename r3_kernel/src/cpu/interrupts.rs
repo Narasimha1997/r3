@@ -100,6 +100,11 @@ impl<T> InterruptDescriptorEntry<T> {
         self.gdt_selector = self.read_cs();
         self.options.set_bit(15, true);
     }
+
+    #[inline]
+    pub fn set_stack_index(&mut self, stack_index: u16) {
+        self.options.set_bits(0..3, stack_index + 1);
+    }
 }
 
 // error handler function:
@@ -133,7 +138,8 @@ pub struct InterruptDescriptorTable {
     pub overflow: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub bound_range_exceeded: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub invalid_opcode: InterruptDescriptorEntry<DefaultHandlerFunction>,
-    pub device_not_available: InterruptDescriptorEntry<DefaultHandlerFunction>,
+    pub 
+    device_not_available: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub double_fault: InterruptDescriptorEntry<HandlerFuncNoReturnWithErr>,
     coprocessor_segment_overrun: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub invalid_tss: InterruptDescriptorEntry<HandlerFunctionWithErr>,

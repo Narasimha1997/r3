@@ -1,8 +1,8 @@
 extern crate bit_field;
 
-use lazy_static::lazy_static;
-use core::mem;
 use bit_field::BitField;
+use core::mem;
+use lazy_static::lazy_static;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 #[repr(u8)]
@@ -335,7 +335,7 @@ pub struct GDTContainer {
     kernel_tss_selector: SegmentSelector,
 }
 
-const STACK_SIZE: usize = 4096;
+const STACK_SIZE: usize = 4096 * 5;
 static mut TSS_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
 pub fn create_tss_for_bp() -> TaskStateSegment {
@@ -381,6 +381,12 @@ lazy_static! {
 
 // create the GDT
 pub fn init_gdt() {
+    // set ss to zero:
+
+    // Not setting SS to 0 will make iretq throw double fault
+    // because iretq expects SS to be 0 or needs a valid data-segment to be set-up.
+    SegmentRegister::SS.set(0);
+
     let gdt_table = &KERNEL_BASE_GDT.gdt_table;
     gdt_table.load_into_cpu();
 
