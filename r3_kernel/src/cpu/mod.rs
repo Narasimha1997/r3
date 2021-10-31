@@ -49,3 +49,8 @@ pub fn init_base_processor_tables() {
     segments::init_gdt();
     exceptions::init_exceptions();
 }
+
+pub fn init_features_detection() {
+    // this will call the lazy static to initialize
+    cpuid::display_features();
+}

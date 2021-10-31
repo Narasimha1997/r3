@@ -28,7 +28,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     BootProtocol::print_boot_info();
 
-
+    cpu::init_features_detection();
     cpu::init_base_processor_tables();
 
     // raise a breakpoint:

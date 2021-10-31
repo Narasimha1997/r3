@@ -2,12 +2,6 @@ extern crate bitflags;
 
 use lazy_static::lazy_static;
 
-#[derive(Clone, Debug)]
-pub struct CPUFeatures {
-    pub ecx: u32,
-    pub edx: u32,
-}
-
 use bitflags::bitflags;
 bitflags! {
     pub struct FlagsECX: u32 {
@@ -76,12 +70,19 @@ bitflags! {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct CPUFeatures {
+    pub ecx: FlagsECX,
+    pub edx: FlagsEDX,
+}
+
 fn probe_cpu_features() -> CPUFeatures {
     let ecx: u32;
     let edx: u32;
-    
-    #[allow(unused_assignments)]
-    let ebx_scratch: u32;
+
+    let ebx_scratch: u64;
+
+    log::info!("Probing CPU Features with cpuid instruction.");
 
     unsafe {
         asm!(
@@ -96,9 +97,35 @@ fn probe_cpu_features() -> CPUFeatures {
         );
     }
 
-    CPUFeatures { ecx, edx }
+    log::debug!("cpuid register ecx=0x{:x}, edx=0x{:x}", ecx, edx);
+
+    CPUFeatures {
+        ecx: FlagsECX::from_bits_truncate(ecx),
+        edx: FlagsEDX::from_bits_truncate(edx),
+    }
 }
 
 lazy_static! {
     static ref CPU_FEATURES: CPUFeatures = probe_cpu_features();
+}
+
+pub fn has_feature(flag: FlagsECX) -> bool {
+    CPU_FEATURES.ecx.contains(flag)
+}
+
+pub fn has_extended_feature(flag: FlagsEDX) -> bool {
+    CPU_FEATURES.edx.contains(flag)
+}
+
+pub fn assert_feature(flag: FlagsECX) {
+    assert_eq!(has_feature(flag), true);
+}
+
+pub fn assert_extended_feature(flag: FlagsEDX) {
+    assert_eq!(has_extended_feature(flag), true);
+}
+
+pub fn display_features() {
+    log::info!("Feature Register ecx={:?}", CPU_FEATURES.ecx);
+    log::info!("Feature Register edx={:?}", CPU_FEATURES.edx);
 }
