@@ -1,10 +1,9 @@
+pub mod cpuid;
 pub mod exceptions;
 pub mod interrupts;
 pub mod io;
 pub mod rflags;
 pub mod segments;
-pub mod cpuid;
-
 
 pub fn enable_interrupts() {
     unsafe {
@@ -54,4 +53,10 @@ pub fn init_base_processor_tables() {
 pub fn init_features_detection() {
     // this will call the lazy static to initialize
     cpuid::display_features();
+    cpuid::assert_min_levels();
+}
+
+pub fn run_test_breakpoint_recovery() {
+    create_breakpoint();
+    log::info!("Recovered from breakpoint, interrupts properly working.");
 }

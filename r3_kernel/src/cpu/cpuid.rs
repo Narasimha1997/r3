@@ -168,10 +168,10 @@ pub fn has_extended_feature(flag: FlagsEDX) -> bool {
     CPU_FEATURES.edx.contains(flag)
 }
 
-pub fn warn_levels() {
+pub fn assert_min_levels() {
     assert!(
-        CPU_FEATURES.max_standard_level < 3,
-        "Expected CPU standard level >= 3, got 0x{:x}.",
+        CPU_FEATURES.max_standard_level >= 3,
+        "Expected CPU standard level >= 3, got {}.",
         CPU_FEATURES.max_standard_level
     );
 

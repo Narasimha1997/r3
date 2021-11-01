@@ -31,9 +31,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     cpu::init_features_detection();
     cpu::init_base_processor_tables();
 
-    // raise a breakpoint:
-    cpu::create_breakpoint();
-    log::debug!("After breakpoint!");
+    cpu::run_test_breakpoint_recovery();
 
     loop {}
 }
