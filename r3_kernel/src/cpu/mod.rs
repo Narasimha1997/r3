@@ -5,6 +5,7 @@ pub mod rflags;
 pub mod segments;
 pub mod cpuid;
 
+
 pub fn enable_interrupts() {
     unsafe {
         asm!("sti", options(nomem, nostack));

@@ -86,18 +86,18 @@ fn probe_cpu_features() -> CPUFeatures {
 
     unsafe {
         asm!(
-            "movq {0:r}, rbx",
+            "xchg {0:r}, rbx",
             "cpuid",
-            "xchgq {0:r}, rbx",
+            "xchg {0:r}, rbx",
             out(reg) ebx_scratch,
             inout("eax") 1 => _,
             out("ecx") ecx,
             out("edx") edx,
-            options(nostack, nomem)
+            options(nostack, preserves_flags)
         );
     }
 
-    log::debug!("cpuid register ecx=0x{:x}, edx=0x{:x}", ecx, edx);
+    log::debug!("cpuid register ecx=0x{:x}, edx=0x{:x}, ebx={:x}", ecx, edx, ebx_scratch);
 
     CPUFeatures {
         ecx: FlagsECX::from_bits_truncate(ecx),
