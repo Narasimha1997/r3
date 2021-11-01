@@ -74,13 +74,16 @@ bitflags! {
 pub struct CPUFeatures {
     pub ecx: FlagsECX,
     pub edx: FlagsEDX,
+    pub max_standard_level: u32,
+    pub max_extended_level: u32,
 }
 
 fn probe_cpu_features() -> CPUFeatures {
     let ecx: u32;
     let edx: u32;
 
-    let ebx_scratch: u64;
+    // used across this function as a exchange register.
+    let mut ebx_scratch: u64;
 
     log::info!("Probing CPU Features with cpuid instruction.");
 
@@ -93,15 +96,63 @@ fn probe_cpu_features() -> CPUFeatures {
             inout("eax") 1 => _,
             out("ecx") ecx,
             out("edx") edx,
-            options(nostack, preserves_flags)
+            options(nostack, nomem, preserves_flags)
         );
     }
 
-    log::debug!("cpuid register ecx=0x{:x}, edx=0x{:x}, ebx={:x}", ecx, edx, ebx_scratch);
+    log::debug!(
+        "cpuid register ecx=0x{:x}, edx=0x{:x}, ebx={:x}",
+        ecx,
+        edx,
+        ebx_scratch
+    );
+
+    // probe CPU level:
+    let (max_standard_level, max_extended_level): (u32, u32);
+
+    unsafe {
+        // load standard levels:
+        asm!(
+            "xchg {0:r}, rbx",
+            "cpuid",
+            "xchg {0:r}, rbx",
+            out(reg) ebx_scratch,
+            inout("eax") 0 => max_standard_level,
+            out("rdx") _,
+            out("rcx") _,
+            options(nostack, nomem, preserves_flags)
+        );
+
+        log::debug!(
+            "CPUID max_standard_level={:x}, ebx={:x}.",
+            max_standard_level,
+            ebx_scratch
+        );
+
+        // load extended levels:
+        asm!(
+            "xchg {0:r}, rbx",
+            "cpuid",
+            "xchg {0:r}, rbx",
+            out(reg) ebx_scratch,
+            inout("eax") 0x8000_0000u32 => max_extended_level,
+            out("rdx") _,
+            out("rcx") _,
+            options(nostack, nomem, preserves_flags)
+        );
+
+        log::debug!(
+            "CPUID max_extended_level={:x}, ebx={:x}.",
+            max_extended_level,
+            ebx_scratch
+        );
+    }
 
     CPUFeatures {
         ecx: FlagsECX::from_bits_truncate(ecx),
         edx: FlagsEDX::from_bits_truncate(edx),
+        max_extended_level,
+        max_standard_level,
     }
 }
 
@@ -117,15 +168,41 @@ pub fn has_extended_feature(flag: FlagsEDX) -> bool {
     CPU_FEATURES.edx.contains(flag)
 }
 
+pub fn warn_levels() {
+    assert!(
+        CPU_FEATURES.max_standard_level < 3,
+        "Expected CPU standard level >= 3, got 0x{:x}.",
+        CPU_FEATURES.max_standard_level
+    );
+
+    assert!(
+        CPU_FEATURES.max_extended_level >= 0x8000_0007,
+        "Expected CPU extended level >= 0x80000007, got 0x{:x}.",
+        CPU_FEATURES.max_extended_level
+    );
+
+    log::info!("CPU level checks passed.");
+}
+
 pub fn assert_feature(flag: FlagsECX) {
-    assert_eq!(has_feature(flag), true);
+    assert!(
+        has_feature(flag),
+        "CPU does not support critical standard feature {:?}",
+        flag
+    );
 }
 
 pub fn assert_extended_feature(flag: FlagsEDX) {
-    assert_eq!(has_extended_feature(flag), true);
+    assert!(
+        has_extended_feature(flag),
+        "CPU does not support critical extended feature {:?}",
+        flag
+    );
 }
 
 pub fn display_features() {
     log::info!("Feature Register ecx={:?}", CPU_FEATURES.ecx);
     log::info!("Feature Register edx={:?}", CPU_FEATURES.edx);
+    log::info!("Max standard level 0x{:x}", CPU_FEATURES.max_standard_level);
+    log::info!("Max extended level 0x{:x}", CPU_FEATURES.max_extended_level);
 }
