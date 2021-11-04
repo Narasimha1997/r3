@@ -10,6 +10,7 @@ pub mod cpu;
 pub mod drivers;
 pub mod logging;
 pub mod boot_proto;
+pub mod mm;
 
 use bootloader::BootInfo;
 use boot_proto::BootProtocol;
