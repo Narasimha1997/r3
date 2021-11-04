@@ -1,7 +1,9 @@
 extern crate bit_field;
+extern crate bitflags;
 
 use crate::mm;
 use bit_field::BitField;
+use bitflags::bitflags;
 
 const MAX_ENTRIES_PER_LEVEL: u16 = 512;
 
@@ -109,5 +111,41 @@ impl Page {
         va.set_bits(12..21, u64::from(p1.as_u16()));
 
         Page::from_address(mm::VirtualAddress::from_u64(va))
+    }
+}
+
+bitflags! {
+    pub struct PageEntryFlags: u64 {
+        const PRESENT = 1;
+        const READ_WRITE = 1 << 1;
+        const USERSPACE = 1 << 2;
+        const WRITE_THROUGH = 1 << 3;
+        const NO_CACHE = 1 << 4;
+        const ACCESSED = 1 << 5;
+        const DIRTY = 1 << 6;
+        const HUGE_PAGE = 1 << 7;
+        const GLOBAL = 1 << 8;
+        const RW_ONLY = 1 << 63;
+    }
+}
+
+#[derive(Debug, Clone)]
+#[repr(transparent)]
+pub struct PageEntry(u64);
+
+impl PageEntry {
+    #[inline]
+    pub fn empty() -> Self {
+        PageEntry(0)
+    }
+
+    #[inline]
+    pub fn is_mapped(&self) -> bool {
+        self.0 != 0
+    }
+
+    #[inline]
+    pub fn unmap_entry(&mut self) {
+        self.0 = 0;
     }
 }

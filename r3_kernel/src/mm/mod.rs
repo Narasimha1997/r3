@@ -61,3 +61,40 @@ impl VirtualAddress {
         VirtualAddress::from_u64(Alignment::align_up(self.0, size))
     }
 }
+
+impl PhysicalAddress {
+    #[inline]
+    pub fn as_u64(&self) -> u64 {
+        self.0
+    }
+
+    #[inline]
+    pub fn from_u64(addr: u64) -> Self {
+        PhysicalAddress(addr)
+    }
+
+    #[inline]
+    pub fn is_aligned_at(&self, size: u64) -> bool {
+        self.0 == Alignment::align_down(self.0, size)
+    }
+
+    #[inline]
+    pub fn align_down(&mut self, size: u64) {
+        self.0 = Alignment::align_down(self.0, size);
+    }
+
+    #[inline]
+    pub fn align_up(&mut self, size: u64) {
+        self.0 = Alignment::align_up(self.0, size);
+    }
+
+    #[inline]
+    pub fn new_align_down(&self, size: u64) -> Self {
+        PhysicalAddress::from_u64(Alignment::align_down(self.0, size))
+    }
+
+    #[inline]
+    pub fn new_align_up(&self, size: u64) -> Self {
+        PhysicalAddress::from_u64(Alignment::align_up(self.0, size))
+    }
+}
