@@ -27,6 +27,14 @@ pub fn create_breakpoint() {
     }
 }
 
+
+
+pub fn halt() {
+    unsafe {
+        asm!("hlt");
+    }
+}
+
 pub fn halt_with_interrupts() -> ! {
     enable_interrupts();
     unsafe {
