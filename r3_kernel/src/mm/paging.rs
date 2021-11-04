@@ -6,10 +6,11 @@ use bit_field::BitField;
 use bitflags::bitflags;
 
 const MAX_ENTRIES_PER_LEVEL: u16 = 512;
+const ENTRY_ADDR_BIT_MASK: u64 = 0x000ffffffffff000;
 
 pub enum PagingError {
     OutOfBoundsIndex(u16),
-    UnalignedAddress(mm::VirtualAddress),
+    UnalignedAddress(u64),
 }
 
 #[derive(Debug, Clone)]
@@ -61,7 +62,7 @@ pub struct Page(mm::VirtualAddress);
 impl Page {
     pub fn from_aligned_address(addr: mm::VirtualAddress) -> Result<Self, PagingError> {
         if !addr.is_aligned_at(PageSize::Page4KiB.size()) {
-            return Err(PagingError::UnalignedAddress(addr));
+            return Err(PagingError::UnalignedAddress(addr.as_u64()));
         }
 
         Ok(Page(addr))
@@ -114,6 +115,34 @@ impl Page {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+#[repr(C)]
+pub struct Frame(mm::PhysicalAddress);
+
+impl Frame {
+    pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {
+        if !addr.is_aligned_at(PageSize::Page4KiB.size()) {
+            return Err(PagingError::UnalignedAddress(addr.as_u64()));
+        }
+
+        Ok(Frame(addr))
+    }
+
+    pub fn from_address(addr: mm::PhysicalAddress) -> Self {
+        Frame(addr.new_align_down(PageSize::Page4KiB.size()))
+    }
+
+    #[inline]
+    pub fn addr(&self) -> mm::PhysicalAddress {
+        self.0
+    }
+
+    #[inline]
+    pub fn as_u64(&self) -> u64 {
+        self.0.as_u64()
+    }
+}
+
 bitflags! {
     pub struct PageEntryFlags: u64 {
         const PRESENT = 1;
@@ -129,7 +158,7 @@ bitflags! {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
 pub struct PageEntry(u64);
 
@@ -140,12 +169,74 @@ impl PageEntry {
     }
 
     #[inline]
+    pub fn empty_from_flags(flags: PageEntryFlags) -> Self {
+        PageEntry(0 | flags.bits())
+    }
+
+    #[inline]
     pub fn is_mapped(&self) -> bool {
         self.0 != 0
     }
 
     #[inline]
+    pub fn addr(&self) -> mm::PhysicalAddress {
+        mm::PhysicalAddress::from_u64(self.0 & ENTRY_ADDR_BIT_MASK)
+    }
+
+    #[inline]
     pub fn unmap_entry(&mut self) {
         self.0 = 0;
+    }
+
+    #[inline]
+    pub fn set_address(
+        &mut self,
+        addr: mm::PhysicalAddress,
+        flags: PageEntryFlags,
+    ) -> Result<(), PagingError> {
+        if !addr.is_aligned_at(PageSize::Page4KiB.size()) {
+            return Err(PagingError::UnalignedAddress(addr.as_u64()));
+        }
+
+        let entry_value = addr.as_u64() | flags.bits();
+        self.0 = entry_value;
+        Ok(())
+    }
+
+    #[inline]
+    pub fn set_phy_frame(&mut self, addr: Frame, flags: PageEntryFlags) {
+        let phy_addr = addr.as_u64();
+        self.0 = phy_addr | flags.bits();
+    }
+
+    #[inline]
+    pub fn set_flags(&mut self, flags: PageEntryFlags) {
+        self.0 = self.addr().as_u64() | flags.bits()
+    }
+
+    #[inline]
+    pub fn has_flag(&self, flag: PageEntryFlags) -> bool {
+        PageEntryFlags::from_bits_truncate(self.0).contains(flag)
+    }
+}
+
+#[derive(Clone)]
+#[repr(align(4096), C)]
+pub struct PageTable {
+    entries: [PageEntry; MAX_ENTRIES_PER_LEVEL as usize],
+}
+
+impl PageTable {
+    pub fn empty() -> Self {
+        let empty_entry = PageEntry::empty();
+        PageTable {
+            entries: [empty_entry; MAX_ENTRIES_PER_LEVEL as usize],
+        }
+    }
+
+    pub fn reset(&mut self) {
+        for entry in self.entries.iter_mut() {
+            entry.unmap_entry();
+        }
     }
 }

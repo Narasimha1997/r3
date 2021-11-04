@@ -23,6 +23,7 @@ impl Alignment {
 pub struct VirtualAddress(u64);
 
 /// Represents a physical 64-bit address.
+#[derive(Debug, Clone, Copy)]
 pub struct PhysicalAddress(u64);
 
 impl VirtualAddress {
