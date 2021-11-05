@@ -16,8 +16,12 @@ const ENTRY_ADDR_BIT_MASK: u64 = 0x000ffffffffff000;
 const PAGE_TABLE_SIZE: u64 = 0x1000; // 4KB
 
 pub enum PagingError {
+    UnsupportedFeature,
     OutOfBoundsIndex(u16),
     UnalignedAddress(u64),
+    MappingError(u64),
+    IsAlreadyMapped(u64),
+    PageNotMapped(u64),
 }
 
 #[derive(Debug, Clone)]
@@ -170,6 +174,22 @@ bitflags! {
     }
 }
 
+impl PageEntryFlags {
+    #[inline]
+    pub fn kernel_flags() -> PageEntryFlags {
+        let value: u64 = PageEntryFlags::PRESENT.bits() | PageEntryFlags::READ_WRITE.bits();
+        PageEntryFlags::from_bits_truncate(value)
+    }
+
+    #[inline]
+    pub fn kernel_hugepage_flags() -> PageEntryFlags {
+        let value: u64 = PageEntryFlags::PRESENT.bits()
+            | PageEntryFlags::READ_WRITE.bits()
+            | PageEntryFlags::HUGE_PAGE.bits();
+        PageEntryFlags::from_bits_truncate(value)
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
 pub struct PageEntry(u64);
@@ -290,8 +310,13 @@ impl VirtualMemoryManager {
         mm::VirtualAddress(self.l4_virtual_address.as_u64() + offset)
     }
 
-    pub fn translate_to_frame(&self, address: &mm::VirtualAddress) -> Option<Frame> {
-        let l4_table: &PageTable = unsafe { &*self.l4_virtual_address.get_ptr() };
+    fn get_p2_physical_address(
+        &self,
+        address: &mm::VirtualAddress,
+        create: bool,
+        assert_huge_page: bool,
+    ) -> Option<(mm::PhysicalAddress, bool)> {
+        let l4_table: &mut PageTable = unsafe { &mut *self.l4_virtual_address.get_mut_ptr() };
 
         let l4_index = address.get_level_index(mm::PageTableLevel::Level4);
         let l3_index = address.get_level_index(mm::PageTableLevel::Level3);
@@ -299,36 +324,67 @@ impl VirtualMemoryManager {
 
         let l4_entry: &PageEntry = &l4_table.entries[l4_index.as_usize()];
         if !l4_entry.is_mapped() {
+            if create {
+                log::error!("Creating new page tables is not supported yet.");
+            }
             return None;
         }
 
-        let l3_table: &PageTable =
-            unsafe { &*self.get_level_address(l4_entry.addr().as_u64()).get_ptr() };
+        let l3_table: &mut PageTable = unsafe {
+            &mut *self
+                .get_level_address(l4_entry.addr().as_u64())
+                .get_mut_ptr()
+        };
         let l3_entry: &PageEntry = &l3_table.entries[l3_index.as_usize()];
         if !l3_entry.is_mapped() {
+            if create {
+                log::error!("Creating new page tables is not supported yet.");
+            }
             return None;
         }
 
-        let l2_table: &PageTable =
-            unsafe { &*self.get_level_address(l3_entry.addr().as_u64()).get_ptr() };
+        let l2_table: &mut PageTable = unsafe {
+            &mut *self
+                .get_level_address(l3_entry.addr().as_u64())
+                .get_mut_ptr()
+        };
 
         // check if it is a 2MiB huge page or it does not exist:
         let l2_entry: &PageEntry = &l2_table.entries[l2_index.as_usize()];
         if !l2_entry.is_mapped() {
+            if create {
+                log::error!("Creating new page tables is not supported yet.");
+            }
             return None;
         }
 
-        // check if it is a huge-page
-        if l2_entry.has_flag(PageEntryFlags::HUGE_PAGE) {
-            let frame_res = Frame::from_aligned_address(l2_entry.addr());
+        if assert_huge_page {
+            assert_eq!(l2_entry.has_flag(PageEntryFlags::HUGE_PAGE), true);
+        }
 
-            return frame_res.ok();
+        Some((
+            l2_entry.addr(),
+            l2_entry.has_flag(PageEntryFlags::HUGE_PAGE),
+        ))
+    }
+
+    pub fn translate_to_frame(&self, address: &mm::VirtualAddress) -> Option<Frame> {
+        let resolved_opt = self.get_p2_physical_address(address, false, false);
+
+        if resolved_opt.is_none() {
+            return None;
+        }
+
+        let (l2_address, is_huge_page) = resolved_opt.unwrap();
+
+        if is_huge_page {
+            return Frame::from_aligned_address(l2_address).ok();
         }
 
         let l1_index = address.get_level_index(mm::PageTableLevel::Level1);
 
         let l1_table: &PageTable =
-            unsafe { &*self.get_level_address(l2_entry.addr().as_u64()).get_ptr() };
+            unsafe { &*self.get_level_address(l2_address.as_u64()).get_ptr() };
         let l1_entry: &PageEntry = &l1_table.entries[l1_index.as_usize()];
         if !l1_entry.is_mapped() {
             return None;
@@ -349,6 +405,113 @@ impl VirtualMemoryManager {
         Some(mm::PhysicalAddress::from_u64(
             phy_u64_frame_addr + phy_offset,
         ))
+    }
+
+    pub fn map_page(
+        &self,
+        page: Page,
+        frame: Frame,
+        flags: PageEntryFlags,
+    ) -> Result<(), PagingError> {
+        let resolved_opt = self.get_p2_physical_address(&page.addr(), true, false);
+
+        if resolved_opt.is_none() {
+            return Err(PagingError::MappingError(page.as_u64()));
+        }
+
+        let (l2_address, is_huge_page) = resolved_opt.unwrap();
+
+        if is_huge_page {
+            return Err(PagingError::IsAlreadyMapped(page.as_u64()));
+        }
+
+        // create a 4k page from the l2 address:
+        let l1_table: &mut PageTable =
+            unsafe { &mut *self.get_level_address(l2_address.as_u64()).get_mut_ptr() };
+
+        let l1_index = page.addr().get_level_index(mm::PageTableLevel::Level1);
+        // check if it is already mapped:
+        let l1_entry: &PageEntry = &l1_table.entries[l1_index.as_usize()];
+        if l1_entry.is_mapped() {
+            return Err(PagingError::IsAlreadyMapped(page.as_u64()));
+        }
+
+        // not mapped, create a new page:
+        let mut page_entry = PageEntry::empty();
+        page_entry.set_phy_frame(frame, flags);
+        l1_table.entries[l1_index.as_usize()] = page_entry;
+        Ok(())
+    }
+
+    pub fn map_from_address(
+        &self,
+        va: mm::VirtualAddress,
+        pa: mm::PhysicalAddress,
+        flags: PageEntryFlags,
+        huge_page: bool,
+    ) -> Result<(), PagingError> {
+        let align_size = if huge_page {
+            PageSize::Page2MiB.size()
+        } else {
+            PageSize::Page4KiB.size()
+        };
+
+        if !va.is_aligned_at(align_size) {
+            return Err(PagingError::UnalignedAddress(va.as_u64()));
+        }
+
+        if !pa.is_aligned_at(PageSize::Page4KiB.size()) {
+            return Err(PagingError::UnalignedAddress(pa.as_u64()));
+        }
+
+        // create Page and Frame
+        let page = Page::from_address(va);
+        let frame = Frame::from_address(pa);
+
+        if huge_page {
+            log::error!("Huge pages is yet to be implemented");
+            return Err(PagingError::UnsupportedFeature);
+        }
+
+        return self.map_page(page, frame, flags);
+    }
+
+    fn unmap_single(&self, page: Page) -> Result<(), PagingError> {
+        let resolved_opt = self.get_p2_physical_address(&page.addr(), false, false);
+        if resolved_opt.is_none() {
+            return Err(PagingError::PageNotMapped(page.as_u64()));
+        }
+
+        // get the address and huge page flag:
+        let (l2_address, is_huge_page) = resolved_opt.unwrap();
+        if is_huge_page {
+            log::error!("Huge pages is yet to be implemented.");
+            return Err(PagingError::UnsupportedFeature);
+        }
+
+        // reset the region to zero:
+        let l1_index = page.addr().get_level_index(mm::PageTableLevel::Level1);
+        let l1_table: &mut PageTable =
+            unsafe { &mut *self.get_level_address(l2_address.as_u64()).get_mut_ptr() };
+
+        let l1_entry: &PageEntry = &l1_table.entries[l1_index.as_usize()];
+        if !l1_entry.is_mapped() {
+            return Err(PagingError::PageNotMapped(page.as_u64()));
+        }
+
+        // unmap the page
+        l1_table.entries[l1_index.as_usize()].unmap_entry();
+        return Ok(());
+    }
+
+    pub fn unmap_page(&self, page: Page) -> Result<(), PagingError> {
+        let result = self.unmap_single(page);
+        if result.is_err() {
+            return result;
+        }
+
+        mmu::reload_flush();
+        return result;
     }
 }
 

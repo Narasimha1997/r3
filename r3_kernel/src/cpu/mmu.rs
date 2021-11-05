@@ -23,3 +23,19 @@ pub fn get_page_table_flags() -> u16 {
     let cr3_val = read_cr3();
     (cr3_val & 0xfff) as u16
 }
+
+pub fn write_cr3(value: u64) {
+    unsafe {
+        asm!(
+            "mov cr3, {}",
+            in(reg) value,
+            options(nostack, preserves_flags)
+        );
+    }
+}
+
+pub fn reload_flush() {
+    // reloading the CR3 register will cause TLB to flush automatically.
+    let cr3_val = read_cr3();
+    write_cr3(cr3_val);
+}

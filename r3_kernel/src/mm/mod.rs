@@ -79,6 +79,11 @@ impl VirtualAddress {
     }
 
     #[inline]
+    pub fn get_mut_ptr<T>(self) -> *mut T {
+        self.as_u64() as *mut T
+    }
+
+    #[inline]
     pub fn get_level_index(&self, level: PageTableLevel) -> paging::PageTableIndex {
         match level {
             PageTableLevel::Level4 => {
@@ -151,6 +156,7 @@ pub fn init() {
     run_initial_paging_test();
 }
 
+#[inline]
 pub fn run_initial_paging_test() {
     log::info!("Running simple paging test....");
 
