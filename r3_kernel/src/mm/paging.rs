@@ -1,12 +1,15 @@
 extern crate bit_field;
 extern crate bitflags;
 
+use crate::cpu::mmu;
+
 use crate::mm;
 use bit_field::BitField;
 use bitflags::bitflags;
 
 const MAX_ENTRIES_PER_LEVEL: u16 = 512;
 const ENTRY_ADDR_BIT_MASK: u64 = 0x000ffffffffff000;
+const PAGE_TABLE_SIZE: u64 = 0x1000; // 4KB
 
 pub enum PagingError {
     OutOfBoundsIndex(u16),
@@ -238,5 +241,34 @@ impl PageTable {
         for entry in self.entries.iter_mut() {
             entry.unmap_entry();
         }
+    }
+}
+
+pub struct VirtualMemoryManager {
+    pub n_tables: usize,
+    pub l4_virtual_address: mm::VirtualAddress,
+}
+
+impl VirtualMemoryManager {
+    #[inline]
+    pub fn get_table_addr_by_offset(addr: u64, index: u64) -> u64 {
+        addr + index * PAGE_TABLE_SIZE
+    }
+
+    pub fn from_cr3(phy_offset: u64) -> VirtualMemoryManager {
+        let current_pt_addr = mmu::get_page_table_address();
+        assert_eq!(current_pt_addr.is_aligned_at(PAGE_TABLE_SIZE), true);
+
+        // add the physical offset to that address:
+        let mapped_vmm_addr = mm::VirtualAddress::from_u64(current_pt_addr.as_u64() + phy_offset);
+        VirtualMemoryManager {
+            n_tables: 4,
+            l4_virtual_address: mapped_vmm_addr,
+        }
+    }
+
+    pub fn translate(&self, address: mm::VirtualAddress) -> Option<mm::PhysicalAddress> {
+        let l4_table: &PageTable = unsafe { &*address.get_ptr() };
+        None
     }
 }

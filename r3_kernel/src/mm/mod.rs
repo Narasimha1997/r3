@@ -2,6 +2,13 @@ pub mod paging;
 
 // some types related to memory management
 
+pub enum PageTableLevel {
+    Level4,
+    Level3,
+    Level2,
+    Level1,
+}
+
 pub struct Alignment;
 
 impl Alignment {
@@ -60,6 +67,34 @@ impl VirtualAddress {
     #[inline]
     pub fn new_align_up(&self, size: u64) -> VirtualAddress {
         VirtualAddress::from_u64(Alignment::align_up(self.0, size))
+    }
+
+    #[inline]
+    pub fn get_ptr<T>(self) -> *const T {
+        self.as_u64() as *const T
+    }
+
+    #[inline]
+    pub fn get_level_index(&self, level: PageTableLevel) -> paging::PageTableIndex {
+        match level {
+            PageTableLevel::Level4 => {
+                return paging::PageTableIndex::new((self.0 >> 12 >> 9 >> 9 >> 9) as u16);
+            }
+            PageTableLevel::Level3 => {
+                return paging::PageTableIndex::new((self.0 >> 12 >> 9 >> 9) as u16);
+            }
+            PageTableLevel::Level2 => {
+                return paging::PageTableIndex::new((self.0 >> 12 >> 9) as u16);
+            }
+            PageTableLevel::Level1 => {
+                return paging::PageTableIndex::new((self.0 >> 12) as u16);
+            }
+        }
+    }
+
+    #[inline]
+    pub fn get_page_offset(&self) -> u16 {
+        self.0 as u16 % (1 << 12)
     }
 }
 
