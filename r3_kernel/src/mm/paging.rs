@@ -15,6 +15,7 @@ const MAX_ENTRIES_PER_LEVEL: u16 = 512;
 const ENTRY_ADDR_BIT_MASK: u64 = 0x000ffffffffff000;
 const PAGE_TABLE_SIZE: u64 = 0x1000; // 4KB
 
+#[derive(Debug)]
 pub enum PagingError {
     UnsupportedFeature,
     OutOfBoundsIndex(u16),
