@@ -154,25 +154,29 @@ pub fn init() {
 pub fn run_initial_paging_test() {
     log::info!("Running simple paging test....");
 
-    let variable_x = "Hello!";
-    let virt_address = &variable_x as *const _ as u64;
+    // some dummy value:
+    let expected_value: u64 = 0x34445544;
 
     let k_table = paging::get_kernel_table();
-    let phy_addr = k_table.translate(VirtualAddress::from_u64(virt_address));
+    let phy_addr = k_table.translate(VirtualAddress::from_ptr(&expected_value));
 
     if phy_addr.is_none() {
         panic!(
-            "Paging test failed. Kernel page table returned null for virtual address: 0x{:x}",
-            virt_address
+            "Paging test failed. Kernel page table returned null for virtual address: {:p}",
+            &expected_value
         );
     }
 
     // check if the difference between physical address and virtual address == phy_offset
-    // let phy_offset = BootProtocol::get_phy_offset();
+    let phy_offset = BootProtocol::get_phy_offset();
+    let v_result_addr = phy_offset.unwrap() + phy_addr.unwrap().as_u64();
+    let value: &u64 = unsafe { &*(v_result_addr as *const u64) };
+
+    assert_eq!(expected_value, *value);
 
     log::info!(
-        "Kernel page table test passed, 0x{:x}, {:p}",
-        phy_addr.unwrap().as_u64(),
-        &variable_x
+        "Virtual Memory test passed, expected=0x{:x}, got=0x{:x}",
+        expected_value,
+        value
     );
 }

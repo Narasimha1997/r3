@@ -326,6 +326,7 @@ impl VirtualMemoryManager {
         }
 
         let l1_index = address.get_level_index(mm::PageTableLevel::Level1);
+
         let l1_table: &PageTable =
             unsafe { &*self.get_level_address(l2_entry.addr().as_u64()).get_ptr() };
         let l1_entry: &PageEntry = &l1_table.entries[l1_index.as_usize()];
@@ -344,7 +345,6 @@ impl VirtualMemoryManager {
 
         let phy_u64_frame_addr = translated_frame.unwrap().as_u64();
         let phy_offset = addr.get_page_offset() as u64;
-        log::debug!("Physical frame address: 0x{:x}, 0x{:x}", phy_u64_frame_addr, phy_offset);
 
         Some(mm::PhysicalAddress::from_u64(
             phy_u64_frame_addr + phy_offset,
