@@ -68,6 +68,14 @@ impl BootProtocol {
         None
     }
 
+    pub fn get_phy_offset() -> Option<u64> {
+        if let Some(bi) = BootProtocol::get_boot_proto() {
+            return bi.physical_memory_offset.into_option();
+        }
+
+        None
+    }
+
     pub fn print_boot_info() {
         if let Some(bi) = BootProtocol::get_boot_proto() {
             // display version:
@@ -80,7 +88,10 @@ impl BootProtocol {
 
             log::info!("RSDT Address: {:?}", bi.rsdp_addr);
 
-            log::info!("Memory offset: 0x{:x}", bi.physical_memory_offset.into_option().unwrap());
+            log::info!(
+                "Memory offset: 0x{:x}",
+                bi.physical_memory_offset.into_option().unwrap()
+            );
 
             if let Some(memory_regions) = BootProtocol::get_memory_regions() {
                 for region_idx in 0..memory_regions.len() {
@@ -94,8 +105,10 @@ impl BootProtocol {
             if let Some(fb_info) = BootProtocol::get_framebuffer_info() {
                 log::info!(
                     "Framebuffer info: width={} height={} bps={} pixel_format={:?}",
-                    fb_info.horizontal_resolution, fb_info.vertical_resolution,
-                    fb_info.bytes_per_pixel, fb_info.pixel_format
+                    fb_info.horizontal_resolution,
+                    fb_info.vertical_resolution,
+                    fb_info.bytes_per_pixel,
+                    fb_info.pixel_format
                 );
             } else {
                 log::warn!("Boot info doesn't contain framebuffer information.");

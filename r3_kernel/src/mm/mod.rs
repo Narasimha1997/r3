@@ -1,3 +1,7 @@
+extern crate log;
+
+use crate::boot_proto::BootProtocol;
+
 pub mod paging;
 
 // some types related to memory management
@@ -96,6 +100,11 @@ impl VirtualAddress {
     pub fn get_page_offset(&self) -> u16 {
         self.0 as u16 % (1 << 12)
     }
+
+    #[inline]
+    pub fn from_ptr<T>(ptr: *const T) -> Self {
+        VirtualAddress::from_u64(ptr as u64)
+    }
 }
 
 impl PhysicalAddress {
@@ -133,4 +142,37 @@ impl PhysicalAddress {
     pub fn new_align_up(&self, size: u64) -> Self {
         PhysicalAddress::from_u64(Alignment::align_up(self.0, size))
     }
+}
+
+pub fn init() {
+    log::info!("Enabling kernel paging...");
+    paging::setup_paging();
+
+    run_initial_paging_test();
+}
+
+pub fn run_initial_paging_test() {
+    log::info!("Running simple paging test....");
+
+    let variable_x = "Hello!";
+    let virt_address = &variable_x as *const _ as u64;
+
+    let k_table = paging::get_kernel_table();
+    let phy_addr = k_table.translate(VirtualAddress::from_u64(virt_address));
+
+    if phy_addr.is_none() {
+        panic!(
+            "Paging test failed. Kernel page table returned null for virtual address: 0x{:x}",
+            virt_address
+        );
+    }
+
+    // check if the difference between physical address and virtual address == phy_offset
+    // let phy_offset = BootProtocol::get_phy_offset();
+
+    log::info!(
+        "Kernel page table test passed, 0x{:x}, {:p}",
+        phy_addr.unwrap().as_u64(),
+        &variable_x
+    );
 }

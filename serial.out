@@ -6,8 +6,8 @@ r3_kernel::boot_proto INFO  Memory offset: 0x18000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 4575232, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 4575232, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 4591616, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4591616, end: 1073610752, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
@@ -21,7 +21,7 @@ r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MS
 r3_kernel::cpu::cpuid INFO  Max standard level 0x14
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x8921fb290067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x892221590067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
@@ -29,10 +29,16 @@ r3_kernel::cpu::exceptions INFO  Prepared basic exceptions.
 r3_kernel::cpu::exceptions INFO  Initialized Interrupt descriptor table.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2160929,
+    instruction_pointer: 2162961,
     code_segment: 8,
     cpu_flags: 6,
     stack_pointer: 549755891384,
     stack_segment: 0,
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
+r3_kernel::mm        INFO  Enabling kernel paging...
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0x1800042d000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0x1800042d000
+r3_kernel::mm        INFO  Running simple paging test....
+r3_kernel::mm::paging DEBUG Physical frame address: 0x44d000, 0xd78
+r3_kernel::mm        INFO  Kernel page table test passed, 0x44dd78, 0x8000012d78

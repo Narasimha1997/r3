@@ -1,9 +1,13 @@
 extern crate bit_field;
 extern crate bitflags;
+extern crate log;
 
 use crate::cpu::mmu;
 
+use crate::boot_proto::BootProtocol;
 use crate::mm;
+use lazy_static::lazy_static;
+
 use bit_field::BitField;
 use bitflags::bitflags;
 
@@ -54,6 +58,11 @@ impl PageTableIndex {
     #[inline]
     pub fn as_u16(&self) -> u16 {
         self.0
+    }
+
+    #[inline]
+    pub fn as_usize(&self) -> usize {
+        self.0 as usize
     }
 }
 
@@ -247,6 +256,7 @@ impl PageTable {
 pub struct VirtualMemoryManager {
     pub n_tables: usize,
     pub l4_virtual_address: mm::VirtualAddress,
+    pub l4_phy_addr: mm::PhysicalAddress,
 }
 
 impl VirtualMemoryManager {
@@ -261,14 +271,113 @@ impl VirtualMemoryManager {
 
         // add the physical offset to that address:
         let mapped_vmm_addr = mm::VirtualAddress::from_u64(current_pt_addr.as_u64() + phy_offset);
+
+        log::info!(
+            "Page table at Virtual address: 0x{:x}",
+            mapped_vmm_addr.as_u64()
+        );
+
         VirtualMemoryManager {
             n_tables: 4,
             l4_virtual_address: mapped_vmm_addr,
+            l4_phy_addr: current_pt_addr,
         }
     }
 
-    pub fn translate(&self, address: mm::VirtualAddress) -> Option<mm::PhysicalAddress> {
-        let l4_table: &PageTable = unsafe { &*address.get_ptr() };
-        None
+    #[inline]
+    fn get_level_address(&self, next_addr: u64) -> mm::VirtualAddress {
+        let offset = next_addr - self.l4_phy_addr.as_u64();
+        mm::VirtualAddress(self.l4_virtual_address.as_u64() + offset)
     }
+
+    pub fn translate_to_frame(&self, address: &mm::VirtualAddress) -> Option<Frame> {
+        let l4_table: &PageTable = unsafe { &*self.l4_virtual_address.get_ptr() };
+
+        let l4_index = address.get_level_index(mm::PageTableLevel::Level4);
+        let l3_index = address.get_level_index(mm::PageTableLevel::Level3);
+        let l2_index = address.get_level_index(mm::PageTableLevel::Level2);
+
+        let l4_entry: &PageEntry = &l4_table.entries[l4_index.as_usize()];
+        if !l4_entry.is_mapped() {
+            return None;
+        }
+
+        let l3_table: &PageTable =
+            unsafe { &*self.get_level_address(l4_entry.addr().as_u64()).get_ptr() };
+        let l3_entry: &PageEntry = &l3_table.entries[l3_index.as_usize()];
+        if !l3_entry.is_mapped() {
+            return None;
+        }
+
+        let l2_table: &PageTable =
+            unsafe { &*self.get_level_address(l3_entry.addr().as_u64()).get_ptr() };
+
+        // check if it is a 2MiB huge page or it does not exist:
+        let l2_entry: &PageEntry = &l2_table.entries[l2_index.as_usize()];
+        if !l2_entry.is_mapped() {
+            return None;
+        }
+
+        // check if it is a huge-page
+        if l2_entry.has_flag(PageEntryFlags::HUGE_PAGE) {
+            let frame_res = Frame::from_aligned_address(l2_entry.addr());
+
+            return frame_res.ok();
+        }
+
+        let l1_index = address.get_level_index(mm::PageTableLevel::Level1);
+        let l1_table: &PageTable =
+            unsafe { &*self.get_level_address(l2_entry.addr().as_u64()).get_ptr() };
+        let l1_entry: &PageEntry = &l1_table.entries[l1_index.as_usize()];
+        if !l1_entry.is_mapped() {
+            return None;
+        }
+
+        Frame::from_aligned_address(l1_entry.addr()).ok()
+    }
+
+    pub fn translate(&self, addr: mm::VirtualAddress) -> Option<mm::PhysicalAddress> {
+        let translated_frame = self.translate_to_frame(&addr);
+        if translated_frame.is_none() {
+            return None;
+        }
+
+        let phy_u64_frame_addr = translated_frame.unwrap().as_u64();
+        let phy_offset = addr.get_page_offset() as u64;
+        log::debug!("Physical frame address: 0x{:x}, 0x{:x}", phy_u64_frame_addr, phy_offset);
+
+        Some(mm::PhysicalAddress::from_u64(
+            phy_u64_frame_addr + phy_offset,
+        ))
+    }
+}
+
+pub struct KernelVirtualMemoryManager {
+    pub vmm: VirtualMemoryManager,
+    pub phy_offset: mm::PhysicalAddress,
+}
+
+pub fn init_kernel_vmm() -> VirtualMemoryManager {
+    let phy_offset = BootProtocol::get_phy_offset();
+    if phy_offset.is_none() {
+        panic!("Boot protocol did not provide physical memory offset.");
+    }
+
+    VirtualMemoryManager::from_cr3(phy_offset.unwrap())
+}
+
+lazy_static! {
+    pub static ref KERNEL_VMM: VirtualMemoryManager = init_kernel_vmm();
+}
+
+pub fn setup_paging() {
+    // this function will make static lazy function to initialize
+    log::info!(
+        "Kernel paging is initialized, address at: 0x{:x}",
+        KERNEL_VMM.l4_virtual_address.as_u64()
+    );
+}
+
+pub fn get_kernel_table() -> &'static VirtualMemoryManager {
+    &KERNEL_VMM
 }

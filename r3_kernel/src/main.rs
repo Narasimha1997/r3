@@ -34,5 +34,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     cpu::run_test_breakpoint_recovery();
 
+    mm::init();
+
     loop {}
 }
