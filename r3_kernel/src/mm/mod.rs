@@ -4,8 +4,15 @@ use crate::boot_proto::BootProtocol;
 
 pub mod paging;
 pub mod phy;
+pub mod heap;
 
 // some types related to memory management
+
+pub enum MemorySizes {
+    OneKiB = 1 * 1024,
+    OneMib = 1 * 1024 * 1024,
+    OneGiB = 1 * 1024 * 1024 * 1024
+}
 
 pub enum PageTableLevel {
     Level4,
@@ -157,6 +164,10 @@ pub fn init() {
     paging::setup_paging();
 
     run_initial_paging_test();
+
+    // init kenel heap
+    log::info!("Enabling kernel heap...");
+    heap::init_heap();
 }
 
 #[inline]
@@ -165,6 +176,8 @@ pub fn run_initial_paging_test() {
 
     // some dummy value:
     let expected_value: u64 = 0x34445544;
+
+    log::debug!("The expected value is at virtual address={:p}", &expected_value);
 
     let k_table = paging::get_kernel_table();
     let phy_addr = k_table.translate(VirtualAddress::from_ptr(&expected_value));

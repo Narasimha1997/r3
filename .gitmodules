@@ -2,3 +2,8 @@
 	path = third_party/crates/bootloader
 	url = https://github.com/rust-osdev/bootloader.git
 	branch = main
+
+[submodule "third_party/crates/linked-list-allocator"]
+	path = third_party/crates/linked-list-allocator
+	url = https://github.com/phil-opp/linked-list-allocator.git
+	branch = master

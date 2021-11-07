@@ -529,7 +529,7 @@ impl VirtualMemoryManager {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PageRange {
     pub start: mm::VirtualAddress,
     pub n: usize,
@@ -542,6 +542,7 @@ impl PageRange {
     }
 }
 
+#[derive(Debug)]
 pub struct PageRangeIterator {
     pub page_range: PageRange,
     pub current: usize,
