@@ -153,6 +153,7 @@ impl PageEntryFlags {
     #[inline]
     pub fn kernel_flags() -> PageEntryFlags {
         let value: u64 = PageEntryFlags::PRESENT.bits() | PageEntryFlags::READ_WRITE.bits();
+        log::info!("Kernel flags: {}", value);
         PageEntryFlags::from_bits_truncate(value)
     }
 
@@ -271,6 +272,8 @@ impl VirtualMemoryManager {
             "Page table at Virtual address: 0x{:x}",
             mapped_vmm_addr.as_u64()
         );
+
+        mmu::reload_flush();
 
         VirtualMemoryManager {
             n_tables: 4,
@@ -490,6 +493,7 @@ impl VirtualMemoryManager {
     }
 }
 
+#[derive(Clone)]
 pub struct PageRange {
     pub start: mm::VirtualAddress,
     pub n: usize,
@@ -582,6 +586,8 @@ impl KernelVirtualMemoryManager {
             return Err(PagingError::OOM);
         }
 
+        log::debug!("Physical address: 0x{:x}", frame.unwrap().as_u64());
+
         // allocate the page
         let result = KERNEL_PAGING.map_page(Page::from_address(address), frame.unwrap(), flags);
         if result.is_err() {
@@ -595,7 +601,7 @@ impl KernelVirtualMemoryManager {
         region: PageRange,
         flags: PageEntryFlags,
     ) -> Result<PageRangeIterator, PagingError> {
-        let range_iterator = PageRangeIterator::new(region);
+        let range_iterator = PageRangeIterator::new(region.clone());
 
         for page in range_iterator {
             let frame_opt = PhysicalMemoryManager::alloc();
@@ -611,8 +617,7 @@ impl KernelVirtualMemoryManager {
         }
 
         // return the iterator
-        range_iterator.reset();
-        Ok(range_iterator)
+        Ok(PageRangeIterator::new(region))
     }
 
     pub fn free_page(address: mm::VirtualAddress) -> Result<(), PagingError> {

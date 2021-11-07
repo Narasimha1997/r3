@@ -1,5 +1,6 @@
 extern crate bootloader;
 extern crate log;
+extern crate spin;
 
 use core::iter::Iterator;
 
@@ -9,6 +10,7 @@ use crate::mm::paging::{PageSize, PagingError};
 use bootloader::boot_info::{MemoryRegionKind, MemoryRegions};
 
 use lazy_static::lazy_static;
+use spin::Mutex;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -53,7 +55,7 @@ pub trait PhyFrameAllocator {
 }
 
 pub struct LinearFrameAllocator {
-    pub memory_regions: &'static MemoryRegions,
+    pub memory_regions: mm::VirtualAddress,
     pub next_index: usize,
 }
 
@@ -64,17 +66,28 @@ impl LinearFrameAllocator {
             panic!("Bootloader did not provide memory map.");
         }
 
+        let memory_map = memory_map_opt.unwrap();
         LinearFrameAllocator {
-            memory_regions: memory_map_opt.unwrap(),
+            memory_regions: mm::VirtualAddress::from_ptr(&memory_map),
             next_index: 0,
         }
     }
 
     #[inline]
     fn create_iterator(&self) -> impl Iterator<Item = Frame> {
-        let region_iterator = self.memory_regions.iter();
+        let boot_proto = BootProtocol::get_boot_proto();
+
+        let memory_regions = &boot_proto.unwrap().memory_regions;
+        let region_iterator = memory_regions.iter();
         let usable_regions_iter =
-            region_iterator.filter(|region| region.kind == MemoryRegionKind::Usable);
+            region_iterator.filter(|region| {
+                if region.kind == MemoryRegionKind::Usable {
+                    log::debug!("Usable region start=0x{:x}, end=0x{:x}", region.start, region.end);
+                    return true;
+                }
+
+                false
+            });
 
         let address_range_iter = usable_regions_iter.map(|region| region.start..region.end);
 
@@ -105,14 +118,15 @@ impl PhyFrameAllocator for LinearFrameAllocator {
 }
 
 lazy_static! {
-    pub static ref LINEAR_ALLOCATOR: LinearFrameAllocator = LinearFrameAllocator::init();
+    pub static ref LINEAR_ALLOCATOR: Mutex<LinearFrameAllocator> =
+        Mutex::new(LinearFrameAllocator::init());
 }
 
 /// a function that lazy initializes LIEAR_ALLOCATOR
 pub fn setup_physical_memory() {
     log::info!(
         "Set-up Linear memory allocator for Physical memory successfull, initial_size={}",
-        LINEAR_ALLOCATOR.next_index
+        LINEAR_ALLOCATOR.lock().next_index
     );
 }
 
@@ -120,10 +134,11 @@ pub struct PhysicalMemoryManager;
 
 impl PhysicalMemoryManager {
     pub fn alloc() -> Option<Frame> {
-        LINEAR_ALLOCATOR.frame_alloc()
+        LINEAR_ALLOCATOR.lock().frame_alloc()
     }
 
-    pub fn free(frame: Frame) {
-        LINEAR_ALLOCATOR.frame_dealloc(0);
+    pub fn free(_frame: Frame) {
+        // Not implemented yet
+        LINEAR_ALLOCATOR.lock().frame_dealloc(0);
     }
 }

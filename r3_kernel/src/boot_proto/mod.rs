@@ -34,7 +34,7 @@ pub struct BootProtocol {}
 
 impl BootProtocol {
     #[inline]
-    fn get_boot_proto() -> Option<&'static BootInfo> {
+    pub fn get_boot_proto() -> Option<&'static BootInfo> {
         if let Some(boot_info_addr) = BOOT_INFO.lock().boot_info {
             return Some(unsafe { (boot_info_addr as *const BootInfo).as_ref().unwrap() });
         }
