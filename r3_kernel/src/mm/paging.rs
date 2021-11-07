@@ -489,9 +489,64 @@ impl VirtualMemoryManager {
     }
 }
 
-pub struct KernelVirtualMemoryManager {
-    pub vmm: VirtualMemoryManager,
-    pub phy_offset: mm::PhysicalAddress,
+pub struct PageRange {
+    pub start: mm::VirtualAddress,
+    pub n: usize,
+    pub size: PageSize,
+}
+
+impl PageRange {
+    pub fn new(start: mm::VirtualAddress, n: usize, size: PageSize) -> Self {
+        PageRange { start, n, size }
+    }
+
+    pub fn start_address(&self) -> mm::VirtualAddress {
+        self.start
+    }
+
+    pub fn n(&self) -> usize {
+        self.n
+    }
+
+    pub fn size(&self) -> &PageSize {
+        &self.size
+    }
+}
+
+pub struct PageRangeIterator {
+    pub page_range: PageRange,
+    pub current: usize,
+}
+
+impl PageRangeIterator {
+    pub fn new(page_range: PageRange) -> Self {
+        PageRangeIterator {
+            page_range,
+            current: 0,
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.current = 0;
+    }
+}
+
+impl Iterator for PageRangeIterator {
+    type Item = Page;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current >= self.page_range.n {
+            return None;
+        }
+
+        let current_page = Page::from_address(mm::VirtualAddress::from_u64(
+            self.page_range.start.as_u64() + self.current as u64 * self.page_range.size.size(),
+        ));
+
+        self.current += 1;
+
+        Some(current_page)
+    }
 }
 
 pub fn init_kernel_vmm() -> VirtualMemoryManager {
