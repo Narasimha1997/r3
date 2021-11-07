@@ -7,7 +7,7 @@ use core::iter::Iterator;
 use crate::boot_proto::BootProtocol;
 use crate::mm;
 use crate::mm::paging::{PageSize, PagingError};
-use bootloader::boot_info::{MemoryRegionKind, MemoryRegions};
+use bootloader::boot_info::{MemoryRegionKind};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -80,14 +80,7 @@ impl LinearFrameAllocator {
         let memory_regions = &boot_proto.unwrap().memory_regions;
         let region_iterator = memory_regions.iter();
         let usable_regions_iter =
-            region_iterator.filter(|region| {
-                if region.kind == MemoryRegionKind::Usable {
-                    log::debug!("Usable region start=0x{:x}, end=0x{:x}", region.start, region.end);
-                    return true;
-                }
-
-                false
-            });
+            region_iterator.filter(|region| region.kind == MemoryRegionKind::Usable);
 
         let address_range_iter = usable_regions_iter.map(|region| region.start..region.end);
 

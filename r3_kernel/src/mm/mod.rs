@@ -157,7 +157,6 @@ pub fn init() {
     paging::setup_paging();
 
     run_initial_paging_test();
-    run_page_mapping_test();
 }
 
 #[inline]
@@ -189,57 +188,4 @@ pub fn run_initial_paging_test() {
         expected_value,
         value
     );
-}
-
-#[inline]
-fn run_page_mapping_test() {
-    // allocate a new page:
-    let test_var: u64 = 0x2823324;
-    let to_alloc_addr =
-        VirtualAddress::from_u64(VirtualAddress::from_ptr(&test_var).as_u64() + (12 * 1024));
-    // allocate a frame for this addess:
-    let page_res = paging::KernelVirtualMemoryManager::alloc_page(
-        to_alloc_addr,
-        paging::PageEntryFlags::kernel_flags(),
-    );
-
-    if page_res.is_err() {
-        panic!("Page map test failed: {:?}", page_res.unwrap_err());
-    }
-
-    let address: &mut u64 = unsafe { &mut *page_res.unwrap().addr().get_mut_ptr() };
-    *address = test_var;
-
-    // assert value from translation:
-    let phy_res = paging::get_kernel_table().translate(VirtualAddress::from_ptr(address));
-
-    if phy_res.is_none() {
-        panic!(
-            "Paging translation returned null for address={:p}",
-            &address
-        );
-    }
-
-    let phy_addr = phy_res.unwrap().as_u64();
-    log::info!("Physical address=0x{:x}", phy_addr);
-    let phy_offset = BootProtocol::get_phy_offset().unwrap();
-
-    let formed_va_address = VirtualAddress::from_u64(phy_addr + phy_offset);
-
-    let got_value: &mut u64 = unsafe { &mut *formed_va_address.get_mut_ptr() };
-
-    assert_eq!(test_var, *got_value);
-
-    log::debug!("Expected value: {}, Got: {}", test_var, *got_value);
-
-    *got_value = 0;
-
-    // unmap the page:
-    let unmap_res =
-        paging::KernelVirtualMemoryManager::free_page(VirtualAddress::from_ptr(got_value));
-    if unmap_res.is_err() {
-        panic!("Failed to unmap address=0x{:x}", formed_va_address.as_u64());
-    }
-
-    log::info!("Paging test passed.");
 }
