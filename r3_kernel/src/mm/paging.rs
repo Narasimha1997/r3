@@ -6,7 +6,7 @@ use crate::cpu::mmu;
 
 use crate::boot_proto::BootProtocol;
 use crate::mm;
-use crate::mm::phy::Frame;
+use crate::mm::phy::{Frame, PhysicalMemoryManager};
 use lazy_static::lazy_static;
 
 use bit_field::BitField;
@@ -18,6 +18,7 @@ const PAGE_TABLE_SIZE: u64 = 0x1000; // 4KB
 
 #[derive(Debug)]
 pub enum PagingError {
+    OOM,
     UnsupportedFeature,
     OutOfBoundsIndex(u16),
     UnalignedAddress(u64),
@@ -499,18 +500,6 @@ impl PageRange {
     pub fn new(start: mm::VirtualAddress, n: usize, size: PageSize) -> Self {
         PageRange { start, n, size }
     }
-
-    pub fn start_address(&self) -> mm::VirtualAddress {
-        self.start
-    }
-
-    pub fn n(&self) -> usize {
-        self.n
-    }
-
-    pub fn size(&self) -> &PageSize {
-        &self.size
-    }
 }
 
 pub struct PageRangeIterator {
@@ -559,17 +548,87 @@ pub fn init_kernel_vmm() -> VirtualMemoryManager {
 }
 
 lazy_static! {
-    pub static ref KERNEL_VMM: VirtualMemoryManager = init_kernel_vmm();
+    pub static ref KERNEL_PAGING: VirtualMemoryManager = init_kernel_vmm();
 }
 
 pub fn setup_paging() {
     // this function will make static lazy function to initialize
     log::info!(
         "Kernel paging is initialized, address at: 0x{:x}",
-        KERNEL_VMM.l4_virtual_address.as_u64()
+        KERNEL_PAGING.l4_virtual_address.as_u64()
     );
 }
 
 pub fn get_kernel_table() -> &'static VirtualMemoryManager {
-    &KERNEL_VMM
+    &KERNEL_PAGING
+}
+
+/// provides simple virtual memory allocation functions over virtual
+/// memory page table of the kernel
+pub struct KernelVirtualMemoryManager;
+
+impl KernelVirtualMemoryManager {
+    pub fn pt() -> &'static VirtualMemoryManager {
+        &KERNEL_PAGING
+    }
+
+    pub fn alloc_page(
+        address: mm::VirtualAddress,
+        flags: PageEntryFlags,
+    ) -> Result<Page, PagingError> {
+        // allocate a physical frame
+        let frame = PhysicalMemoryManager::alloc();
+        if frame.is_none() {
+            return Err(PagingError::OOM);
+        }
+
+        // allocate the page
+        let result = KERNEL_PAGING.map_page(Page::from_address(address), frame.unwrap(), flags);
+        if result.is_err() {
+            return Err(result.unwrap_err());
+        }
+
+        return Ok(Page::from_address(address));
+    }
+
+    pub fn alloc_region(
+        region: PageRange,
+        flags: PageEntryFlags,
+    ) -> Result<PageRangeIterator, PagingError> {
+        let range_iterator = PageRangeIterator::new(region);
+
+        for page in range_iterator {
+            let frame_opt = PhysicalMemoryManager::alloc();
+            if frame_opt.is_none() {
+                return Err(PagingError::OOM);
+            }
+
+            // map the page
+            let result = KERNEL_PAGING.map_page(page, frame_opt.unwrap(), flags);
+            if result.is_err() {
+                return Err(result.unwrap_err());
+            }
+        }
+
+        // return the iterator
+        range_iterator.reset();
+        Ok(range_iterator)
+    }
+
+    pub fn free_page(address: mm::VirtualAddress) -> Result<(), PagingError> {
+        KERNEL_PAGING.unmap_page(Page::from_address(address))
+    }
+
+    pub fn free_region(region: PageRange) -> Result<(), PagingError> {
+        for page in PageRangeIterator::new(region) {
+            let result = KERNEL_PAGING.unmap_single(page);
+            if result.is_err() {
+                return result;
+            }
+        }
+
+        // flush tlb:
+        mmu::reload_flush();
+        Ok(())
+    }
 }

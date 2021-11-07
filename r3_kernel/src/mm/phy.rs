@@ -3,11 +3,12 @@ extern crate log;
 
 use core::iter::Iterator;
 
+use crate::boot_proto::BootProtocol;
 use crate::mm;
 use crate::mm::paging::{PageSize, PagingError};
 use bootloader::boot_info::{MemoryRegionKind, MemoryRegions};
 
-use crate::boot_proto::BootProtocol;
+use lazy_static::lazy_static;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -43,8 +44,11 @@ impl Frame {
     The original credits goes to the author of blog_os.
 */
 
-trait PhyFrameAllocator {
+pub trait PhyFrameAllocator {
+    /// allocate a single frame
     fn frame_alloc(&mut self) -> Option<Frame>;
+
+    /// deallocate a frame
     fn frame_dealloc(&mut self, index: usize);
 }
 
@@ -87,12 +91,8 @@ impl LinearFrameAllocator {
 
 impl PhyFrameAllocator for LinearFrameAllocator {
     fn frame_alloc(&mut self) -> Option<Frame> {
-        let mut frame = self.create_iterator();
-        let phy_frame = frame.nth(self.next_index);
-
-        if phy_frame.is_none() {
-            panic!("Physical OOM!");
-        }
+        let mut frame_iterator = self.create_iterator();
+        let phy_frame = frame_iterator.nth(self.next_index);
 
         self.next_index += 1;
 
@@ -101,5 +101,29 @@ impl PhyFrameAllocator for LinearFrameAllocator {
 
     fn frame_dealloc(&mut self, index: usize) {
         log::warn!("Got index={}, Frame deallocation not implemented", index);
+    }
+}
+
+lazy_static! {
+    pub static ref LINEAR_ALLOCATOR: LinearFrameAllocator = LinearFrameAllocator::init();
+}
+
+/// a function that lazy initializes LIEAR_ALLOCATOR
+pub fn setup_physical_memory() {
+    log::info!(
+        "Set-up Linear memory allocator for Physical memory successfull, initial_size={}",
+        LINEAR_ALLOCATOR.next_index
+    );
+}
+
+pub struct PhysicalMemoryManager;
+
+impl PhysicalMemoryManager {
+    pub fn alloc() -> Option<Frame> {
+        LINEAR_ALLOCATOR.frame_alloc()
+    }
+
+    pub fn free(frame: Frame) {
+        LINEAR_ALLOCATOR.frame_dealloc(0);
     }
 }
