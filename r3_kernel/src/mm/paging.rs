@@ -6,6 +6,7 @@ use crate::cpu::mmu;
 
 use crate::boot_proto::BootProtocol;
 use crate::mm;
+use crate::mm::phy::Frame;
 use lazy_static::lazy_static;
 
 use bit_field::BitField;
@@ -129,34 +130,6 @@ impl Page {
         va.set_bits(12..21, u64::from(p1.as_u16()));
 
         Page::from_address(mm::VirtualAddress::from_u64(va))
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-#[repr(C)]
-pub struct Frame(mm::PhysicalAddress);
-
-impl Frame {
-    pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {
-        if !addr.is_aligned_at(PageSize::Page4KiB.size()) {
-            return Err(PagingError::UnalignedAddress(addr.as_u64()));
-        }
-
-        Ok(Frame(addr))
-    }
-
-    pub fn from_address(addr: mm::PhysicalAddress) -> Self {
-        Frame(addr.new_align_down(PageSize::Page4KiB.size()))
-    }
-
-    #[inline]
-    pub fn addr(&self) -> mm::PhysicalAddress {
-        self.0
-    }
-
-    #[inline]
-    pub fn as_u64(&self) -> u64 {
-        self.0.as_u64()
     }
 }
 

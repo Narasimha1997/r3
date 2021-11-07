@@ -3,6 +3,7 @@ extern crate log;
 use crate::boot_proto::BootProtocol;
 
 pub mod paging;
+pub mod phy;
 
 // some types related to memory management
 
@@ -151,10 +152,8 @@ impl PhysicalAddress {
 
 pub fn init() {
     log::info!("Enabling kernel paging...");
-    paging::setup_paging();
 
     run_initial_paging_test();
-    run_page_mapping_test();
 }
 
 #[inline]
@@ -186,62 +185,4 @@ pub fn run_initial_paging_test() {
         expected_value,
         value
     );
-}
-
-#[inline]
-pub fn run_page_mapping_test() {
-
-    log::info!("Running tests to verify page mapping capability...");
-
-    let phy_offset = BootProtocol::get_phy_offset();
-    let dummy_value: u8 = 0x11;
-
-    // allocate some dummy page:
-    let to_alloc_address = VirtualAddress::from_u64(&dummy_value as *const _ as u64 + (10 * 1024));
-    let page = paging::Page::from_address(to_alloc_address);
-
-    let phy_addr = PhysicalAddress::from_u64(24 * 1024 * 1024);
-
-    let frame = paging::Frame::from_address(phy_addr);
-    // map a page
-    let kmm = paging::get_kernel_table();
-    let res = kmm.map_page(page, frame, paging::PageEntryFlags::kernel_flags());
-    if res.is_err() {
-        panic!("Page mapping test failed: {:?}", res.unwrap_err());
-    }
-
-    // write to this region:
-    let v_ptr: &mut u64 = unsafe { &mut *to_alloc_address.get_mut_ptr() };
-    *v_ptr = 0x33443;
-
-    // we have written that value, confirm with translation:
-    let phy_addr = kmm.translate(to_alloc_address);
-    if phy_addr.is_none() {
-        panic!(
-            "Page mapping returned null for 0x{:x}",
-            to_alloc_address.as_u64()
-        );
-    }
-
-    let new_va_addr = VirtualAddress::from_u64(phy_addr.unwrap().as_u64() + phy_offset.unwrap());
-
-    // read from that location:
-    let expected_value: &u64 = unsafe { &*new_va_addr.get_ptr() };
-    assert_eq!(*expected_value, 0x33443);
-
-    log::info!(
-        "Passed page mapping test, Expected 0x33443, got 0x{}",
-        *expected_value
-    );
-
-    // unmap the page
-    *v_ptr = 0;
-    let res = kmm.unmap_page(page);
-    if res.is_err() {
-        panic!("Page mapping test failed: {:?}", res.unwrap_err());
-    }
-
-    // the translation should throw error now
-    let res = kmm.translate(to_alloc_address);
-    assert_eq!(res.is_none(), true);
 }
