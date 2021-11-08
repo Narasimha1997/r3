@@ -209,6 +209,11 @@ impl PhysicalMemoryManager {
         LINEAR_ALLOCATOR.lock().frame_alloc()
     }
 
+    pub fn alloc_huge_page() -> Option<Frame> {
+        let n_frames = (2 * mm::MemorySizes::OneMib as usize) / PageSize::Page4KiB.size() as usize;
+        LINEAR_ALLOCATOR.lock().frame_alloc_n(n_frames)
+    }
+
     pub fn free(_frame: Frame) {
         // Not implemented yet
         LINEAR_ALLOCATOR.lock().frame_dealloc(0);

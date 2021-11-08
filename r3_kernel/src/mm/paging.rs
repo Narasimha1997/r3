@@ -332,11 +332,12 @@ impl VirtualMemoryManager {
     }
 
     #[inline]
-    fn get_p2_physical_address(
+    fn walk_hierarchy(
         &self,
         address: &mm::VirtualAddress,
         create: bool,
         assert_huge_page: bool,
+        l3: bool,
     ) -> Option<&'static mut PageEntry> {
         let l4_table: &mut PageTable = unsafe { &mut *self.l4_virtual_address.get_mut_ptr() };
 
@@ -354,6 +355,11 @@ impl VirtualMemoryManager {
 
         // l2 table:
         let l3_entry: &mut PageEntry = &mut l3_table.entries[l3_index.as_usize()];
+
+        if l3 {
+            return Some(l3_entry);
+        }
+
         let l2_table_opt = self.get_or_create_table(l3_entry, create);
         if l2_table_opt.is_none() {
             return None;
@@ -371,7 +377,7 @@ impl VirtualMemoryManager {
     }
 
     pub fn translate_to_frame(&self, address: &mm::VirtualAddress) -> Option<Frame> {
-        let resolved_opt = self.get_p2_physical_address(address, false, false);
+        let resolved_opt = self.walk_hierarchy(address, false, false, false);
 
         if resolved_opt.is_none() {
             return None;
@@ -420,7 +426,7 @@ impl VirtualMemoryManager {
         frame: Frame,
         flags: PageEntryFlags,
     ) -> Result<(), PagingError> {
-        let resolved_opt = self.get_p2_physical_address(&page.addr(), true, false);
+        let resolved_opt = self.walk_hierarchy(&page.addr(), true, false, false);
 
         if resolved_opt.is_none() {
             return Err(PagingError::MappingError(page.as_u64()));
@@ -454,6 +460,38 @@ impl VirtualMemoryManager {
         Ok(())
     }
 
+    pub fn map_huge_page(
+        &self,
+        page: Page,
+        frame: Frame,
+        flags: PageEntryFlags,
+    ) -> Result<(), PagingError> {
+        let resolved_opt = self.walk_hierarchy(&page.addr(), true, false, true);
+        if resolved_opt.is_none() {
+            return Err(PagingError::MappingError(page.as_u64()));
+        }
+
+        // create a huge page from that physical address:
+        let l3_entry = resolved_opt.unwrap();
+        let l2_index = page.addr().get_level_index(mm::PageTableLevel::Level2);
+
+        let l2_table_opt = self.get_or_create_table(l3_entry, true);
+        if l2_table_opt.is_none() {
+            return Err(PagingError::MappingError(page.addr().as_u64()));
+        }
+
+        // map to l2 table:
+        let l2_table = l2_table_opt.unwrap();
+        let page_entry: &PageEntry = &l2_table.entries[l2_index.as_usize()];
+
+        if page_entry.is_mapped() {
+            return Err(PagingError::MappingError(page.addr().as_u64()));
+        }
+
+        l2_table.entries[l2_index.as_usize()].set_phy_frame(frame, flags);
+        Ok(())
+    }
+
     pub fn map_from_address(
         &self,
         va: mm::VirtualAddress,
@@ -480,24 +518,28 @@ impl VirtualMemoryManager {
         let frame = Frame::from_address(pa);
 
         if huge_page {
-            log::error!("Huge pages are yet to be implemented");
-            return Err(PagingError::UnsupportedFeature);
+            return self.map_huge_page(page, frame, flags);
         }
 
-        return self.map_page(page, frame, flags);
+        self.map_page(page, frame, flags)
     }
 
     fn unmap_single(&self, page: Page) -> Result<(), PagingError> {
-        let resolved_opt = self.get_p2_physical_address(&page.addr(), false, false);
+        let resolved_opt = self.walk_hierarchy(&page.addr(), false, false, false);
         if resolved_opt.is_none() {
             return Err(PagingError::PageNotMapped(page.as_u64()));
         }
 
         // get the address and huge page flag:
         let l2_entry = resolved_opt.unwrap();
+
+        if !l2_entry.is_mapped() {
+            return Err(PagingError::PageNotMapped(page.as_u64()));
+        }
+
         if l2_entry.has_flag(PageEntryFlags::HUGE_PAGE) {
-            log::error!("Huge pages are yet to be implemented.");
-            return Err(PagingError::UnsupportedFeature);
+            l2_entry.unmap_entry();
+            return Ok(());
         }
 
         // reset the region to zero:
@@ -625,6 +667,26 @@ impl KernelVirtualMemoryManager {
 
         // allocate the page
         let result = KERNEL_PAGING.map_page(Page::from_address(address), frame.unwrap(), flags);
+        if result.is_err() {
+            return Err(result.unwrap_err());
+        }
+
+        return Ok(Page::from_address(address));
+    }
+
+    pub fn alloc_huge_page(
+        address: mm::VirtualAddress,
+        flags: PageEntryFlags,
+    ) -> Result<Page, PagingError> {
+        let alloc_opt = PhysicalMemoryManager::alloc_huge_page();
+        if alloc_opt.is_none() {
+            return Err(PagingError::OOM);
+        }
+
+        // allocate frame
+        let frame = alloc_opt.unwrap();
+
+        let result = KERNEL_PAGING.map_huge_page(Page::from_address(address), frame, flags);
         if result.is_err() {
             return Err(result.unwrap_err());
         }
