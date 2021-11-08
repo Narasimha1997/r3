@@ -2,12 +2,10 @@ extern crate bootloader;
 extern crate log;
 extern crate spin;
 
-use core::iter::Iterator;
-
 use crate::boot_proto::BootProtocol;
 use crate::mm;
 use crate::mm::paging::{PageSize, PagingError};
-use bootloader::boot_info::{MemoryRegionKind};
+use bootloader::boot_info::MemoryRegionKind;
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -15,6 +13,8 @@ use spin::Mutex;
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct Frame(mm::PhysicalAddress);
+
+const MAX_FREE_REGIONS: usize = 16;
 
 impl Frame {
     pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {
@@ -52,11 +52,81 @@ pub trait PhyFrameAllocator {
 
     /// deallocate a frame
     fn frame_dealloc(&mut self, index: usize);
+
+    /// allocate 2MiB amount of Frames i.e 2MiB / 4KiB Frames
+    fn frame_alloc_n(&mut self, n: usize) -> Option<Frame>;
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct MemoryRegion {
+    start: mm::PhysicalAddress,
+    size: usize,
+    n_frames: usize,
+    current: usize,
+}
+
+impl MemoryRegion {
+    /// create a new memory region from start and end addresss.
+    pub fn new(start: u64, end: u64) -> Self {
+        let aligned_start = mm::Alignment::align_up(start, PageSize::Page4KiB.size());
+        let aligned_end = mm::Alignment::align_down(end, PageSize::Page4KiB.size());
+        let size = (aligned_end - aligned_start) as usize;
+        let n_frames = size / PageSize::Page4KiB.size() as usize;
+        MemoryRegion {
+            start: mm::PhysicalAddress::from_u64(aligned_start),
+            size,
+            n_frames,
+            current: 0,
+        }
+    }
+
+    /// used fill the array with dummy values
+    pub fn empty() -> Self {
+        MemoryRegion {
+            start: mm::PhysicalAddress::from_u64(0),
+            size: 0,
+            n_frames: 0,
+            current: 0,
+        }
+    }
+
+    /// returns the number of bytes free in this region
+    #[inline]
+    pub fn free_size(&self) -> usize {
+        let current_size = self.current * PageSize::Page4KiB.size() as usize;
+        self.size - current_size
+    }
+
+    /// returns the number of frames of 4KB size free
+    #[inline]
+    pub fn free_frames(&self) -> usize {
+        self.n_frames - self.current
+    }
+
+    /// check whether N frames can be allocated here or not.
+    #[inline]
+    pub fn can_allocate(&self, n: usize) -> bool {
+        self.current + n < self.n_frames
+    }
+
+    /// allocate N frames in the current region
+    pub fn allocate_n(&mut self, n: usize) -> Option<Frame> {
+        if !self.can_allocate(n) {
+            return None;
+        }
+
+        let current_address = mm::PhysicalAddress::from_u64(
+            self.start.as_u64() + (self.current as u64 * PageSize::Page4KiB.size()),
+        );
+
+        self.current = self.current + n;
+        Some(Frame::from_address(current_address))
+    }
 }
 
 pub struct LinearFrameAllocator {
-    pub memory_regions: mm::VirtualAddress,
-    pub next_index: usize,
+    pub memory_regions: [MemoryRegion; 16],
+    pub regions: usize,
 }
 
 impl LinearFrameAllocator {
@@ -67,46 +137,55 @@ impl LinearFrameAllocator {
         }
 
         let memory_map = memory_map_opt.unwrap();
-        LinearFrameAllocator {
-            memory_regions: mm::VirtualAddress::from_ptr(&memory_map),
-            next_index: 0,
+        // iterate over the memory map and prepare regions:
+        let mut index = 0;
+        let mut memory_regions: [MemoryRegion; MAX_FREE_REGIONS] = [MemoryRegion::empty(); 16];
+
+        for region in memory_map.iter() {
+            if region.kind == MemoryRegionKind::Usable {
+                log::debug!(
+                    "Found memory region start=0x{:x}, end=0x{:x} as usable.",
+                    region.start,
+                    region.end
+                );
+                memory_regions[index] = MemoryRegion::new(region.start, region.end);
+                index = index + 1;
+            }
         }
-    }
 
-    #[inline]
-    fn create_iterator(&self) -> impl Iterator<Item = Frame> {
-        let boot_proto = BootProtocol::get_boot_proto();
-
-        let memory_regions = &boot_proto.unwrap().memory_regions;
-        let region_iterator = memory_regions.iter();
-        let usable_regions_iter =
-            region_iterator.filter(|region| region.kind == MemoryRegionKind::Usable);
-
-        let address_range_iter = usable_regions_iter.map(|region| region.start..region.end);
-
-        let frame_aligned_addresses =
-            address_range_iter.flat_map(|addr| addr.step_by(PageSize::Page4KiB.size() as usize));
-
-        // convert into Iterator<Frame> type:
-        let frame_iterator = frame_aligned_addresses
-            .map(|frame_addr| Frame::from_address(mm::PhysicalAddress::from_u64(frame_addr)));
-
-        frame_iterator
+        log::info!("Found {} memory regions as usable.", index + 1);
+        LinearFrameAllocator {
+            memory_regions,
+            regions: index,
+        }
     }
 }
 
 impl PhyFrameAllocator for LinearFrameAllocator {
     fn frame_alloc(&mut self) -> Option<Frame> {
-        let mut frame_iterator = self.create_iterator();
-        let phy_frame = frame_iterator.nth(self.next_index);
+        for region_idx in 0..self.regions {
+            if self.memory_regions[region_idx].can_allocate(1) {
+                let frame_opt = self.memory_regions[region_idx].allocate_n(1);
+                return frame_opt;
+            }
+        }
 
-        self.next_index += 1;
-
-        phy_frame
+        None
     }
 
     fn frame_dealloc(&mut self, index: usize) {
         log::warn!("Got index={}, Frame deallocation not implemented", index);
+    }
+
+    fn frame_alloc_n(&mut self, n: usize) -> Option<Frame> {
+        for region_idx in 0..self.regions {
+            if self.memory_regions[region_idx].can_allocate(n) {
+                let frame_opt = self.memory_regions[region_idx].allocate_n(n);
+                return frame_opt;
+            }
+        }
+
+        None
     }
 }
 
@@ -118,8 +197,8 @@ lazy_static! {
 /// a function that lazy initializes LIEAR_ALLOCATOR
 pub fn setup_physical_memory() {
     log::info!(
-        "Set-up Linear memory allocator for Physical memory successfull, initial_size={}",
-        LINEAR_ALLOCATOR.lock().next_index
+        "Set-up Linear memory allocator for Physical memory successfull, regions={}",
+        LINEAR_ALLOCATOR.lock().regions
     );
 }
 
