@@ -30,8 +30,8 @@ fn map_virtual_memory() {
 
     let heap_pages = paging::PageRange::new(
         mm::VirtualAddress::from_u64(HEAP_START_ADDRESS),
-        n_4k_frames,
-        paging::PageSize::Page4KiB,
+        (HEAP_SIZE / paging::PageSize::Page2MiB.size()) as usize,
+        paging::PageSize::Page2MiB,
     );
 
     // map the virtual memory for heap:
@@ -40,9 +40,9 @@ fn map_virtual_memory() {
         HEAP_START_ADDRESS
     );
 
-    let alloc_result = paging::KernelVirtualMemoryManager::alloc_region(
+    let alloc_result = paging::KernelVirtualMemoryManager::alloc_huge_page_region(
         heap_pages,
-        paging::PageEntryFlags::kernel_flags(),
+        paging::PageEntryFlags::kernel_hugepage_flags(),
     );
 
     if alloc_result.is_err() {
@@ -55,9 +55,7 @@ fn map_virtual_memory() {
     log::info!("Allocated {}bytes at 0x{:x}", HEAP_SIZE, HEAP_START_ADDRESS);
 }
 
-// TODO: use huge pages for heap.
 pub fn init_heap() {
-
     map_virtual_memory();
 
     unsafe {

@@ -1,5 +1,6 @@
 extern crate bit_field;
 
+use crate::cpu::mmu::PageFaultExceptionTypes;
 use crate::cpu::segments;
 
 use bit_field::BitField;
@@ -121,6 +122,9 @@ pub type DefaultHandlerFuncNoReturn = extern "x86-interrupt" fn(InterruptStackFr
 // A handler function that handles unrecoverable errors with error code:
 pub type HandlerFuncNoReturnWithErr = extern "x86-interrupt" fn(InterruptStackFrame, u64) -> !;
 
+pub type PageFaultHandlerType =
+    extern "x86-interrupt" fn(InterruptStackFrame, PageFaultExceptionTypes) -> !;
+
 // pointer struct which points to the IDT table:
 #[repr(C, packed)]
 pub struct IDTPointer {
@@ -138,15 +142,14 @@ pub struct InterruptDescriptorTable {
     pub overflow: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub bound_range_exceeded: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub invalid_opcode: InterruptDescriptorEntry<DefaultHandlerFunction>,
-    pub 
-    device_not_available: InterruptDescriptorEntry<DefaultHandlerFunction>,
+    pub device_not_available: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub double_fault: InterruptDescriptorEntry<HandlerFuncNoReturnWithErr>,
     coprocessor_segment_overrun: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub invalid_tss: InterruptDescriptorEntry<HandlerFunctionWithErr>,
     pub segment_not_present: InterruptDescriptorEntry<HandlerFunctionWithErr>,
     pub stack_segment_fault: InterruptDescriptorEntry<HandlerFunctionWithErr>,
     pub general_protection_fault: InterruptDescriptorEntry<HandlerFunctionWithErr>,
-    pub page_fault: InterruptDescriptorEntry<HandlerFunctionWithErr>,
+    pub page_fault: InterruptDescriptorEntry<PageFaultHandlerType>,
     reserved_1: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub x87_floating_point: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub alignment_check: InterruptDescriptorEntry<HandlerFunctionWithErr>,
@@ -220,6 +223,15 @@ pub fn prepare_default_handle(
 pub fn prepare_no_ret_error_code_handle(
     func: HandlerFuncNoReturnWithErr,
 ) -> InterruptDescriptorEntry<HandlerFuncNoReturnWithErr> {
+    let handle_addr = func as u64;
+    let mut idt_entry = InterruptDescriptorEntry::empty();
+    idt_entry.set_handler(handle_addr);
+    return idt_entry;
+}
+
+pub fn prepare_page_fault_handler(
+    func: PageFaultHandlerType,
+) -> InterruptDescriptorEntry<PageFaultHandlerType> {
     let handle_addr = func as u64;
     let mut idt_entry = InterruptDescriptorEntry::empty();
     idt_entry.set_handler(handle_addr);

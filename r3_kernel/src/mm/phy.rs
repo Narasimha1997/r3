@@ -125,7 +125,7 @@ impl MemoryRegion {
 }
 
 pub struct LinearFrameAllocator {
-    pub memory_regions: [MemoryRegion; 16],
+    pub memory_regions: [MemoryRegion; MAX_FREE_REGIONS],
     pub regions: usize,
 }
 
@@ -139,7 +139,7 @@ impl LinearFrameAllocator {
         let memory_map = memory_map_opt.unwrap();
         // iterate over the memory map and prepare regions:
         let mut index = 0;
-        let mut memory_regions: [MemoryRegion; MAX_FREE_REGIONS] = [MemoryRegion::empty(); 16];
+        let mut memory_regions = [MemoryRegion::empty(); MAX_FREE_REGIONS];
 
         for region in memory_map.iter() {
             if region.kind == MemoryRegionKind::Usable {
@@ -169,7 +169,6 @@ impl PhyFrameAllocator for LinearFrameAllocator {
                 return frame_opt;
             }
         }
-
         None
     }
 
@@ -181,6 +180,7 @@ impl PhyFrameAllocator for LinearFrameAllocator {
         for region_idx in 0..self.regions {
             if self.memory_regions[region_idx].can_allocate(n) {
                 let frame_opt = self.memory_regions[region_idx].allocate_n(n);
+                log::debug!("Frame OPT: {:?}", frame_opt);
                 return frame_opt;
             }
         }

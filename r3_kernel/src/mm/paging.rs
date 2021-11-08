@@ -161,7 +161,9 @@ impl PageEntryFlags {
         let value: u64 = PageEntryFlags::PRESENT.bits()
             | PageEntryFlags::READ_WRITE.bits()
             | PageEntryFlags::HUGE_PAGE.bits();
-        PageEntryFlags::from_bits_truncate(value)
+        let flags = PageEntryFlags::from_bits_truncate(value);
+        log::debug!("Flags: {:?}", flags);
+        return flags;
     }
 }
 
@@ -714,6 +716,31 @@ impl KernelVirtualMemoryManager {
         }
 
         // return the iterator
+        Ok(PageRangeIterator::new(region))
+    }
+
+    pub fn alloc_huge_page_region(
+        region: PageRange,
+        flags: PageEntryFlags,
+    ) -> Result<PageRangeIterator, PagingError> {
+        let range_iterator = PageRangeIterator::new(region.clone());
+
+        for page in range_iterator {
+            let frame_opt = PhysicalMemoryManager::alloc_huge_page();
+
+            if frame_opt.is_none() {
+                return Err(PagingError::OOM);
+            }
+
+            // map the page:
+            let result = KERNEL_PAGING.map_huge_page(page, frame_opt.unwrap(), flags);
+            if result.is_err() {
+                return Err(result.unwrap_err());
+            }
+        }
+
+        mmu::reload_flush();
+
         Ok(PageRangeIterator::new(region))
     }
 

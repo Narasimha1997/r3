@@ -1,6 +1,24 @@
+extern crate bitflags;
+
 use crate::mm::PhysicalAddress;
+use bitflags::bitflags;
 
 const CR3_PHY_ADDR_MASK: u64 = 0x000ffffffffff000;
+
+bitflags! {
+    #[repr(transparent)]
+    pub struct PageFaultExceptionTypes: u64 {
+        const PROTECTION_VIOLATION = 1;
+        const CAUSED_BY_WRITE = 1 << 1;
+        const USER_MODE = 1 << 2;
+        const MALFORMED_TABLE = 1 << 3;
+        const INSTRUCTION_FETCH = 1 << 4;
+        const PROTECTION_KEY = 1 << 5;
+        const SHADOW_STACK = 1 << 6;
+        const SGX = 1 << 15;
+        const RMP = 1 << 31;
+    }
+}
 
 pub fn read_cr3() -> u64 {
     let cr3_val: u64;
@@ -32,6 +50,19 @@ pub fn write_cr3(value: u64) {
             options(nostack, preserves_flags)
         );
     }
+}
+
+pub fn read_cr2() -> u64 {
+    let cr2_val: u64;
+    unsafe {
+        asm!(
+            "mov {}, cr2",
+            out(reg) cr2_val,
+            options(nostack, nomem, preserves_flags)
+        )
+    }
+
+    cr2_val
 }
 
 pub fn reload_flush() {
