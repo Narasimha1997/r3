@@ -162,7 +162,6 @@ impl PageEntryFlags {
             | PageEntryFlags::READ_WRITE.bits()
             | PageEntryFlags::HUGE_PAGE.bits();
         let flags = PageEntryFlags::from_bits_truncate(value);
-        log::debug!("Flags: {:?}", flags);
         return flags;
     }
 }

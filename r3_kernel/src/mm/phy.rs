@@ -54,7 +54,7 @@ pub trait PhyFrameAllocator {
     fn frame_dealloc(&mut self, index: usize);
 
     /// allocate 2MiB amount of Frames i.e 2MiB / 4KiB Frames
-    fn frame_alloc_n(&mut self, n: usize) -> Option<Frame>;
+    fn frame_alloc_n(&mut self, n: usize, align_huge_page: bool) -> Option<Frame>;
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -109,18 +109,46 @@ impl MemoryRegion {
         self.current + n < self.n_frames
     }
 
+    #[inline]
+    pub fn can_allocate_aligned(&self, n: usize) -> bool {
+        let offset = {
+            let current_address =
+                self.start.as_u64() + (self.current as u64 * PageSize::Page4KiB.size());
+            let alignd_addr = mm::Alignment::align_up(current_address, PageSize::Page2MiB.size());
+            ((alignd_addr - current_address) / PageSize::Page4KiB.size()) as usize
+        };
+
+        self.current + offset + n < self.n_frames
+    }
+
     /// allocate N frames in the current region
-    pub fn allocate_n(&mut self, n: usize) -> Option<Frame> {
-        if !self.can_allocate(n) {
+    pub fn allocate_n(&mut self, n: usize, align_huge_page: bool) -> Option<Frame> {
+        if !align_huge_page && !self.can_allocate(n) {
             return None;
         }
 
-        let current_address = mm::PhysicalAddress::from_u64(
-            self.start.as_u64() + (self.current as u64 * PageSize::Page4KiB.size()),
-        );
+        if align_huge_page && !self.can_allocate_aligned(n) {
+            return None;
+        }
 
-        self.current = self.current + n;
-        Some(Frame::from_address(current_address))
+        if align_huge_page {
+            // align the address at multiple of 2MiB
+            let current_addr =
+                self.start.as_u64() + (self.current as u64 * PageSize::Page4KiB.size());
+            let aligned_addr = mm::Alignment::align_up(current_addr, PageSize::Page2MiB.size());
+            let diff_addr = aligned_addr - current_addr;
+            let offset_frames = (diff_addr / PageSize::Page4KiB.size()) as usize;
+            self.current = self.current + n + offset_frames;
+            return Some(Frame::from_address(mm::PhysicalAddress::from_u64(
+                aligned_addr,
+            )));
+        } else {
+            let current_address = mm::PhysicalAddress::from_u64(
+                self.start.as_u64() + (self.current as u64 * PageSize::Page4KiB.size()),
+            );
+            self.current = self.current + n;
+            return Some(Frame::from_address(current_address));
+        }
     }
 }
 
@@ -165,7 +193,7 @@ impl PhyFrameAllocator for LinearFrameAllocator {
     fn frame_alloc(&mut self) -> Option<Frame> {
         for region_idx in 0..self.regions {
             if self.memory_regions[region_idx].can_allocate(1) {
-                let frame_opt = self.memory_regions[region_idx].allocate_n(1);
+                let frame_opt = self.memory_regions[region_idx].allocate_n(1, false);
                 return frame_opt;
             }
         }
@@ -176,11 +204,15 @@ impl PhyFrameAllocator for LinearFrameAllocator {
         log::warn!("Got index={}, Frame deallocation not implemented", index);
     }
 
-    fn frame_alloc_n(&mut self, n: usize) -> Option<Frame> {
+    fn frame_alloc_n(&mut self, n: usize, align_huge_page: bool) -> Option<Frame> {
         for region_idx in 0..self.regions {
-            if self.memory_regions[region_idx].can_allocate(n) {
-                let frame_opt = self.memory_regions[region_idx].allocate_n(n);
-                log::debug!("Frame OPT: {:?}", frame_opt);
+            let can_allocate = if !align_huge_page {
+                self.memory_regions[region_idx].can_allocate(n)
+            } else {
+                self.memory_regions[region_idx].can_allocate_aligned(n)
+            };
+            if can_allocate {
+                let frame_opt = self.memory_regions[region_idx].allocate_n(n, align_huge_page);
                 return frame_opt;
             }
         }
@@ -211,7 +243,7 @@ impl PhysicalMemoryManager {
 
     pub fn alloc_huge_page() -> Option<Frame> {
         let n_frames = (2 * mm::MemorySizes::OneMib as usize) / PageSize::Page4KiB.size() as usize;
-        LINEAR_ALLOCATOR.lock().frame_alloc_n(n_frames)
+        LINEAR_ALLOCATOR.lock().frame_alloc_n(n_frames, true)
     }
 
     pub fn free(_frame: Frame) {

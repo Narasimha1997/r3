@@ -29,10 +29,11 @@ impl Alignment {
     }
 
     pub fn align_up(addr: u64, size: u64) -> u64 {
-        if addr & (size - 1) == 0 {
+        let mask = size - 1;
+        if addr & mask == 0 {
             addr
         } else {
-            addr | size
+            (addr | mask) + 1
         }
     }
 }
@@ -164,11 +165,9 @@ pub fn init() {
     paging::setup_paging();
 
     run_initial_paging_test();
-    test_hugepage();
-
     // init kenel heap
-    // log::info!("Enabling kernel heap...");
-    // heap::init_heap();
+    log::info!("Enabling kernel heap...");
+    heap::init_heap();
 }
 
 #[inline]
@@ -202,31 +201,4 @@ pub fn run_initial_paging_test() {
         expected_value,
         value
     );
-}
-
-
-#[inline]
-fn test_hugepage() {
-    let addr = 0x7fff00000000;
-    let result = paging::KernelVirtualMemoryManager::pt().map_huge_page(
-        paging::Page::from_address(VirtualAddress::from_u64(addr)),
-        phy::Frame::from_address(PhysicalAddress::from_u64(0x1000000)),
-        paging::PageEntryFlags::kernel_hugepage_flags()
-    );
-
-    if result.is_err() {
-        panic!("Failed to allocate huge page.");
-    }
-
-    // now translate the address:
-    let res = paging::KernelVirtualMemoryManager::pt().translate(
-        VirtualAddress::from_u64(addr)
-    );
-
-    let data_ptr: &mut u64 = unsafe {&mut * VirtualAddress::from_u64(addr).get_mut_ptr() };
-    *data_ptr = 30;
-
-    log::info!("Result: {}", *data_ptr);
-    log::info!("Translate result: {:?}", res);
-    
 }
