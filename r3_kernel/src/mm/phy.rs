@@ -14,7 +14,7 @@ use spin::Mutex;
 #[repr(C)]
 pub struct Frame(mm::PhysicalAddress);
 
-const MAX_FREE_REGIONS: usize = 16;
+const MAX_FREE_REGIONS: usize = 64;
 
 impl Frame {
     pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {

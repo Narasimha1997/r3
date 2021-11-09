@@ -37,5 +37,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     mm::init();
 
+    drivers::display::framebuffer::dump_phy_address();
+
     loop {}
 }

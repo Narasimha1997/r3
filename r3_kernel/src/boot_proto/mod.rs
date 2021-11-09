@@ -34,9 +34,11 @@ pub struct BootProtocol {}
 
 impl BootProtocol {
     #[inline]
-    pub fn get_boot_proto() -> Option<&'static BootInfo> {
+    pub fn get_boot_proto() -> Option<&'static mut BootInfo> {
         if let Some(boot_info_addr) = BOOT_INFO.lock().boot_info {
-            return Some(unsafe { (boot_info_addr as *const BootInfo).as_ref().unwrap() });
+            let boot_info: &mut BootInfo = unsafe { &mut *(boot_info_addr as *mut BootInfo) };
+
+            return Some(boot_info);
         }
 
         None
@@ -60,6 +62,18 @@ impl BootProtocol {
         if let Some(bi) = BootProtocol::get_boot_proto() {
             if let Some(fb_struct) = bi.framebuffer.as_ref() {
                 return Some(fb_struct.info());
+            }
+
+            return None;
+        }
+
+        None
+    }
+
+    pub fn get_framebuffer_slice() -> Option<&'static mut [u8]> {
+        if let Some(bi) = BootProtocol::get_boot_proto() {
+            if let Some(fb_info) = bi.framebuffer.as_mut() {
+                return Some(fb_info.buffer_mut());
             }
 
             return None;
@@ -100,6 +114,10 @@ impl BootProtocol {
                 }
             } else {
                 log::warn!("Boot info doesn't contain memory map information.");
+            }
+
+            if let Some(fb_slice) = BootProtocol::get_framebuffer_slice() {
+                log::info!("Framebuffer address: {:p}", fb_slice);
             }
 
             if let Some(fb_info) = BootProtocol::get_framebuffer_info() {
