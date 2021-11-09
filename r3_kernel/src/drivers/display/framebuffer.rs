@@ -1,6 +1,9 @@
 extern crate log;
+extern crate spin;
 
 use crate::boot_proto::BootProtocol;
+use lazy_static::lazy_static;
+use spin::Mutex;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Pixel {
@@ -16,7 +19,7 @@ pub struct Pixel {
 
 /// Represents a framebuffer and other metadata used to control
 /// different functions of framebuffer.
-pub struct Framebuffer {
+pub struct FramebufferMemory {
     /// contains a reference to framebuffer slice
     pub buffer: &'static mut [u8],
     pub width: usize,
@@ -29,63 +32,131 @@ pub struct FramebufferIndex {
     pub y: usize,
 }
 
-impl Framebuffer {
-    pub fn new(boot_info: BootProtocol) -> Self {
+impl FramebufferMemory {
+    pub fn new() -> Option<Self> {
         let fb_slice_opt = BootProtocol::get_framebuffer_slice();
         if fb_slice_opt.is_none() {
-            panic!("Framebuffer address not provided by bootloader.");
+            log::error!(
+                "Could not initialize framebuffer, because
+                 bootloader did not provide framebuffer address."
+            );
+            return None;
         }
 
         let fb_info_opt = BootProtocol::get_framebuffer_info();
         if fb_info_opt.is_none() {
-            panic!("Framebuffer information is not provided by bootloader.");
+            log::error!(
+                "Could not initialize framebuffer, 
+                 because the bootloader did not provide framebuffer info."
+            );
+            return None;
         }
 
         let fb_info = fb_info_opt.unwrap();
 
-        Framebuffer {
+        Some(FramebufferMemory {
             buffer: fb_slice_opt.unwrap(),
             width: fb_info.horizontal_resolution,
             height: fb_info.vertical_resolution,
             bytes_per_pixel: fb_info.bytes_per_pixel,
-        }
+        })
+    }
+}
+
+type LockedFramebuffer = Mutex<FramebufferMemory>;
+
+fn init_framebuffer() -> Option<Mutex<FramebufferMemory>> {
+    let fb_opt = FramebufferMemory::new();
+    if fb_opt.is_none() {
+        return None;
+    }
+
+    Some(Mutex::new(fb_opt.unwrap()))
+}
+
+lazy_static! {
+    pub static ref FRAMEBUFFER: Option<LockedFramebuffer> = init_framebuffer();
+}
+
+pub struct Framebuffer;
+
+impl Framebuffer {
+    #[inline]
+    pub fn get_buffer_lock() -> &'static Option<LockedFramebuffer> {
+        &FRAMEBUFFER
     }
 
     #[inline]
-    fn index_in_bounds(&self, index: &FramebufferIndex) -> bool {
-        index.x < self.width && index.y < self.height
+    fn index_in_bounds(fb: &FramebufferMemory, index: &FramebufferIndex) -> bool {
+        index.x < fb.width && index.y < fb.height
     }
 
     #[inline]
-    fn index_to_offset(&self, index: FramebufferIndex) -> Option<usize> {
-        if self.index_in_bounds(&index) {
-            Some((index.y * self.width + index.x) * self.bytes_per_pixel)
+    fn index_to_offset(fb: &FramebufferMemory, index: FramebufferIndex) -> Option<usize> {
+        if Framebuffer::index_in_bounds(&fb, &index) {
+            Some((index.y * fb.width + index.x) * fb.bytes_per_pixel)
         } else {
             None
         }
     }
 
     #[inline]
-    pub fn set_pixel(&mut self, pixel: Pixel, index: FramebufferIndex) {
-        if let Some(offset) = self.index_to_offset(index) {
-            self.buffer[offset] = pixel.b;
-            self.buffer[offset + 1] = pixel.g;
-            self.buffer[offset + 2] = pixel.r;
-            self.buffer[offset + 3] = pixel.channel;
+    pub fn set_pixel(fb: &mut FramebufferMemory, pixel: Pixel, index: FramebufferIndex) {
+        if let Some(offset) = Framebuffer::index_to_offset(&fb, index) {
+            fb.buffer[offset] = pixel.b;
+            fb.buffer[offset + 1] = pixel.g;
+            fb.buffer[offset + 2] = pixel.r;
+            fb.buffer[offset + 3] = pixel.channel;
         }
     }
 
     #[inline]
-    pub fn get_pixel(&self, index: FramebufferIndex) -> Option<Pixel> {
-        if let Some(offset) = self.index_to_offset(index) {
+    pub fn get_pixel(fb: &FramebufferMemory, index: FramebufferIndex) -> Option<Pixel> {
+        if let Some(offset) = Framebuffer::index_to_offset(fb, index) {
             return Some(Pixel {
-                b: self.buffer[offset],
-                g: self.buffer[offset + 1],
-                r: self.buffer[offset + 2],
-                channel: self.buffer[offset + 4],
+                b: fb.buffer[offset],
+                g: fb.buffer[offset + 1],
+                r: fb.buffer[offset + 2],
+                channel: fb.buffer[offset + 4],
             });
         }
 
         None
     }
+
+    pub fn fill(pixel: Pixel) {
+        let fb_opt = Framebuffer::get_buffer_lock();
+        if fb_opt.is_none() {
+            return;
+        }
+
+        let mut fb_lock = fb_opt.as_ref().unwrap().lock();
+
+        let n_bytes = fb_lock.width * fb_lock.height * fb_lock.bytes_per_pixel;
+        let mut offset = 0;
+
+        while offset < n_bytes {
+            fb_lock.buffer[offset] = pixel.b;
+            fb_lock.buffer[offset + 1] = pixel.g;
+            fb_lock.buffer[offset + 2] = pixel.r;
+            fb_lock.buffer[offset + 3] = pixel.channel;
+            offset += fb_lock.bytes_per_pixel;
+        }
+    }
+}
+
+/// lazy inits the FRAMEBUFFER
+pub fn setup_framebuffer() {
+    if FRAMEBUFFER.is_none() {
+        log::error!("Fraebuffer set-up failed, system display will not work.");
+    }
+
+    let fb_ref = FRAMEBUFFER.as_ref().unwrap().lock();
+
+    log::info!(
+        "Framebuffer initialized, address={:p}, width={}, height={}.",
+        &fb_ref.buffer[0],
+        fb_ref.width,
+        fb_ref.height
+    );
 }

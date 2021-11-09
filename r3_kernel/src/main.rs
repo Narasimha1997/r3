@@ -24,8 +24,11 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     // init basic logging through UART as of now:
     logging::init();
+
     BootProtocol::create(boot_info);
     log::info!("Saving boot info");
+
+    drivers::display::init();
     log::info!("Hello, kernel world!");
 
     BootProtocol::print_boot_info();
@@ -36,8 +39,5 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     cpu::run_test_breakpoint_recovery();
 
     mm::init();
-
-    drivers::display::framebuffer::dump_phy_address();
-
     loop {}
 }
