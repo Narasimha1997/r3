@@ -12,10 +12,25 @@ pub fn dump_phy_address() {
             &fb_slice[0],
             addr.unwrap().as_u64()
         );
-
-        // write some bytes
-        for i in 0..10000 {
-            fb_slice[i] = 0;
-        }
     }
+}
+
+pub struct Pixel {
+    /// represents blueness
+    pub b: u8,
+    /// represents greeness
+    pub g: u8,
+    /// represents redness
+    pub r: u8,
+    /// this byte is 0 in BGR mode, in BGRA, it is alphaness.
+    pub channel: u8,
+}
+
+/// Represents a framebuffer and other metadata used to control
+/// different functions of framebuffer.
+pub struct Framebuffer {
+    /// contains a reference to framebuffer slice
+    pub buffer: &'static [u8],
+    pub width: usize,
+    pub height: usize,
 }
