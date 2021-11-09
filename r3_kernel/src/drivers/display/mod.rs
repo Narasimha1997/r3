@@ -1,5 +1,6 @@
 pub mod framebuffer;
-pub mod vga;
+pub mod font;
+pub mod fb_text;
 
 use framebuffer::{Pixel, setup_framebuffer, Framebuffer};
 
