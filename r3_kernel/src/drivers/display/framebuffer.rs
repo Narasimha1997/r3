@@ -17,7 +17,7 @@ pub struct Pixel {
     pub channel: u8,
 }
 
-/// Represents a framebuffer and other metadata used to control
+/// Represents a framebuffer memory region and other metadata used to control
 /// different functions of framebuffer.
 pub struct FramebufferMemory {
     /// contains a reference to framebuffer slice
@@ -33,6 +33,8 @@ pub struct FramebufferIndex {
 }
 
 impl FramebufferMemory {
+    /// creates a new frame buffer memory region over the framebuffer area
+    /// provided by the bootloader.
     pub fn new() -> Option<Self> {
         let fb_slice_opt = BootProtocol::get_framebuffer_slice();
         if fb_slice_opt.is_none() {
@@ -63,8 +65,10 @@ impl FramebufferMemory {
     }
 }
 
-type LockedFramebuffer = Mutex<FramebufferMemory>;
+/// LockedFramebuffer represents a framebuffer memory region with mutex.
+pub type LockedFramebuffer = Mutex<FramebufferMemory>;
 
+/// initializes the framebuffer
 fn init_framebuffer() -> Option<Mutex<FramebufferMemory>> {
     let fb_opt = FramebufferMemory::new();
     if fb_opt.is_none() {
@@ -78,6 +82,7 @@ lazy_static! {
     pub static ref FRAMEBUFFER: Option<LockedFramebuffer> = init_framebuffer();
 }
 
+/// Set of control functions used for writing pixels to frame buffer
 pub struct Framebuffer;
 
 impl Framebuffer {
@@ -145,7 +150,9 @@ impl Framebuffer {
     }
 }
 
-/// lazy inits the FRAMEBUFFER
+/// this method initializes the framebuffer, in other words
+/// it dereferences the framebuffer memory region which cases
+/// the lazy_static struct to initialize.
 pub fn setup_framebuffer() {
     if FRAMEBUFFER.is_none() {
         log::error!("Fraebuffer set-up failed, system display will not work.");
