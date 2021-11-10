@@ -1,7 +1,8 @@
+const IO_WAIT_PORT: usize = 0x80;
 
 pub struct Port {
     pub port_no: usize,
-    pub read_only: bool
+    pub read_only: bool,
 }
 
 impl Port {
@@ -14,7 +15,7 @@ impl Port {
         let value: u8;
         unsafe {
             asm!(
-                "in al, dx", out("al") value, in("dx") self.port_no, 
+                "in al, dx", out("al") value, in("dx") self.port_no,
                 options(nomem, nostack, preserves_flags)
             );
         }
@@ -46,12 +47,11 @@ impl Port {
     }
 
     pub fn write_u16(&self, value: u16) {
-
         if !self.read_only {
             unsafe {
                 asm!(
                     "out dx, ax", in("dx") self.port_no, in("ax") value,
-                    options(nomem, nostack, preserves_flags) 
+                    options(nomem, nostack, preserves_flags)
                 );
             }
         }
@@ -78,5 +78,16 @@ impl Port {
                 );
             }
         }
+    }
+}
+
+/// Wait until the time that is required to perform n port write cycles.
+pub fn wait(cycles: usize) {
+    let port = Port::new(IO_WAIT_PORT, false);
+    for _ in 0..cycles {
+        // write some garbage value.
+        // this is a very rudimentary way of making CPU wait for some port I/O cycles.
+        // this will be used prior to any timer initialization.
+        port.write_u8(0xff);
     }
 }
