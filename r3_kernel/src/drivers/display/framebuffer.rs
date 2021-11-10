@@ -92,7 +92,7 @@ impl Framebuffer {
     }
 
     #[inline]
-    fn index_in_bounds(fb: &FramebufferMemory, index: &FramebufferIndex) -> bool {
+    pub fn index_in_bounds(fb: &FramebufferMemory, index: &FramebufferIndex) -> bool {
         index.x < fb.width && index.y < fb.height
     }
 

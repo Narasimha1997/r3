@@ -1029,5 +1029,7 @@ pub static LINUX_BOOT_FONT: [[u8; FONT_HEIGHT]; 256] = [
     ],
 ];
 
-
-
+#[inline]
+pub fn get_bit_for_char(ch: u8, pos: usize) -> u8 {
+    ch & (0x80 >> pos)
+}
