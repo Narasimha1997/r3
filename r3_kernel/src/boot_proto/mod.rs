@@ -121,7 +121,7 @@ impl BootProtocol {
             }
 
             if let Some(fb_info) = BootProtocol::get_framebuffer_info() {
-                log::info!(
+                log::debug!(
                     "Framebuffer info: width={} height={} bps={} pixel_format={:?}",
                     fb_info.horizontal_resolution,
                     fb_info.vertical_resolution,

@@ -3,7 +3,7 @@ extern crate spin;
 
 use crate::boot_proto::BootProtocol;
 use lazy_static::lazy_static;
-use spin::Mutex;
+use spin::{Mutex, MutexGuard};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Pixel {
@@ -129,23 +129,16 @@ impl Framebuffer {
         None
     }
 
-    pub fn fill(pixel: Pixel) {
-        let fb_opt = Framebuffer::get_buffer_lock();
-        if fb_opt.is_none() {
-            return;
-        }
-
-        let mut fb_lock = fb_opt.as_ref().unwrap().lock();
-
-        let n_bytes = fb_lock.width * fb_lock.height * fb_lock.bytes_per_pixel;
+    pub fn fill(fb: &mut MutexGuard<FramebufferMemory>, pixel: Pixel) {
+        let n_bytes = fb.width * fb.height * fb.bytes_per_pixel;
         let mut offset = 0;
 
         while offset < n_bytes {
-            fb_lock.buffer[offset] = pixel.b;
-            fb_lock.buffer[offset + 1] = pixel.g;
-            fb_lock.buffer[offset + 2] = pixel.r;
-            fb_lock.buffer[offset + 3] = pixel.channel;
-            offset += fb_lock.bytes_per_pixel;
+            fb.buffer[offset] = pixel.b;
+            fb.buffer[offset + 1] = pixel.g;
+            fb.buffer[offset + 2] = pixel.r;
+            fb.buffer[offset + 3] = pixel.channel;
+            offset += fb.bytes_per_pixel;
         }
     }
 }

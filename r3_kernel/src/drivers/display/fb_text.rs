@@ -1,5 +1,12 @@
+extern crate log;
+extern crate spin;
+
 use crate::drivers::display::font::{get_bit_for_char, FONT_HEIGHT, FONT_WIDTH, LINUX_BOOT_FONT};
 use crate::drivers::display::framebuffer;
+
+use core::fmt;
+use lazy_static::lazy_static;
+use spin::{Mutex, MutexGuard};
 
 pub struct FramebufferLines {
     pub row_line: usize,
@@ -9,8 +16,21 @@ pub struct FramebufferLines {
 pub struct FramebufferText;
 
 impl FramebufferText {
-    fn print_ascii_char(
-        fb: &mut framebuffer::FramebufferMemory,
+    pub fn scroll(fb: &mut MutexGuard<framebuffer::FramebufferMemory>, _n_lines: usize) {
+        // as of now, clear the screen on scroll:
+        framebuffer::Framebuffer::fill(
+            fb,
+            framebuffer::Pixel {
+                b: 0,
+                g: 0,
+                r: 0,
+                channel: 0,
+            },
+        );
+    }
+
+    pub fn print_ascii_char(
+        fb: &mut MutexGuard<framebuffer::FramebufferMemory>,
         ch: u8,
         color: framebuffer::Pixel,
         r_line: &usize,
@@ -21,8 +41,8 @@ impl FramebufferText {
         let start_y = r_line * FONT_HEIGHT;
         let start_x = c_line * FONT_WIDTH;
 
-        let mut j = start_x;
-        let mut i = start_y;
+        let mut j = 0;
+        let mut i = 0;
 
         loop {
             let index = framebuffer::FramebufferIndex {
@@ -46,25 +66,30 @@ impl FramebufferText {
                     if i == FONT_HEIGHT || start_y + i == buffer_height {
                         return;
                     }
-                    j = start_x;
+                    j = 0;
                 }
             }
         }
     }
 
     pub fn print_string(
-        fb: &mut framebuffer::FramebufferMemory,
+        fb: &mut MutexGuard<framebuffer::FramebufferMemory>,
         string: &str,
         color: framebuffer::Pixel,
-        pos: FramebufferLines,
+        pos: &FramebufferLines,
     ) -> FramebufferLines {
         let n_rows = fb.height / FONT_HEIGHT;
-        let n_cols = fb.height / FONT_WIDTH;
+        let n_cols = fb.width / FONT_WIDTH;
 
         let mut c_row = pos.row_line;
         let mut c_col = pos.col_line;
 
         for ch in string.as_bytes() {
+            if *ch <= 0x20 && *ch >= 0x7e {
+                // skip non-printable characters
+                continue;
+            }
+
             if *ch == b'\n' {
                 c_col = 0;
                 c_row += 1;
@@ -81,7 +106,10 @@ impl FramebufferText {
 
                 if c_row >= n_rows {
                     // reached end of screen, TODO: Implement scroll
-                    break;
+                    // as of now, this function clears the screen entirely.
+                    FramebufferText::scroll(fb, 5);
+                    c_row = 0;
+                    c_col = 0;
                 }
 
                 FramebufferText::print_ascii_char(fb, *ch, color, &c_row, &c_col, n_cols, n_rows);
@@ -94,4 +122,58 @@ impl FramebufferText {
             col_line: c_col,
         }
     }
+}
+
+pub struct FramebufferLogger {
+    pub current_lines: FramebufferLines,
+    pub color: framebuffer::Pixel,
+}
+
+impl FramebufferLogger {
+    pub fn init(color: framebuffer::Pixel) -> Self {
+        FramebufferLogger {
+            current_lines: FramebufferLines {
+                row_line: 0,
+                col_line: 0,
+            },
+            color,
+        }
+    }
+
+    pub fn write(&mut self, string: &str) {
+        let locked_buffer_opt = framebuffer::Framebuffer::get_buffer_lock();
+        if locked_buffer_opt.is_none() {
+            return;
+        }
+
+        let mut locked_buffer = locked_buffer_opt.as_ref().unwrap().lock();
+
+        self.current_lines = FramebufferText::print_string(
+            &mut locked_buffer,
+            string,
+            self.color,
+            &self.current_lines,
+        );
+    }
+}
+
+impl fmt::Write for FramebufferLogger {
+    fn write_str(&mut self, string: &str) -> fmt::Result {
+        self.write(string);
+        return Ok(());
+    }
+}
+
+pub fn setup_framebuffer(color: framebuffer::Pixel) -> Mutex<FramebufferLogger> {
+    Mutex::new(FramebufferLogger::init(color))
+}
+
+lazy_static! {
+    pub static ref FRAMEBUFFER_LOGGER: Mutex<FramebufferLogger> =
+        setup_framebuffer(framebuffer::Pixel {
+            b: 255,
+            g: 255,
+            r: 255,
+            channel: 0
+        });
 }

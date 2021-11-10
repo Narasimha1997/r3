@@ -1,12 +1,10 @@
-[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[0m[35m[40m[2J[01;01H[=3h[2J[01;01H[0m[37m[40mr3_kernel            INFO  Saving boot info
-r3_kernel::drivers::display::framebuffer INFO  Framebuffer initialized, address=0x10000000000, width=800, height=600.
-r3_kernel            INFO  Hello, kernel world!
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[0m[35m[40m[2J[01;01H[=3h[2J[01;01H[0m[37m[40mr3_kernel            INFO  Hello, kernel world!
 r3_kernel::boot_proto INFO  Bootloader version: 0.10.9
 r3_kernel::boot_proto INFO  RSDT Address: Some(1069522964)
 r3_kernel::boot_proto INFO  Memory offset: 0xffffa00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 4096, kind: Usable }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 4096, end: 212992, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 212992, end: 655360, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4096, end: 208896, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 208896, end: 655360, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 8388608, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 8388608, end: 8421376, kind: UnknownUefi(10) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 8421376, end: 8454144, kind: Usable }
@@ -14,9 +12,9 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 8454144, end: 9437184, kind: U
 r3_kernel::boot_proto INFO  MemoryRegion { start: 9437184, end: 19922944, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 19922944, end: 1005805568, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1005805568, end: 1005936640, kind: Usable }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1005936640, end: 1048195072, kind: Usable }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048195072, end: 1048199168, kind: Usable }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048199168, end: 1048584192, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1005936640, end: 1048182784, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048182784, end: 1048186880, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048186880, end: 1048584192, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1048584192, end: 1049329664, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1049329664, end: 1049387008, kind: UnknownUefi(10) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1049387008, end: 1049485312, kind: UnknownUefi(0) }
@@ -47,7 +45,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 1072955392, end: 1073053696, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073053696, end: 1073184768, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073184768, end: 1073741824, kind: UnknownUefi(10) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
-r3_kernel::boot_proto INFO  Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
+r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -57,7 +55,7 @@ r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MS
 r3_kernel::cpu::cpuid INFO  Max standard level 0x14
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x89232f610067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x89235a210067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
@@ -65,24 +63,24 @@ r3_kernel::cpu::exceptions INFO  Prepared basic exceptions.
 r3_kernel::cpu::exceptions INFO  Initialized Interrupt descriptor table.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2142577,
+    instruction_pointer: 2147953,
     code_segment: 8,
-    cpu_flags: 518,
-    stack_pointer: 549755891384,
+    cpu_flags: 514,
+    stack_pointer: 549755891480,
     stack_segment: 0,
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
 r3_kernel::mm::phy   DEBUG Found memory region start=0x0, end=0x1000 as usable.
-r3_kernel::mm::phy   DEBUG Found memory region start=0x34000, end=0xa0000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x33000, end=0xa0000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x100000, end=0x800000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x808000, end=0x810000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x900000, end=0x1300000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x1300000, end=0x3bf36000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x3bf36000, end=0x3bf56000 as usable.
-r3_kernel::mm::phy   DEBUG Found memory region start=0x3bf56000, end=0x3e7a3000 as usable.
-r3_kernel::mm::phy   DEBUG Found memory region start=0x3e7a3000, end=0x3e7a4000 as usable.
-r3_kernel::mm::phy   DEBUG Found memory region start=0x3e7a4000, end=0x3e802000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x3bf56000, end=0x3e7a0000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x3e7a0000, end=0x3e7a1000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x3e7a1000, end=0x3e802000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x3e802000, end=0x3e8b8000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x3e8de000, end=0x3e8df000 as usable.
 r3_kernel::mm::phy   DEBUG Found memory region start=0x3e8df000, end=0x3e9ee000 as usable.
@@ -112,13 +110,13 @@ r3_kernel::mm        INFO  Enabling kernel paging...
 r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa00000002000
 r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa00000002000
 r3_kernel::mm        INFO  Running simple paging test....
-r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012be8
+r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012c48
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
 r3_kernel::mm        INFO  Enabling kernel heap...
 r3_kernel::mm::heap  DEBUG n_heap_pages=2560.
 r3_kernel::mm::heap  DEBUG Mapping kernel virtual memory for heap at 0x7fff00000000
+r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00000033000
 r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00000034000
-r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00000035000
 r3_kernel::mm::heap  INFO  Allocated 10485760bytes at 0x7fff00000000
 r3_kernel::mm::heap  DEBUG Testing heap by allocating a vector: 
 r3_kernel::mm::heap  DEBUG Test vector allocated at: 0x7fff00000000

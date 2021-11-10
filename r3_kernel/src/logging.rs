@@ -6,7 +6,7 @@ use core::panic::PanicInfo;
 
 use log::{LevelFilter, Metadata, Record};
 
-use crate::drivers::uart;
+use crate::drivers::{display::fb_text::FRAMEBUFFER_LOGGER, uart};
 use uart::UART_DRIVER;
 
 // a logger that implements kernel logging functionalities
@@ -26,6 +26,14 @@ macro_rules! print_uart {
     );
 }
 
+macro_rules! print_framebuffer {
+    ($fmt:expr, $($arg:tt)*) => {
+        let _ = FRAMEBUFFER_LOGGER.lock().write_fmt(
+            format_args!(concat!($fmt, "\n"), $($arg)*)
+        );
+    };
+}
+
 impl log::Log for KernelLogger {
     fn enabled(&self, _meta: &Metadata) -> bool {
         // TOOD: Add level based filtering
@@ -33,13 +41,23 @@ impl log::Log for KernelLogger {
     }
 
     fn log(&self, record: &Record) {
-        // TODO: Add level wise filtering and support multiple channels
-        print_uart!(
-            "{:20} {:5} {}",
-            record.target(),
-            record.level(),
-            record.args()
-        );
+        if record.level() <= LevelFilter::Trace {
+            print_uart!(
+                "{:20} {:5} {}",
+                record.target(),
+                record.level(),
+                record.args()
+            );
+        }
+
+        if record.level() <= LevelFilter::Info {
+            print_framebuffer!(
+                "{:20} {:5} {}",
+                record.target(),
+                record.level(),
+                record.args()
+            );
+        }
     }
 
     fn flush(&self) {
