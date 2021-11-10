@@ -8,6 +8,8 @@ use core::fmt;
 use lazy_static::lazy_static;
 use spin::{Mutex, MutexGuard};
 
+const SCROLL_LINES: usize = 10;
+
 pub struct FramebufferLines {
     pub row_line: usize,
     pub col_line: usize,
@@ -16,17 +18,26 @@ pub struct FramebufferLines {
 pub struct FramebufferText;
 
 impl FramebufferText {
-    pub fn scroll(fb: &mut MutexGuard<framebuffer::FramebufferMemory>, _n_lines: usize) {
-        // as of now, clear the screen on scroll:
-        framebuffer::Framebuffer::fill(
-            fb,
-            framebuffer::Pixel {
-                b: 0,
-                g: 0,
-                r: 0,
-                channel: 0,
-            },
-        );
+    pub fn scroll(fb: &mut MutexGuard<framebuffer::FramebufferMemory>, n_lines: usize) {
+        let total_bytes = fb.buffer.len();
+        let offset = n_lines * FONT_HEIGHT * fb.width * fb.bytes_per_pixel;
+
+        let offset_slice = framebuffer::FramebufferMemory::get_slice_from(offset);
+        let target_slice =
+            framebuffer::FramebufferMemory::get_slice_bounded(0, total_bytes - offset);
+
+        // copy from offset:
+        target_slice.unwrap().copy_from_slice(offset_slice.unwrap());
+
+        let black = framebuffer::Pixel {
+            b: 0,
+            g: 0,
+            r: 0,
+            channel: 0,
+        };
+
+        let to_clear_slice = framebuffer::FramebufferMemory::get_slice_from(total_bytes - offset);
+        framebuffer::Framebuffer::fill_region(to_clear_slice.unwrap(), black, fb.bytes_per_pixel);
     }
 
     pub fn print_ascii_char(
@@ -105,10 +116,8 @@ impl FramebufferText {
                 }
 
                 if c_row >= n_rows {
-                    // reached end of screen, TODO: Implement scroll
-                    // as of now, this function clears the screen entirely.
-                    FramebufferText::scroll(fb, 5);
-                    c_row = 0;
+                    FramebufferText::scroll(fb, SCROLL_LINES);
+                    c_row = c_row - SCROLL_LINES;
                     c_col = 0;
                 }
 

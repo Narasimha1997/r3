@@ -63,6 +63,24 @@ impl FramebufferMemory {
             bytes_per_pixel: fb_info.bytes_per_pixel,
         })
     }
+
+    pub fn get_slice_bounded(start: usize, end: usize) -> Option<&'static mut [u8]> {
+        let fb_slice_opt = BootProtocol::get_framebuffer_slice();
+        if fb_slice_opt.is_none() {
+            return None;
+        }
+
+        Some(&mut fb_slice_opt.unwrap()[start..end])
+    }
+
+    pub fn get_slice_from(start: usize) -> Option<&'static mut [u8]> {
+        let fb_slice_opt = BootProtocol::get_framebuffer_slice();
+        if fb_slice_opt.is_none() {
+            return None;
+        }
+
+        Some(&mut fb_slice_opt.unwrap()[start..])
+    }
 }
 
 /// LockedFramebuffer represents a framebuffer memory region with mutex.
@@ -130,15 +148,22 @@ impl Framebuffer {
     }
 
     pub fn fill(fb: &mut MutexGuard<FramebufferMemory>, pixel: Pixel) {
-        let n_bytes = fb.width * fb.height * fb.bytes_per_pixel;
-        let mut offset = 0;
+        let bps = fb.bytes_per_pixel;
+        Framebuffer::fill_region(fb.buffer, pixel, bps);
+    }
 
-        while offset < n_bytes {
-            fb.buffer[offset] = pixel.b;
-            fb.buffer[offset + 1] = pixel.g;
-            fb.buffer[offset + 2] = pixel.r;
-            fb.buffer[offset + 3] = pixel.channel;
-            offset += fb.bytes_per_pixel;
+    pub fn fill_region(fb_region_slice: &mut [u8], pixel: Pixel, bps: usize) {
+        if fb_region_slice.len() % bps != 0 {
+            return;
+        }
+
+        let mut offset = 0;
+        while offset < fb_region_slice.len() {
+            fb_region_slice[offset] = pixel.b;
+            fb_region_slice[offset + 1] = pixel.g;
+            fb_region_slice[offset + 2] = pixel.r;
+            fb_region_slice[offset + 3] = pixel.channel;
+            offset += bps;
         }
     }
 }
