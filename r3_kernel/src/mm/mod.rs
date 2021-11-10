@@ -2,16 +2,16 @@ extern crate log;
 
 use crate::boot_proto::BootProtocol;
 
+pub mod heap;
 pub mod paging;
 pub mod phy;
-pub mod heap;
 
 // some types related to memory management
 
 pub enum MemorySizes {
     OneKiB = 1 * 1024,
     OneMib = 1 * 1024 * 1024,
-    OneGiB = 1 * 1024 * 1024 * 1024
+    OneGiB = 1 * 1024 * 1024 * 1024,
 }
 
 pub enum PageTableLevel {
@@ -158,6 +158,15 @@ impl PhysicalAddress {
     }
 }
 
+pub fn p_to_v(addr: PhysicalAddress) -> VirtualAddress {
+    let phy_offset = BootProtocol::get_phy_offset();
+    if phy_offset.is_none() {
+        panic!("Unable to convert physical address to virtual address.");
+    }
+
+    return VirtualAddress::from_u64(addr.as_u64() + phy_offset.unwrap());
+}
+
 pub fn init() {
     log::info!("Enabling frame allocator...");
     phy::setup_physical_memory();
@@ -177,7 +186,10 @@ pub fn run_initial_paging_test() {
     // some dummy value:
     let expected_value: u64 = 0x34445544;
 
-    log::debug!("The expected value is at virtual address={:p}", &expected_value);
+    log::debug!(
+        "The expected value is at virtual address={:p}",
+        &expected_value
+    );
 
     let k_table = paging::get_kernel_table();
     let phy_addr = k_table.translate(VirtualAddress::from_ptr(&expected_value));
