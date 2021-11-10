@@ -4,15 +4,36 @@ extern crate log;
 use core::fmt::Write;
 use core::panic::PanicInfo;
 
-use log::{LevelFilter, Metadata, Record};
+use log::{Level, LevelFilter, Metadata, Record};
 
-use crate::drivers::{display::fb_text::FRAMEBUFFER_LOGGER, uart};
+use crate::drivers::{display::fb_text::FRAMEBUFFER_LOGGER, display::framebuffer::Pixel, uart};
 use uart::UART_DRIVER;
 
 // a logger that implements kernel logging functionalities
 pub struct KernelLogger;
 
-// implement a writer trait for UART_DRIVER
+fn get_color(level: Level) -> Pixel {
+    match level {
+        Level::Error => Pixel {
+            b: 0,
+            g: 0,
+            r: 255,
+            channel: 0,
+        },
+        Level::Warn => Pixel {
+            b: 0,
+            g: 255,
+            r: 255,
+            channel: 0,
+        },
+        _ => Pixel {
+            b: 255,
+            g: 255,
+            r: 255,
+            channel: 0,
+        },
+    }
+}
 
 // a macro that takes care of writing string to UART:
 macro_rules! print_uart {
@@ -27,8 +48,10 @@ macro_rules! print_uart {
 }
 
 macro_rules! print_framebuffer {
-    ($fmt:expr, $($arg:tt)*) => {
-        let _ = FRAMEBUFFER_LOGGER.lock().write_fmt(
+    ($level:expr, $fmt:expr, $($arg:tt)*) => {
+        let mut fb_lgr_lock = FRAMEBUFFER_LOGGER.lock();
+        fb_lgr_lock.set_color(get_color($level));
+        let _ = fb_lgr_lock.write_fmt(
             format_args!(concat!($fmt, "\n"), $($arg)*)
         );
     };
@@ -41,7 +64,9 @@ impl log::Log for KernelLogger {
     }
 
     fn log(&self, record: &Record) {
-        if record.level() <= LevelFilter::Trace {
+        let level = record.level();
+
+        if level <= LevelFilter::Trace {
             print_uart!(
                 "{:20} {:5} {}",
                 record.target(),
@@ -50,8 +75,9 @@ impl log::Log for KernelLogger {
             );
         }
 
-        if record.level() <= LevelFilter::Info {
+        if level <= LevelFilter::Info {
             print_framebuffer!(
+                level,
                 "{:20} {:5} {}",
                 record.target(),
                 record.level(),

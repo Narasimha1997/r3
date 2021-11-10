@@ -149,6 +149,10 @@ impl FramebufferLogger {
         }
     }
 
+    pub fn set_color(&mut self, color: framebuffer::Pixel) {
+        self.color = color;
+    }
+
     pub fn write(&mut self, string: &str) {
         let locked_buffer_opt = framebuffer::Framebuffer::get_buffer_lock();
         if locked_buffer_opt.is_none() {
