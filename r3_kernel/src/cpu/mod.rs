@@ -1,11 +1,13 @@
 pub mod cpuid;
 pub mod exceptions;
+pub mod hw_interrupts;
 pub mod interrupts;
 pub mod io;
-pub mod rflags;
-pub mod segments;
 pub mod mmu;
 pub mod pic;
+pub mod pit;
+pub mod rflags;
+pub mod segments;
 
 pub fn enable_interrupts() {
     unsafe {
@@ -71,4 +73,9 @@ pub fn run_test_breakpoint_recovery() {
 
 pub fn init_core_hardware() {
     pic::setup_pics();
+    hw_interrupts::setup_hw_interrupts();
+
+    // enable legacy interrupts:
+    pic::enable_legacy_interrupts();
+    log::info!("Enabled legacy PIC chip.");
 }

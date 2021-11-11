@@ -242,6 +242,18 @@ lazy_static! {
     pub static ref CHAINED_PIC: Mutex<ChainedPIC> = Mutex::new(ChainedPIC::init(0xff, 0xff));
 }
 
+/// Enables legacy interrupts by clearing the mask bits
+/// when enabled, PIC will raise interrupts on behalf of hardware devices.
+pub fn enable_legacy_interrupts() {
+    CHAINED_PIC.lock().mask_requests(0x00, 0x08);
+}
+
+/// Disables legacy interrupts by setting the masks.
+/// We can disabled PIC once we migrate to LAPIC during SMP boot.
+pub fn disable_legacy_interrupts() {
+    CHAINED_PIC.lock().mask_requests(0xff, 0xff);
+}
+
 pub fn setup_pics() {
     log::info!(
         "PICs initialized in chain PIC mode, n_pics={}",

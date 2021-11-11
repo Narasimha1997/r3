@@ -159,7 +159,7 @@ pub struct InterruptDescriptorTable {
     reserved_2: [InterruptDescriptorEntry<DefaultHandlerFunction>; 9],
     pub security_exception: InterruptDescriptorEntry<HandlerFunctionWithErr>,
     reserved_3: InterruptDescriptorEntry<DefaultHandlerFunction>,
-    interrupts: [InterruptDescriptorEntry<DefaultHandlerFunction>; 256 - 32],
+    pub interrupts: [InterruptDescriptorEntry<DefaultHandlerFunction>; 256 - 32],
 }
 
 impl InterruptDescriptorTable {
@@ -234,6 +234,16 @@ pub fn prepare_page_fault_handler(
 ) -> InterruptDescriptorEntry<PageFaultHandlerType> {
     let handle_addr = func as u64;
     let mut idt_entry = InterruptDescriptorEntry::empty();
+    idt_entry.set_handler(handle_addr);
+    return idt_entry;
+}
+
+pub fn prepare_irq_handler(
+    func: DefaultHandlerFunction,
+) -> InterruptDescriptorEntry<DefaultHandlerFunction> {
+    let handle_addr = func as u64;
+    let mut idt_entry = InterruptDescriptorEntry::empty();
+
     idt_entry.set_handler(handle_addr);
     return idt_entry;
 }
