@@ -28,8 +28,9 @@ pub fn init_basic_setup(boot_info: &'static BootInfo) {
     log::info!("Hello, kernel world!");
     BootProtocol::print_boot_info();
 
-    cpu::init_features_detection();
     cpu::init_base_processor_tables();
+    cpu::init_core_hardware();
+    cpu::init_features_detection();
     cpu::run_test_breakpoint_recovery();
 
     mm::init();

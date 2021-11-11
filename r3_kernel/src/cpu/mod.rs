@@ -5,6 +5,7 @@ pub mod io;
 pub mod rflags;
 pub mod segments;
 pub mod mmu;
+pub mod pic;
 
 pub fn enable_interrupts() {
     unsafe {
@@ -27,8 +28,6 @@ pub fn create_breakpoint() {
         asm!("int3", options(nomem, nostack));
     }
 }
-
-
 
 pub fn halt() {
     unsafe {
@@ -68,4 +67,8 @@ pub fn init_features_detection() {
 pub fn run_test_breakpoint_recovery() {
     create_breakpoint();
     log::info!("Recovered from breakpoint, interrupts properly working.");
+}
+
+pub fn init_core_hardware() {
+    pic::setup_pics();
 }

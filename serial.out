@@ -12,6 +12,13 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=1024 height=768 bps=4 pixel_format=BGR
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x8923db990067
+r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
+r3_kernel::cpu::segments INFO  Initialized GDT.
+r3_kernel::cpu::segments INFO  Initialized TSS.
+r3_kernel::cpu::exceptions INFO  Prepared basic exceptions.
+r3_kernel::cpu::exceptions INFO  Initialized Interrupt descriptor table.
+r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -21,15 +28,9 @@ r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MS
 r3_kernel::cpu::cpuid INFO  Max standard level 0x14
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x8923d3b90067
-r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
-r3_kernel::cpu::segments INFO  Initialized GDT.
-r3_kernel::cpu::segments INFO  Initialized TSS.
-r3_kernel::cpu::exceptions INFO  Prepared basic exceptions.
-r3_kernel::cpu::exceptions INFO  Initialized Interrupt descriptor table.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2154161,
+    instruction_pointer: 2154993,
     code_segment: 8,
     cpu_flags: 2,
     stack_pointer: 549755891368,
@@ -41,8 +42,8 @@ r3_kernel::mm::phy   DEBUG Found memory region start=0x48d000, end=0x3ffe0000 as
 r3_kernel::mm::phy   INFO  Found 2 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa00000457000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa00000457000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa00000458000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa00000458000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012bd8
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -58,20 +59,7 @@ r3_kernel::mm::heap  INFO  Passed heap allocator test, successfully allocated an
 r3_kernel::mm::heap  INFO  Setting up Kernel heap as Rust Global allocator is successful.
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=3, supports_acpi_2=false
-r3_kernel::acpi::rsdt DEBUG Table sig: FACP
-r3_kernel::acpi::rsdt DEBUG Table sig: APIC
-r3_kernel::acpi::madt INFO  Tables size: 100
-r3_kernel::acpi::madt INFO  8 0
-r3_kernel::acpi::madt INFO  8 0
-r3_kernel::acpi::madt INFO  8 0
-r3_kernel::acpi::madt INFO  8 0
-r3_kernel::acpi::madt INFO  12 1
-r3_kernel::acpi::madt INFO  10 2
-r3_kernel::acpi::madt INFO  10 2
-r3_kernel::acpi::madt INFO  10 2
-r3_kernel::acpi::madt INFO  10 2
-r3_kernel::acpi::madt INFO  10 2
-r3_kernel::acpi::madt INFO  6 4
+r3_kernel::acpi::madt DEBUG APIC Tables size: 100
 r3_kernel::acpi::madt INFO  Number of CPU cores: 4, Local APIC Address: 0xffffa000fee00000
 r3_kernel::acpi::madt INFO  CPU-0 - 0
 r3_kernel::acpi::madt INFO  CPU-1 - 1
