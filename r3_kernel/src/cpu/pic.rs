@@ -108,6 +108,7 @@ impl PIC {
 
 pub struct ChainedPIC {
     pub pics: [PIC; 2],
+    pub is_enabled: bool,
 }
 
 impl ChainedPIC {
@@ -231,6 +232,7 @@ impl ChainedPIC {
                     IRQ_OFFSET + MAX_INTERRUPTS_PER_CHIP,
                 ),
             ],
+            is_enabled: false,
         };
 
         cpcis.setup(master_mask, slave_mask);
@@ -245,13 +247,19 @@ lazy_static! {
 /// Enables legacy interrupts by clearing the mask bits
 /// when enabled, PIC will raise interrupts on behalf of hardware devices.
 pub fn enable_legacy_interrupts() {
-    CHAINED_PIC.lock().mask_requests(0x00, 0x08);
+    let chained_pic = CHAINED_PIC.lock();
+    if !chained_pic.is_enabled {
+        chained_pic.mask_requests(0x00, 0x08);
+    }
 }
 
 /// Disables legacy interrupts by setting the masks.
 /// We can disabled PIC once we migrate to LAPIC during SMP boot.
 pub fn disable_legacy_interrupts() {
-    CHAINED_PIC.lock().mask_requests(0xff, 0xff);
+    let chained_pic = CHAINED_PIC.lock();
+    if chained_pic.is_enabled {
+        chained_pic.mask_requests(0xff, 0xff);
+    }
 }
 
 pub fn setup_pics() {

@@ -37,7 +37,7 @@ pub fn init_basic_setup(boot_info: &'static BootInfo) {
     acpi::init();
 
     // pit sleep for sometime:
-    cpu::pit::sleep_ns(10 * 1000000000);
+    cpu::tsc::TSCSleeper::sleep_sec(10);
 
     log::info!("Initial stage booted properly.");
 }

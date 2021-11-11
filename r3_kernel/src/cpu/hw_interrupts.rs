@@ -12,7 +12,6 @@ use pit::pit_callback;
 
 extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
     pit_callback();
-    log::debug!("Got PIT tick!");
     CHAINED_PIC.lock().send_eoi(0x20);
 }
 

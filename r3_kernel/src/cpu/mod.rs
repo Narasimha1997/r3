@@ -8,6 +8,7 @@ pub mod pic;
 pub mod pit;
 pub mod rflags;
 pub mod segments;
+pub mod tsc;
 
 pub fn enable_interrupts() {
     unsafe {
@@ -78,4 +79,5 @@ pub fn init_core_hardware() {
     // enable legacy interrupts:
     pic::enable_legacy_interrupts();
     log::info!("Enabled legacy PIC chip.");
+    tsc::init_timer();
 }
