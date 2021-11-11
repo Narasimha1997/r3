@@ -16,7 +16,7 @@ fi
 
 
 KERNEL_BIN_PATH="./kbin"
-QEMU_ARGS="-enable-kvm -cpu host -m 1G -M pc --serial file:serial.out"
+QEMU_ARGS="-enable-kvm -cpu host -smp 4 -m 1G -M pc --serial file:serial.out"
 
 if [[ "$1" == "--uefi" || "$2" == "--uefi" || "$3" == "--uefi" ]]; then
     KERNEL_BIN_PATH="$KERNEL_BIN_PATH/boot-uefi-r3_kernel.img"

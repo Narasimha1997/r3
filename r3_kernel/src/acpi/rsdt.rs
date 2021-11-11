@@ -154,7 +154,7 @@ pub fn init_acpi() -> Option<Acpi> {
         }
     }
 
-    let mut n_tables = root_header.length as usize - mem::size_of::<SDTHeader>() / ptr_size;
+    let mut n_tables = (root_header.length as usize - mem::size_of::<SDTHeader>()) / ptr_size;
     if n_tables > MAX_ACPI_TABLES {
         log::warn!(
             "Provided ACPI tables ({}) exceeds maximum allowed tables ({}).",
@@ -172,7 +172,18 @@ pub fn init_acpi() -> Option<Acpi> {
             head_addr.as_u64() + (mem::size_of::<SDTHeader>() + idx * ptr_size) as u64,
         ));
 
-        acpi_tables[idx] = address;
+        let table_address = match root_table {
+            AcpiRootTableKind::RSDT(_) => {
+                let ptr: u32 = unsafe { *address.get_ptr() };
+                p_to_v(PhysicalAddress::from_u64(ptr as u64))
+            }
+            AcpiRootTableKind::XSDT(_) => {
+                let ptr: u64 = unsafe { *address.get_ptr() };
+                p_to_v(PhysicalAddress::from_u64(ptr))
+            }
+        };
+
+        acpi_tables[idx] = table_address;
     }
 
     Some(Acpi {
@@ -186,7 +197,8 @@ impl Acpi {
     fn has_signature(&self, idx: usize, signature: &str) -> bool {
         unsafe {
             let sdt_header: &SDTHeader = &*self.tables[idx].get_ptr();
-            str::from_utf8_unchecked(&sdt_header.signature) == signature
+            let st = str::from_utf8_unchecked(&sdt_header.signature);
+            st == signature
         }
     }
 
