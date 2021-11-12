@@ -171,7 +171,7 @@ pub struct PCIDevice {
 impl PCIDevice {
     pub fn new(bus: u8, dev: u8, func: u8) -> PCIDevice {
         let vendor_id = PCIDeviceQuery::VendorID.query(bus, dev, func);
-        let device_id = PCIDeviceQuery::VendorID.query(bus, dev, func);
+        let device_id = PCIDeviceQuery::DeviceID.query(bus, dev, func);
 
         let mut bars: [u32; 6] = [0; 6];
 

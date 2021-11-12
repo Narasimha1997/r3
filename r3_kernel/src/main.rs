@@ -19,7 +19,7 @@ use bootloader::BootInfo;
 
 /// This function is called on panic.
 
-pub fn init_basic_setup(boot_info: &'static BootInfo) {
+fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
 
     drivers::display::init();
@@ -41,14 +41,18 @@ pub fn init_basic_setup(boot_info: &'static BootInfo) {
     drivers::pci::detect_devices();
 
     // pit sleep for sometime:
-    cpu::tsc::TSCSleeper::sleep_sec(10);
+    cpu::tsc::TSCSleeper::sleep_sec(1);
 
     log::info!("Initial stage booted properly.");
 }
 
+fn init_smp() {
+    acpi::setup_smp_prerequisites();
+}
+
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
-    // init basic logging through UART as of now:
     init_basic_setup(boot_info);
+    init_smp();
     cpu::halt_no_interrupts();
 }
