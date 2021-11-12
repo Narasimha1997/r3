@@ -1,5 +1,6 @@
 const IO_WAIT_PORT: usize = 0x80;
 
+#[derive(Clone, Copy)]
 pub struct Port {
     pub port_no: usize,
     pub read_only: bool,
