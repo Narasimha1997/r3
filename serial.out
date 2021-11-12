@@ -1,28 +1,29 @@
 r3_kernel            INFO  Hello, kernel world!
 r3_kernel::boot_proto INFO  Bootloader version: 0.10.9
-r3_kernel::boot_proto INFO  RSDT Address: Some(1009600)
+r3_kernel::boot_proto INFO  RSDT Address: Some(1009872)
 r3_kernel::boot_proto INFO  Memory offset: 0xffffa00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 4788224, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 4788224, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 4792320, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 4792320, end: 1073610752, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
-r3_kernel::boot_proto DEBUG Framebuffer info: width=1024 height=768 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x8923f9610067
+r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x89241c710067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
 r3_kernel::cpu::exceptions INFO  Prepared basic exceptions.
 r3_kernel::cpu::exceptions INFO  Initialized Interrupt descriptor table.
+r3_kernel::cpu::pic  DEBUG After mask.
 r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2013952800
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2003581200
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -34,7 +35,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2156833,
+    instruction_pointer: 2159537,
     code_segment: 8,
     cpu_flags: 2,
     stack_pointer: 549755891368,
@@ -42,12 +43,12 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   DEBUG Found memory region start=0x491000, end=0x3ffe0000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x492000, end=0x3ffe0000 as usable.
 r3_kernel::mm::phy   INFO  Found 2 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa0000045b000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa0000045b000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa0000045e000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa0000045e000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012bd8
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -63,10 +64,15 @@ r3_kernel::mm::heap  INFO  Passed heap allocator test, successfully allocated an
 r3_kernel::mm::heap  INFO  Setting up Kernel heap as Rust Global allocator is successful.
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=3, supports_acpi_2=false
-r3_kernel::acpi::madt DEBUG APIC Tables size: 100
-r3_kernel::acpi::madt INFO  Number of CPU cores: 4, Local APIC Address: 0xffffa000fee00000
+r3_kernel::acpi::madt DEBUG APIC Tables size: 76
+r3_kernel::acpi::madt INFO  Number of CPU cores: 1, Local APIC Address: 0xffffa000fee00000
 r3_kernel::acpi::madt INFO  CPU-0 - 0
-r3_kernel::acpi::madt INFO  CPU-1 - 1
-r3_kernel::acpi::madt INFO  CPU-2 - 2
-r3_kernel::acpi::madt INFO  CPU-3 - 3
+r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=0, func=0
+         vendor_id=1237, device_id=1237
+r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=1, func=0
+         vendor_id=7000, device_id=7000
+r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=2, func=0
+         vendor_id=1111, device_id=1111
+r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=3, func=0
+         vendor_id=100e, device_id=100e
 r3_kernel            INFO  Initial stage booted properly.

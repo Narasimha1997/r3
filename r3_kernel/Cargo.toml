@@ -27,5 +27,5 @@ features = ["spin_no_std"]
 [package.metadata.bootloader]
 map-physical-memory = true
 physical-memory-offset = 0x0000_A000_0000_0000
-minimum-framebuffer-width = 720
-minimum-framebuffer-height = 640
+minimum-framebuffer-width = 800
+minimum-framebuffer-height = 600

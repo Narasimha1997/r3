@@ -217,7 +217,6 @@ impl ChainedPIC {
         // clear off the interrupts if any:
         master.eoi();
         wait(1);
-
         slave.eoi();
         wait(1);
     }

@@ -29,12 +29,16 @@ pub fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::print_boot_info();
 
     cpu::init_base_processor_tables();
-    cpu::init_core_hardware();
+
+    cpu::init_core_legacy_hardware();
     cpu::init_features_detection();
     cpu::run_test_breakpoint_recovery();
 
     mm::init();
     acpi::init();
+
+    // init PCI device list.
+    drivers::pci::detect_devices();
 
     // pit sleep for sometime:
     cpu::tsc::TSCSleeper::sleep_sec(10);

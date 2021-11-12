@@ -72,7 +72,7 @@ pub fn run_test_breakpoint_recovery() {
     log::info!("Recovered from breakpoint, interrupts properly working.");
 }
 
-pub fn init_core_hardware() {
+pub fn init_core_legacy_hardware() {
     pic::setup_pics();
     hw_interrupts::setup_hw_interrupts();
 
