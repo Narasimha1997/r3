@@ -6,6 +6,7 @@ pub mod heap;
 pub mod paging;
 pub mod phy;
 pub mod io;
+pub mod stack;
 
 // some types related to memory management
 
@@ -178,6 +179,8 @@ pub fn init() {
     // init kenel heap
     log::info!("Enabling kernel heap...");
     heap::init_heap();
+
+    stack::setup_stack_allocator();
 }
 
 #[inline]
