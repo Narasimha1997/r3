@@ -151,6 +151,11 @@ impl TSCTimerShot {
         Self::set_shot_at(safe_ticks_from_ns(ns));
     }
 
+    pub fn create_shot_after_ns(ns: u64) {
+        let ticks = safe_ticks_from_ns(ns);
+        Self::create_shot_from_ticks(ticks);
+    }
+
     pub fn create_shot_from_ticks(ticks: TSCTicks) {
         let n_ticks = TSCTicks(TSC::read_tsc().0 + ticks.0);
         Self::set_shot_at(n_ticks);

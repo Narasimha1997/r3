@@ -13,6 +13,7 @@ pub mod cpu;
 pub mod drivers;
 pub mod logging;
 pub mod mm;
+pub mod system;
 
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
@@ -48,11 +49,15 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
 
 fn init_smp() {
     acpi::setup_smp_prerequisites();
+    cpu::hw_interrupts::setup_post_apic_interrupts();
+
+    system::timer::SystemTimer::start_ticks();
 }
 
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     init_basic_setup(boot_info);
     init_smp();
-    cpu::halt_no_interrupts();
+
+    cpu::halt_with_interrupts();
 }
