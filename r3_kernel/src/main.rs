@@ -53,6 +53,8 @@ fn init_smp() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
 
+    system::process::setup_process_pool();
+
     system::timer::SystemTimer::start_ticks();
 }
 
