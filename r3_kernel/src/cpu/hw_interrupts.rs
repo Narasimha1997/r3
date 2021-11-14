@@ -18,7 +18,7 @@ const PIT_INTERRUPT_LINE: usize = 0x00;
 const LAPIC_TIMER_INTERRUPT: usize = 0x10;
 
 use exceptions::IDT;
-use interrupts::{prepare_default_handle, InterruptStackFrame};
+use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFrame};
 use pic::CHAINED_PIC;
 use pit::pit_callback;
 
@@ -30,7 +30,8 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
         .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
 }
 
-extern "x86-interrupt" fn tsc_deadline_interrupt(_stk: InterruptStackFrame) {
+#[naked]
+extern "C" fn tsc_deadline_interrupt(_stk: InterruptStackFrame) {
     lapic::LAPICUtils::eoi();
 
     SystemTimer::post_shot();
@@ -42,6 +43,6 @@ pub fn setup_hw_interrupts() {
 }
 
 pub fn setup_post_apic_interrupts() {
-    let irq0x30_handle = prepare_default_handle(tsc_deadline_interrupt);
-    IDT.lock().interrupts[LAPIC_TIMER_INTERRUPT] = irq0x30_handle;
+    let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt);
+    IDT.lock().naked_0 = irq0x30_handle;
 }

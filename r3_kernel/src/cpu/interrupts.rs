@@ -125,6 +125,8 @@ pub type HandlerFuncNoReturnWithErr = extern "x86-interrupt" fn(InterruptStackFr
 pub type PageFaultHandlerType =
     extern "x86-interrupt" fn(InterruptStackFrame, PageFaultExceptionTypes) -> !;
 
+pub type NakedHandlerType = extern "C" fn(InterruptStackFrame);
+
 // pointer struct which points to the IDT table:
 #[repr(C, packed)]
 pub struct IDTPointer {
@@ -159,7 +161,9 @@ pub struct InterruptDescriptorTable {
     reserved_2: [InterruptDescriptorEntry<DefaultHandlerFunction>; 9],
     pub security_exception: InterruptDescriptorEntry<HandlerFunctionWithErr>,
     reserved_3: InterruptDescriptorEntry<DefaultHandlerFunction>,
-    pub interrupts: [InterruptDescriptorEntry<DefaultHandlerFunction>; 256 - 32],
+    pub interrupts: [InterruptDescriptorEntry<DefaultHandlerFunction>; 15],
+    pub naked_0: InterruptDescriptorEntry<NakedHandlerType>,
+    pub interrupts_1: [InterruptDescriptorEntry<DefaultHandlerFunction>; 240 - 32],
 }
 
 impl InterruptDescriptorTable {
@@ -189,7 +193,9 @@ impl InterruptDescriptorTable {
             reserved_2: [InterruptDescriptorEntry::empty(); 9],
             security_exception: InterruptDescriptorEntry::empty(),
             reserved_3: InterruptDescriptorEntry::empty(),
-            interrupts: [InterruptDescriptorEntry::empty(); 256 - 32],
+            interrupts: [InterruptDescriptorEntry::empty(); 15],
+            naked_0: InterruptDescriptorEntry::empty(),
+            interrupts_1: [InterruptDescriptorEntry::empty(); 240 - 32],
         }
     }
 
@@ -238,9 +244,7 @@ pub fn prepare_page_fault_handler(
     return idt_entry;
 }
 
-pub fn prepare_irq_handler(
-    func: DefaultHandlerFunction,
-) -> InterruptDescriptorEntry<DefaultHandlerFunction> {
+pub fn prepare_naked_handler(func: NakedHandlerType) -> InterruptDescriptorEntry<NakedHandlerType> {
     let handle_addr = func as u64;
     let mut idt_entry = InterruptDescriptorEntry::empty();
 

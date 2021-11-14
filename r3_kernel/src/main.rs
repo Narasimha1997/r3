@@ -3,6 +3,7 @@
 #![feature(abi_x86_interrupt)]
 #![feature(asm)] // enable asm
 #![feature(alloc_error_handler)] // enable allocation errors
+#![feature(naked_functions)] // allow naked calling convention
 
 extern crate bootloader;
 extern crate log;
