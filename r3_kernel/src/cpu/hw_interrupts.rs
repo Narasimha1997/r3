@@ -5,6 +5,7 @@ use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
+use crate::cpu::state::CPURegistersState;
 use crate::system::timer::SystemTimer;
 
 /// hardware interrupts start from 0x20, i.e from 32
@@ -13,9 +14,6 @@ const HARDWARE_INTERRUPTS_BASE: usize = 0x20;
 
 /// PIT interrupt line:
 const PIT_INTERRUPT_LINE: usize = 0x00;
-
-/// LAPIC Timer interrupt line
-const LAPIC_TIMER_INTERRUPT: usize = 0x10;
 
 use exceptions::IDT;
 use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFrame};
@@ -31,10 +29,28 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
 }
 
 #[naked]
-extern "C" fn tsc_deadline_interrupt(_stk: InterruptStackFrame) {
-    lapic::LAPICUtils::eoi();
+#[allow(unsupported_naked_functions)]
+/// This function is called via Naked ABI: https://github.com/nox/rust-rfcs/blob/master/text/1201-naked-fns.md
+/// this ABI keeps all the registers unaffected, the state of the CPU is dumped into
+/// CPURegustersState type, this can be used by schedulers context switched.
+/// The warning 'unsupported_naked_functions' is allowed since
+/// get_state() calls assembly and is always inlined.
+extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
+    // as of now, this function saves the current state,
+    // saves the CPU states, performs some work and enables
+    // the next timer event, then loads the previously saved state
+    // so execution can continue normally.
+    unsafe {
+        let state = CPURegistersState::get_state();
+        let ctx = (*state).clone();
 
-    SystemTimer::post_shot();
+        log::info!("Context: {:?}", ctx);
+
+        lapic::LAPICUtils::eoi();
+        SystemTimer::post_shot();
+
+        CPURegistersState::load_state(&ctx);
+    }
 }
 
 pub fn setup_hw_interrupts() {
