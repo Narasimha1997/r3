@@ -111,6 +111,7 @@ pub struct Thread {
     pub name: String,
     pub state: ThreadState,
     pub sched_count: u64,
+    pub stack_start: VirtualAddress,
 }
 
 impl Thread {
@@ -171,7 +172,16 @@ impl Thread {
             thread_id: tid,
             state: ThreadState::Waiting,
             sched_count: 0,
+            stack_start: stack,
         })
+    }
+
+    #[inline]
+    pub fn free_stack(&self) {
+        STACK_ALLOCATOR
+            .lock()
+            .free_stack(self.stack_start)
+            .expect("Failed to free stack after thread exit");
     }
 
     pub fn load_state(&self) {

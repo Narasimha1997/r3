@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 
 use crate::cpu::state::CPURegistersState;
-use crate::system::tasking::Sched;
+use crate::system::tasking::{handle_exit, Sched};
 use crate::system::thread::{ContextType, Thread};
 
 #[derive(Debug, Clone)]
@@ -34,6 +34,25 @@ impl Sched for SimpleRoundRobinSchduler {
             if let Some(thread_ref) = self.thread_list.get_mut(thread_id) {
                 thread_ref.context = ContextType::SavedContext(state);
             }
+        }
+    }
+
+    fn exit(&mut self, code: u64) {
+        // initiate exit operation:
+        // 1. get the thread index
+        if let Some(thread_index) = self.thread_index {
+            // remove the thread from the queue
+            // get the thread ID
+            let thread_ref = self.thread_list.get(thread_index).unwrap();
+            handle_exit(&thread_ref);
+            log::debug!(
+                "Thread {} exited with code={}",
+                thread_ref.thread_id.as_u64(),
+                code
+            );
+            // remove the thread
+            self.thread_list.remove(thread_index);
+            self.thread_index = None;
         }
     }
 

@@ -70,10 +70,15 @@ fn thread_2() {
         if counter % 200 == 0 {
             log::info!("Thread-2: {}", counter);
         }
+
         for _ in 0..1000 {
             cpu::io::wait(1);
         }
         counter += 1;
+
+        if counter % 1001 == 0 {
+            system::tasking::exit(0);
+        }
     }
 }
 
