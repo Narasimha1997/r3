@@ -5,7 +5,7 @@ extern crate spin;
 use crate::cpu::{mmu, segments, state::CPURegistersState};
 use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, VirtualAddress};
 use crate::system::process::{PID, PROCESS_POOL};
-use crate::system::scheduler::SCHEDULER;
+use crate::system::tasking::{Sched, SCHEDULER};
 
 use alloc::{collections::BTreeMap, string::String};
 use core::sync::atomic::{AtomicU64, Ordering};
@@ -136,23 +136,33 @@ impl Thread {
 
         let parent_cr3 = proc.cr3;
 
-        let _ = STACK_ALLOCATOR.lock().alloc_stack();
         let stack_alloc_result = STACK_ALLOCATOR.lock().alloc_stack();
         if stack_alloc_result.is_err() {
-            return Err(ThreadError::OutOfStacks);
+            panic!("Out of stack memory. Failed to allocate memory for thread.");
         }
-
         let stack = stack_alloc_result.unwrap();
 
-        // create a new state:
-        let context = ContextType::InitContext(InitialStateContainer {
-            cr3_base: parent_cr3.as_u64(),
+        let init_context = InitialStateContainer {
+            cr3_base: parent_cr3,
             rip_address: function_addr,
             stack_end: VirtualAddress::from_u64(stack.as_u64() + STACK_SIZE as u64),
-        });
+        };
 
         let tid = new_tid();
         proc.add_thread(tid.clone());
+
+        log::debug!(
+            "Initialized context for new thread
+            thread_id={}, page_table=0x{:x}, rip=0x{:x},
+            stack_end=0x{:x}",
+            tid.as_u64(),
+            init_context.cr3_base,
+            init_context.rip_address.as_u64(),
+            init_context.stack_end.as_u64()
+        );
+
+        // create a new state:
+        let context = ContextType::InitContext(init_context);
 
         Ok(Thread {
             parent_pid: pid,
@@ -184,8 +194,12 @@ impl Thread {
     }
 }
 
+/// ThreadPool: Stores all the thread irrespective of their states
+/// this structure serves as a book-keeper for threads.
 pub struct ThreadPool {
+    /// Number of threads currently under book-keeping.
     pub n_threads: usize,
+    /// Number of threads currently
     pub pool_map: BTreeMap<u64, Thread>,
 }
 

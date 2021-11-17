@@ -55,7 +55,7 @@ pub struct Process {
     /// state - running/terminated or waiting
     pub state: ProcessState,
     /// Page table base physical address
-    pub cr3: PhysicalAddress,
+    pub cr3: u64,
     /// thread IDs, points to thread IDs
     pub threads: Vec<ThreadID>,
     /// if true, the process is in userland
@@ -78,7 +78,7 @@ impl Process {
         Process {
             pid,
             state: ProcessState::NoThreads,
-            cr3: kernel_cr3,
+            cr3: kernel_cr3.as_u64(),
             threads: Vec::new(),
             user,
             name,
@@ -106,7 +106,7 @@ impl Process {
     }
 
     #[inline]
-    pub fn get_page_table(&self) -> PhysicalAddress {
+    pub fn get_page_table(&self) -> u64 {
         self.cr3
     }
 

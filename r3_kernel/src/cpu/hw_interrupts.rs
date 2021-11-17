@@ -1,14 +1,13 @@
 extern crate log;
 
-use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
-use crate::cpu::state::CPURegistersState;
-use crate::system::timer::SystemTimer;
 
-use crate::system::scheduler::SCHEDULER;
+#[allow(unused_imports)]
+// unused because this is called from assembly
+use crate::system::tasking::schedule_handle;
 
 /// hardware interrupts start from 0x20, i.e from 32
 /// because of interrupt remapping.
@@ -28,18 +27,6 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
     CHAINED_PIC
         .lock()
         .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
-}
-
-#[no_mangle]
-pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
-    // eoi:
-    LAPICUtils::eoi();
-
-    let thread_opt = SCHEDULER.lock().run_schedule(state_repr);
-    if thread_opt.is_some() {
-        SystemTimer::next_shot();
-        thread_opt.unwrap().load_state();
-    }
 }
 
 #[naked]

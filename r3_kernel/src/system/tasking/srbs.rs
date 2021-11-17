@@ -1,14 +1,8 @@
-extern crate alloc;
-extern crate log;
-extern crate spin;
-
 use alloc::vec::Vec;
 
 use crate::cpu::state::CPURegistersState;
+use crate::system::tasking::Sched;
 use crate::system::thread::{ContextType, Thread};
-use spin::Mutex;
-
-use lazy_static::lazy_static;
 
 #[derive(Debug, Clone)]
 /// A scheduler that schedules tasks from
@@ -21,8 +15,8 @@ pub struct SimpleRoundRobinSchduler {
     pub thread_index: Option<usize>,
 }
 
-impl SimpleRoundRobinSchduler {
-    pub fn empty() -> Self {
+impl Sched for SimpleRoundRobinSchduler {
+    fn empty() -> Self {
         SimpleRoundRobinSchduler {
             thread_list: Vec::new(),
             thread_index: None,
@@ -30,12 +24,12 @@ impl SimpleRoundRobinSchduler {
     }
 
     /// Adds a new function to the list
-    pub fn add_new_thread(&mut self, thread: Thread) {
+    fn add_new_thread(&mut self, thread: Thread) {
         log::debug!("Adding thread {:?} to the thread queue.", thread.thread_id);
         self.thread_list.push(thread);
     }
 
-    pub fn save_current_ctx(&mut self, state: CPURegistersState) {
+    fn save_current_ctx(&mut self, state: CPURegistersState) {
         if let Some(thread_id) = self.thread_index {
             if let Some(thread_ref) = self.thread_list.get_mut(thread_id) {
                 thread_ref.context = ContextType::SavedContext(state);
@@ -43,8 +37,7 @@ impl SimpleRoundRobinSchduler {
         }
     }
 
-    pub fn run_schedule(&mut self, state: CPURegistersState) -> Option<Thread> {
-        self.save_current_ctx(state);
+    fn lease_next_thread(&mut self) -> Option<Thread> {
         // got a schedule request
         if self.thread_list.is_empty() {
             return None;
@@ -68,16 +61,4 @@ impl SimpleRoundRobinSchduler {
 
         None
     }
-}
-
-lazy_static! {
-    pub static ref SCHEDULER: Mutex<SimpleRoundRobinSchduler> =
-        Mutex::new(SimpleRoundRobinSchduler::empty());
-}
-
-pub fn setup_scheduler() {
-    log::info!(
-        "Setup scheduler successful, initial thread={:?}",
-        SCHEDULER.lock().thread_index
-    );
 }

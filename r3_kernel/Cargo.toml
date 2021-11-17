@@ -4,10 +4,6 @@ version = "0.0.1"
 authors = ["Narasimha1997 <yogaimpression@gmail.com>"]
 edition = "2018"
 
-[unstable]
-build-std = ["core", "compiler_builtins", "alloc"]
-
-
 [dependencies]
 bootloader = {version = "0.10.9", path = "../third_party/crates/bootloader"}
 linked_list_allocator = {version = "0.9.1", path = "../third_party/crates/linked-list-allocator"}
