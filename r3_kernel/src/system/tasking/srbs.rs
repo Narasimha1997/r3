@@ -3,6 +3,7 @@ use alloc::vec::Vec;
 use crate::cpu::state::CPURegistersState;
 use crate::system::tasking::{handle_exit, Sched};
 use crate::system::thread::{ContextType, Thread};
+use crate::alloc::boxed::Box;
 
 #[derive(Debug, Clone)]
 /// A scheduler that schedules tasks from
@@ -32,7 +33,7 @@ impl Sched for SimpleRoundRobinSchduler {
     fn save_current_ctx(&mut self, state: CPURegistersState) {
         if let Some(thread_id) = self.thread_index {
             if let Some(thread_ref) = self.thread_list.get_mut(thread_id) {
-                thread_ref.context = ContextType::SavedContext(state);
+                thread_ref.context = Box::new(ContextType::SavedContext(state));
             }
         }
     }

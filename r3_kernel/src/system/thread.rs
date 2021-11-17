@@ -7,7 +7,7 @@ use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, VirtualAddress};
 use crate::system::process::{PID, PROCESS_POOL};
 use crate::system::tasking::{Sched, SCHEDULER};
 
-use alloc::{collections::BTreeMap, string::String};
+use alloc::{boxed::Box, collections::BTreeMap, string::String};
 use core::sync::atomic::{AtomicU64, Ordering};
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -108,7 +108,7 @@ impl Context {
 pub struct Thread {
     pub thread_id: ThreadID,
     pub parent_pid: PID,
-    pub context: ContextType,
+    pub context: Box<ContextType>,
     pub name: String,
     pub state: ThreadState,
     pub sched_count: u64,
@@ -168,7 +168,7 @@ impl Thread {
 
         Ok(Thread {
             parent_pid: pid,
-            context,
+            context: Box::new(context),
             name,
             thread_id: tid,
             state: ThreadState::Waiting,
@@ -187,7 +187,7 @@ impl Thread {
 
     #[inline]
     pub fn load_state(&self) {
-        match &self.context {
+        match self.context.as_ref() {
             ContextType::InitContext(ctx) => {
                 // initial context, create a new context object:
                 mmu::reload_flush();
@@ -288,14 +288,11 @@ pub fn new_from_function(
     let thread = th_res.unwrap();
     let tid = thread.thread_id;
 
-    THREAD_POOL.lock().add_thread(thread.clone());
-    log::info!("New thread");
-
+    THREAD_POOL.lock().add_thread(thread);
     Ok(tid)
 }
 
 pub fn run_thread(tid: &ThreadID) {
-
     let mut pool_lock = THREAD_POOL.lock();
     let thread_obj = pool_lock.get_mut_ref(tid);
 
