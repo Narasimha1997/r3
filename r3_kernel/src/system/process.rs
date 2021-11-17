@@ -35,6 +35,11 @@ pub struct PID(u64);
 
 impl PID {
     #[inline]
+    pub fn new(pid: u64) -> Self {
+        PID(pid)
+    }
+
+    #[inline]
     pub fn as_u64(&self) -> u64 {
         self.0
     }

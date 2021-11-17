@@ -43,8 +43,8 @@ impl Sched for SimpleRoundRobinSchduler {
         if let Some(thread_index) = self.thread_index {
             // remove the thread from the queue
             // get the thread ID
-            let thread_ref = self.thread_list.get(thread_index).unwrap();
-            handle_exit(&thread_ref);
+            let thread_ref = self.thread_list.get_mut(thread_index).unwrap();
+            handle_exit(thread_ref);
             log::debug!(
                 "Thread {} exited with code={}",
                 thread_ref.thread_id.as_u64(),

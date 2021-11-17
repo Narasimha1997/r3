@@ -61,6 +61,19 @@ fn thread_1() {
             cpu::io::wait(1);
         }
         counter += 1;
+
+        if counter % 1601 == 0 {
+            let tid3 = system::thread::new_from_function(
+                &system::process::PID::new(0),
+                "th_3".to_string(),
+                mm::VirtualAddress::from_u64(thread_2 as fn() as u64),
+            );
+
+            log::info!("new tid: {:?}", tid3);
+
+            system::thread::run_thread(&tid3.unwrap());
+            system::tasking::exit(0);
+        }
     }
 }
 
@@ -95,8 +108,6 @@ fn test_sample_tasking() {
         "th_2".to_string(),
         mm::VirtualAddress::from_u64(thread_2 as fn() as u64),
     );
-
-    log::info!("Function ptr: 0x{:x}", thread_2 as fn() as u64);
 
     system::thread::run_thread(&tid1.unwrap());
     system::thread::run_thread(&tid2.unwrap());

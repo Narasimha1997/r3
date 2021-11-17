@@ -5,11 +5,13 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 
 use crate::mm::paging::{KernelVirtualMemoryManager, PageEntryFlags, PageRange, PageSize};
-use crate::mm::VirtualAddress;
+use crate::mm::{MemorySizes, VirtualAddress};
+
+use core::mem;
 
 const STACK_ALLOCATOR_START_ADDR: u64 = 0x5fff00000000;
-pub const STACK_SIZE: usize = 8192;
-const MAX_STACKS: usize = 512;
+pub const STACK_SIZE: usize = 2 * MemorySizes::OneMib as usize;
+const MAX_STACKS: usize = 32;
 
 #[derive(Debug)]
 pub enum StackAllocatorError {
@@ -65,6 +67,16 @@ impl StackAllocator {
         }
     }
 
+    #[inline]
+    fn zero(&self, addr: VirtualAddress) {
+        let slice: &mut [u64; STACK_SIZE / mem::size_of::<u64>()] =
+            unsafe { &mut *addr.get_mut_ptr() };
+
+        for element in slice.iter_mut() {
+            *element = 0;
+        }
+    }
+
     /// allocates a 4K stack and returns it's virtual address
     /// None if no space is available.
     pub fn alloc_stack(&mut self) -> Result<VirtualAddress, StackAllocatorError> {
@@ -79,13 +91,17 @@ impl StackAllocator {
             self.next_to_allocate += 1;
             self.recently_freed = self.next_to_allocate;
 
-            return Ok(VirtualAddress::from_u64(address_u64));
+            let vaddr = VirtualAddress::from_u64(address_u64);
+            self.zero(vaddr);
+            return Ok(vaddr);
         } else {
             // re-use the recently freed stack location:
             let address_u64 =
                 self.start_address.as_u64() + (self.recently_freed * STACK_SIZE) as u64;
             self.recently_freed = self.next_to_allocate;
-            return Ok(VirtualAddress::from_u64(address_u64));
+            let vaddr = VirtualAddress::from_u64(address_u64);
+            self.zero(vaddr);
+            return Ok(vaddr);
         }
     }
 
@@ -95,7 +111,7 @@ impl StackAllocator {
             return None;
         }
 
-        if address.as_u64() > ((self.start_address.as_u64() + (self.n_stacks * STACK_SIZE) as u64)) {
+        if address.as_u64() > (self.start_address.as_u64() + (self.n_stacks * STACK_SIZE) as u64) {
             return None;
         }
 
@@ -123,4 +139,3 @@ pub fn setup_stack_allocator() {
         STACK_ALLOCATOR.lock().start_address.as_u64()
     );
 }
-

@@ -2,7 +2,7 @@ extern crate alloc;
 extern crate log;
 extern crate spin;
 
-use crate::cpu::{mmu, segments, state::CPURegistersState};
+use crate::cpu::{mmu, segments, state::bootstrap_kernel_thread, state::CPURegistersState};
 use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, VirtualAddress};
 use crate::system::process::{PID, PROCESS_POOL};
 use crate::system::tasking::{Sched, SCHEDULER};
@@ -84,6 +84,7 @@ impl Context {
         stack_end: VirtualAddress,
         func_addr: VirtualAddress,
     ) {
+        //
         let kernel_cs = segments::get_kernel_cs();
 
         // set code segment selector, because the kernel code lies
@@ -184,16 +185,18 @@ impl Thread {
             .expect("Failed to free stack after thread exit");
     }
 
+    #[inline]
     pub fn load_state(&self) {
         match &self.context {
             ContextType::InitContext(ctx) => {
                 // initial context, create a new context object:
-                let mut registers = Context::init();
-                Context::fill_for_kthread(&mut registers, ctx.stack_end, ctx.rip_address);
-
-                // prepare page table:
                 mmu::reload_flush();
-                CPURegistersState::load_state(&registers);
+                bootstrap_kernel_thread(
+                    ctx.stack_end.as_u64(),
+                    ctx.rip_address.as_u64(),
+                    segments::get_kernel_cs().0,
+                    0x00,
+                )
             }
             ContextType::SavedContext(ctx) => {
                 // load page tables:
@@ -284,14 +287,18 @@ pub fn new_from_function(
 
     let thread = th_res.unwrap();
     let tid = thread.thread_id;
+
     THREAD_POOL.lock().add_thread(thread.clone());
+    log::info!("New thread");
 
     Ok(tid)
 }
 
 pub fn run_thread(tid: &ThreadID) {
+
     let mut pool_lock = THREAD_POOL.lock();
     let thread_obj = pool_lock.get_mut_ref(tid);
+
     if thread_obj.is_none() {
         panic!("Invalid thread tid={}", tid.as_u64());
     }

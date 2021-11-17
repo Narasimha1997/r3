@@ -5,7 +5,7 @@ use crate::cpu::tsc::TSCTimerShot;
 use spin::Mutex;
 
 /// each tick contains these many time nanoseconds.
-const SYSTEM_TICK_DURATION: u64 = 30 * 1000000;
+const SYSTEM_TICK_DURATION: u64 = 1000 * 1000000;
 
 /// SystemTicker that keeps tracks of number of
 /// ticks and provides few functions to manage timer.

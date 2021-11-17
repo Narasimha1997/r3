@@ -73,7 +73,7 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     }
 }
 
-pub fn handle_exit(thread: &Thread) {
+pub fn handle_exit(thread: &mut Thread) {
     thread.free_stack();
     // get thread ID and process ID
     let thread_id = thread.thread_id;
