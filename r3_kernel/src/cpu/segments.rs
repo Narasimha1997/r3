@@ -403,3 +403,7 @@ pub fn init_gdt() {
     load_tss(tss_sel.0);
     log::info!("Initialized TSS.");
 }
+
+pub fn get_kernel_cs() -> &'static SegmentSelector {
+    &KERNEL_BASE_GDT.kernel_code_selector
+}

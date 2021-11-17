@@ -71,7 +71,7 @@ impl Process {
         }
 
         // return the process:
-        let kernel_cr3 = mmu::get_page_table_address();
+        let kernel_cr3 = PhysicalAddress::from_u64(mmu::read_cr3());
         let pid = new_pid();
 
         log::debug!("Created empty kernel process, pid={}.", pid.as_u64());
@@ -193,7 +193,25 @@ impl ProcessPoolManager {
             return Err(ProcessError::UnknwonPID);
         }
 
+        if res.unwrap().is_usermode() {
+            self.user_proc_count -= 1;
+        } else {
+            self.kernel_proc_count -= 1;
+        }
+
         Ok(())
+    }
+
+    #[inline]
+    pub fn add_process(&mut self, process: Process) {
+        let pid = process.pid.as_u64();
+        if process.is_usermode() {
+            self.user_proc_count += 1;
+        } else {
+            self.kernel_proc_count += 1;
+        }
+
+        self.pool_map.insert(pid, process);
     }
 }
 
@@ -207,4 +225,11 @@ pub fn setup_process_pool() {
         "Process pool setup sucessfull. n_procs={}",
         pool_lock.kernel_proc_count + pool_lock.user_proc_count
     );
+}
+
+pub fn new(name: String, is_user: bool) -> PID {
+    let process = Process::empty(name, is_user);
+    let pid = process.pid.clone();
+    PROCESS_POOL.lock().add_process(process);
+    pid
 }

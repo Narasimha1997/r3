@@ -8,7 +8,7 @@ use crate::mm::paging::{KernelVirtualMemoryManager, PageEntryFlags, PageRange, P
 use crate::mm::VirtualAddress;
 
 const STACK_ALLOCATOR_START_ADDR: u64 = 0x5fff00000000;
-const STACK_SIZE: usize = 4096;
+pub const STACK_SIZE: usize = 4096;
 const MAX_STACKS: usize = 1024;
 
 #[derive(Debug)]

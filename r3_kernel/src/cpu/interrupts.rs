@@ -251,3 +251,12 @@ pub fn prepare_naked_handler(func: NakedHandlerType) -> InterruptDescriptorEntry
     idt_entry.set_handler(handle_addr);
     return idt_entry;
 }
+
+pub fn prepare_error_code_handle(
+    func: HandlerFunctionWithErr,
+) -> InterruptDescriptorEntry<HandlerFunctionWithErr> {
+    let handle_addr = func as u64;
+    let mut idt_entry = InterruptDescriptorEntry::empty();
+    idt_entry.set_handler(handle_addr);
+    return idt_entry;
+}

@@ -1,3 +1,4 @@
+extern crate log;
 // Provide state management functions
 
 // TODO: Add SSE and AVX registers
@@ -6,7 +7,12 @@
 
 // TODO: is there a neat way?
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, Copy)]
+#[repr(C)]
+/// Stores CPU register values which can be restored at later
+/// point in time, the default derivation for this struct
+/// will initialize all the values to zero. Which can be used
+/// for creating a new context.
 pub struct CPURegistersState {
     pub rbp: u64,
     pub rax: u64,
@@ -61,7 +67,7 @@ impl CPURegistersState {
         state_repr
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn load_state(state: &Self) {
         unsafe {
             asm!(
@@ -85,5 +91,50 @@ impl CPURegistersState {
                 in(reg) state
             );
         }
+    }
+}
+
+#[inline(never)]
+/// creates a new thread by pushing some base registers to the stac
+/// according to interrupt ABI specification as per IRETQ instruction.
+pub fn bootstrap_kernel_thread(stack_end: u64, code: u64, cs: u16, ds: u16) {
+    unsafe {
+        asm!(
+            "push rax;
+             push rsi;
+             push 0x204;
+             push rdx;
+             push rdi;
+             iretq;
+            ",
+            in("rdi")code,
+            in("rsi")stack_end,
+            in("dx") cs,
+            in("ax") ds
+        );
+    }
+}
+
+#[naked]
+pub extern "C" fn context_switch(_previous_stk: *mut u64, _next_ptr: u64) {
+    unsafe {
+        asm!(
+            "push rbx
+            push rbp
+            push r12
+            push r13
+            push r14
+            push r15
+            mov [rdi], rsp
+            mov rsp, rsi
+            pop r15
+            pop r14
+            pop r13
+            pop r12
+            pop rbp
+            pop rbx
+            ret",
+            options(noreturn)
+        );
     }
 }

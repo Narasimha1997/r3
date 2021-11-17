@@ -6,6 +6,7 @@
 #![feature(naked_functions)] // allow naked calling convention
 #![feature(llvm_asm)]
 
+extern crate alloc;
 extern crate bootloader;
 extern crate log;
 
@@ -17,6 +18,7 @@ pub mod logging;
 pub mod mm;
 pub mod system;
 
+use alloc::string::ToString;
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
 
@@ -49,11 +51,59 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     log::info!("Initial stage booted properly.");
 }
 
+fn thread_1() {
+    let mut counter = 0;
+    loop {
+        if counter % 200 == 0 {
+            log::info!("Thread-1: {}", counter);
+        }
+        for _ in 0..1000 {
+            cpu::io::wait(1);
+        }
+        counter += 1;
+    }
+}
+
+fn thread_2() {
+    let mut counter = 0;
+    loop {
+        if counter % 200 == 0 {
+            log::info!("Thread-2: {}", counter);
+        }
+        for _ in 0..1000 {
+            cpu::io::wait(1);
+        }
+        counter += 1;
+    }
+}
+
+fn test_sample_tasking() {
+    let pid1 = system::process::new("system_test".to_string(), false);
+
+    let tid1 = system::thread::new_from_function(
+        &pid1,
+        "th_1".to_string(),
+        mm::VirtualAddress::from_u64(thread_1 as fn() as u64),
+    );
+    let tid2 = system::thread::new_from_function(
+        &pid1,
+        "th_2".to_string(),
+        mm::VirtualAddress::from_u64(thread_2 as fn() as u64),
+    );
+
+    log::info!("Function ptr: 0x{:x}", thread_2 as fn() as u64);
+
+    system::thread::run_thread(&tid1.unwrap());
+    system::thread::run_thread(&tid2.unwrap());
+}
+
 fn init_smp() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
 
-    system::process::setup_process_pool();
+    system::init_tasking();
+
+    test_sample_tasking();
 
     system::timer::SystemTimer::start_ticks();
 }

@@ -1,12 +1,14 @@
 extern crate log;
 
-use crate::acpi::lapic;
+use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
 use crate::cpu::state::CPURegistersState;
 use crate::system::timer::SystemTimer;
+
+use crate::system::scheduler::SCHEDULER;
 
 /// hardware interrupts start from 0x20, i.e from 32
 /// because of interrupt remapping.
@@ -28,8 +30,19 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
         .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
 }
 
+#[no_mangle]
+pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
+    // eoi:
+    LAPICUtils::eoi();
+
+    let thread_opt = SCHEDULER.lock().run_schedule(state_repr);
+    if thread_opt.is_some() {
+        SystemTimer::next_shot();
+        thread_opt.unwrap().load_state();
+    }
+}
+
 #[naked]
-#[allow(unsupported_naked_functions)]
 /// This function is called via Naked ABI: https://github.com/nox/rust-rfcs/blob/master/text/1201-naked-fns.md
 /// this ABI keeps all the registers unaffected, the state of the CPU is dumped into
 /// CPURegustersState type, this can be used by schedulers context switched.
@@ -41,15 +54,25 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
     // the next timer event, then loads the previously saved state
     // so execution can continue normally.
     unsafe {
-        let state = CPURegistersState::get_state();
-        let ctx = (*state).clone();
-
-        log::info!("Context: {:?}", ctx);
-
-        lapic::LAPICUtils::eoi();
-        SystemTimer::post_shot();
-
-        CPURegistersState::load_state(&ctx);
+        asm!(
+            "push r15;
+            push r14; 
+            push r13;
+            push r12;
+            push r11;
+            push r10;
+            push r9;
+            push r8;
+            push rdi;
+            push rsi;
+            push rdx;
+            push rcx;
+            push rbx;
+            push rax;
+            push rbp;
+            call schedule_handle",
+            options(noreturn)
+        );
     }
 }
 

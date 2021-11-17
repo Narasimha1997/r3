@@ -1,9 +1,11 @@
 extern crate log;
 extern crate spin;
 
+use crate::cpu::rflags::RFlagsStruct;
 use crate::cpu;
 use cpu::interrupts::{
     prepare_default_handle, prepare_no_ret_error_code_handle, prepare_page_fault_handler,
+    prepare_error_code_handle
 };
 use cpu::interrupts::{InterruptDescriptorTable, InterruptStackFrame};
 use cpu::mmu::{read_cr2, PageFaultExceptionTypes};
@@ -24,8 +26,18 @@ extern "x86-interrupt" fn invalid_opcode(stk: InterruptStackFrame) {
     log::error!("Invalid opcode exception\nException info: {:#?}", stk);
 }
 
+extern "x86-interrupt" fn overflow(stk: InterruptStackFrame) {
+    log::error!("Overflow exception.\nException info: {:#?}", stk);
+}
+
+extern "x86-interrupt" fn gpf(stk: InterruptStackFrame, err: u64) {
+    log::error!("General protection fault {}\nException info: {:#?}", err, stk);
+    cpu::halt_no_interrupts();
+}
+
 extern "x86-interrupt" fn double_fault(stk: InterruptStackFrame, err: u64) -> ! {
     log::error!("Double fault exception {}\nException info: {:#?}", err, stk);
+    log::error!("Double falut rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
     cpu::halt_no_interrupts();
 }
 
@@ -51,6 +63,8 @@ pub fn prepare_idt() -> InterruptDescriptorTable {
     idt.breakpoint = prepare_default_handle(breakpoint);
     idt.double_fault = prepare_no_ret_error_code_handle(double_fault);
     idt.page_fault = prepare_page_fault_handler(page_fault);
+    idt.overflow = prepare_default_handle(overflow);
+    idt.general_protection_fault = prepare_error_code_handle(gpf);
 
     idt.double_fault.set_stack_index(0);
 
