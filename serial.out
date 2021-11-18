@@ -5,14 +5,14 @@ r3_kernel::boot_proto INFO  Memory offset: 0xffffa00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 5111808, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 5111808, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 5120000, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 5120000, end: 1073610752, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x892693210067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x8926a0810067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
@@ -22,7 +22,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2007606400
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=1810160800
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -34,7 +34,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2183329,
+    instruction_pointer: 2185825,
     code_segment: 8,
     cpu_flags: 2,
     stack_pointer: 549755891368,
@@ -42,12 +42,12 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   DEBUG Found memory region start=0x4e0000, end=0x3ffe0000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x4e2000, end=0x3ffe0000 as usable.
 r3_kernel::mm::phy   INFO  Found 2 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa000004ab000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa000004ab000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa000004ad000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa000004ad000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012bd8
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -61,10 +61,6 @@ r3_kernel::mm::heap  DEBUG Testing heap by allocating a vector:
 r3_kernel::mm::heap  DEBUG Test vector allocated at: 0x7fff00000000
 r3_kernel::mm::heap  INFO  Passed heap allocator test, successfully allocated and freed heap memory.
 r3_kernel::mm::heap  INFO  Setting up Kernel heap as Rust Global allocator is successful.
-r3_kernel::mm::stack INFO  Allocating 67108864bytes for stack.
-r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001400000
-r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001401000
-r3_kernel::mm::stack INFO  Allocated memory for stack allocator, size=67108864bytes
 r3_kernel::mm::stack INFO  StackAllocator successfully set-up, address=0x5fff00000000
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=3, supports_acpi_2=false
@@ -86,22 +82,58 @@ r3_kernel::system::process INFO  Process pool setup sucessfull. n_procs=0
 r3_kernel::system::thread INFO  Thread pool setup successfull, n_threads=0
 r3_kernel::system::tasking INFO  Setup scheduler successful, initial thread=None
 r3_kernel::system::process DEBUG Created empty kernel process, pid=0.
+r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001400000
+r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001401000
 r3_kernel::system::process DEBUG Adding thread 0 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x4ab000, rip=0x24eab0,
+            thread_id=0, page_table=0x4ad000, rip=0x24f8a0,
             stack_end=0x5fff00200000
 r3_kernel::system::process DEBUG Adding thread 1 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x4ab000, rip=0x24ef50,
+            thread_id=1, page_table=0x4ad000, rip=0x24fd40,
             stack_end=0x5fff00400000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
 r3_kernel            INFO  Thread-2: 0
 r3_kernel            INFO  Thread-1: 0
-r3_kernel            INFO  Thread-1: 200
 r3_kernel            INFO  Thread-2: 200
+r3_kernel            INFO  Thread-1: 200
 r3_kernel            INFO  Thread-2: 400
 r3_kernel            INFO  Thread-1: 400
 r3_kernel            INFO  Thread-2: 600
 r3_kernel            INFO  Thread-1: 600
 r3_kernel            INFO  Thread-2: 800
+r3_kernel            INFO  Thread-1: 800
+r3_kernel            INFO  Thread-2: 1000
+r3_kernel::system::tasking::srbs DEBUG Thread 1 exited with code=0
+r3_kernel            INFO  Thread-1: 1000
+r3_kernel            INFO  Thread-1: 1200
+r3_kernel            INFO  Thread-1: 1400
+r3_kernel            INFO  Thread-1: 1600
+r3_kernel::mm::stack DEBUG Allocated stack from free-list index=Some(1), n_remaining=0
+r3_kernel::system::process DEBUG Adding thread 2 for process system_test:0
+r3_kernel::system::thread DEBUG Initialized context for new thread
+            thread_id=2, page_table=0x4ad000, rip=0x24fd40,
+            stack_end=0x5fff00400000
+r3_kernel            INFO  new tid: Ok(ThreadID(2))
+r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
+r3_kernel::system::tasking::srbs DEBUG Thread 0 exited with code=0
+r3_kernel            INFO  Thread-2: 0
+r3_kernel            INFO  Thread-2: 200
+r3_kernel            INFO  Thread-2: 400
+r3_kernel            INFO  Thread-2: 600
+r3_kernel            INFO  Thread-2: 800
+r3_kernel            INFO  Thread-2: 1000
+r3_kernel::system::tasking::srbs DEBUG Thread 2 exited with code=0
+r3_kernel            INFO  Thread-2: 1200
+r3_kernel            INFO  Thread-2: 1400
+r3_kernel            INFO  Thread-2: 1600
+r3_kernel            INFO  Thread-2: 1800
+r3_kernel            INFO  Thread-2: 2000
+r3_kernel            INFO  Thread-2: 2200
+r3_kernel            INFO  Thread-2: 2400
+r3_kernel            INFO  Thread-2: 2600
+r3_kernel            INFO  Thread-2: 2800
+r3_kernel            INFO  Thread-2: 3000
+r3_kernel            INFO  Thread-2: 3200
+r3_kernel            INFO  Thread-2: 3400

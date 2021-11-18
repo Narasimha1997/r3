@@ -69,8 +69,6 @@ fn thread_1() {
                 mm::VirtualAddress::from_u64(thread_2 as fn() as u64),
             );
 
-            log::info!("new tid: {:?}", tid3);
-
             system::thread::run_thread(&tid3.unwrap());
             system::tasking::exit(0);
         }
