@@ -1,6 +1,5 @@
 extern crate log;
 
-use crate::cpu::io::Port;
 use crate::drivers::pci::{search_device, PCIDevice};
 
 /// ATA Device ID in PCI device bus
