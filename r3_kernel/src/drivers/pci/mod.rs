@@ -29,7 +29,7 @@ const MAX_DEVICES_PER_BUS: usize = 32;
 const MAX_FUNCTIONS_PER_DEVICE: usize = 8;
 
 /// if this flag is set, then the device is a multi-function device
-const FLAG_MULTIFUNCTION_DEVICE: usize = 80;
+const FLAG_MULTIFUNCTION_DEVICE: usize = 0x80;
 
 /// This function will be called upon every successfull device/function detection
 /// on the system.
@@ -82,10 +82,10 @@ pub enum PCIDeviceQuery {
 impl PCIDeviceQuery {
     pub fn query(&self, bus: u8, dev: u8, func: u8) -> u16 {
         match self {
-            Self::DeviceID => PCIConfigRegister::new(bus, dev, func, 0x00)
+            Self::VendorID => PCIConfigRegister::new(bus, dev, func, 0x00)
                 .read_config()
                 .get_bits(0..16) as u16,
-            Self::VendorID => PCIConfigRegister::new(bus, dev, func, 0x00)
+            Self::DeviceID => PCIConfigRegister::new(bus, dev, func, 0x00)
                 .read_config()
                 .get_bits(16..32) as u16,
             Self::HeaderType => PCIConfigRegister::new(bus, dev, func, 0x0C)
@@ -123,7 +123,8 @@ impl PCIDeviceProber {
         // is this a multi-function device?
         let header_type = PCIDeviceQuery::HeaderType.query(bus, dev, 0);
         if Self::is_multi_function(header_type) {
-            for func in 0..MAX_FUNCTIONS_PER_DEVICE {
+            // we have already scanned function 0, scan for more functions after 0
+            for func in 1..MAX_FUNCTIONS_PER_DEVICE {
                 let vendor_id = PCIDeviceQuery::VendorID.query(bus, dev, func as u8);
                 if !Self::is_empty(vendor_id) {
                     callback(bus, dev, func as u8);
@@ -241,7 +242,8 @@ pub fn detect_devices() {
 
 pub fn search_device(vendor_id: u16, device_id: u16) -> Option<PCIDevice> {
     for &pci_dev in PCI_DEVICES.lock().iter() {
-        if pci_dev.vendor_id == vendor_id && pci_dev.device_id == device_id {
+        if (pci_dev.vendor_id == vendor_id) && (pci_dev.device_id == device_id) {
+            log::debug!("found!");
             return Some(pci_dev);
         }
     }

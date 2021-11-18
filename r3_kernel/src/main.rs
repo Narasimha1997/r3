@@ -45,6 +45,9 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     // init PCI device list.
     drivers::pci::detect_devices();
 
+    // init ATA device
+    drivers::disk::init();
+
     // pit sleep for sometime:
     cpu::tsc::TSCSleeper::sleep_sec(1);
 

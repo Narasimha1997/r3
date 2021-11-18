@@ -2,4 +2,5 @@ target
 build
 third_party/builds
 kbin
+storage
 .vscode
