@@ -30,9 +30,15 @@ pub enum ATACommands {
 }
 
 
-pub struct ATADevice;
+#[derive(Debug, Clone)]
+/// Represents a physical ATA drive installed on this PC
+pub struct ATADrive {
+
+}
 
 pub struct ATAController;
+
+
 
 impl ATAController {
     #[inline]
@@ -43,7 +49,11 @@ impl ATAController {
             return None;
         }
 
-        log::info!("ATA device: {:?}", probe_result);
         probe_result
+    }
+
+    #[inline]
+    pub fn new() {
+
     }
 }
