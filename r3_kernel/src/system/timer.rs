@@ -1,8 +1,19 @@
 extern crate log;
 extern crate spin;
 
-use crate::cpu::tsc::TSCTimerShot;
+use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use spin::Mutex;
+
+use crate::cpu::io::wait;
+
+#[derive(Debug)]
+#[repr(u64)]
+pub enum Time {
+    Second = 1000000000,
+    MilliSecond = 1000000,
+    MicroSecond = 1000,
+    NanoSecond = 1,
+}
 
 /// each tick contains these many time nanoseconds.
 const SYSTEM_TICK_DURATION: u64 = 1000 * 1000000;
@@ -89,5 +100,18 @@ impl SystemTimer {
     #[inline]
     pub fn start_ticks() {
         Self::next_shot();
+    }
+}
+
+#[inline]
+/// spin loop for x nanoseconds,
+/// this is different from sleep, as this will use spin loop
+/// instead of actual sleep.
+pub fn wait_ns(ns: u64) {
+    let current = TSC::read_tsc();
+    let offset = safe_ticks_from_ns(ns);
+
+    while (TSC::read_tsc().u64() - current.u64()) < offset.u64() {
+        wait(4);
     }
 }

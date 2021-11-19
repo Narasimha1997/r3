@@ -6,11 +6,18 @@ use crate::cpu::pit;
 #[derive(Clone, Copy)]
 pub struct TSCTicks(u64);
 
+impl TSCTicks {
+    #[inline(always)]
+    pub fn u64(&self) -> u64 {
+        self.0
+    }
+}
+
 static CPU_FREQUENCY: AtomicU64 = AtomicU64::new(0);
 const TSC_RESET_ECX: u32 = 0x10;
 const TSC_DEADLINE_ECX: u32 = 0x6e0;
 
-enum SleepTimeRange {
+pub enum SleepTimeRange {
     Seconds = 1000000000,
     MilliSeconds = 1000000,
     MicroSeconds = 1000,

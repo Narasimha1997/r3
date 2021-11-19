@@ -38,9 +38,7 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     cpu::init_core_legacy_hardware();
     cpu::init_features_detection();
     cpu::run_test_breakpoint_recovery();
-
     mm::init();
-    acpi::init();
 
     // init PCI device list.
     drivers::pci::detect_devices();
@@ -49,7 +47,8 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     drivers::disk::init();
 
     // pit sleep for sometime:
-    cpu::tsc::TSCSleeper::sleep_sec(1);
+    // cpu::tsc::TSCSleeper::sleep_sec(1);
+    acpi::init();
 
     log::info!("Initial stage booted properly.");
 }
