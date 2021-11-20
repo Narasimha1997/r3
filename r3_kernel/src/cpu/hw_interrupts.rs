@@ -17,6 +17,12 @@ const HARDWARE_INTERRUPTS_BASE: usize = 0x20;
 /// PIT interrupt line:
 const PIT_INTERRUPT_LINE: usize = 0x00;
 
+/// ATA interrupt line - PRIMARY master:
+const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
+
+/// ATA interrupt line - SECONDARY slave:
+const ATA_SECONDARY_INTERRUPT_LINE: usize = 0x0F;
+
 use exceptions::IDT;
 use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFrame};
 use pic::CHAINED_PIC;
@@ -75,15 +81,16 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 pub fn setup_hw_interrupts() {
     let irq0_handle = prepare_default_handle(pit_irq0_handler);
     IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0_handle;
+
+    let irq0x0e_handle = prepare_default_handle(ata_irq14_handler);
+    IDT.lock().interrupts[ATA_PRIMARY_INTERRIUPT_LINE] = irq0x0e_handle;
+
+    let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
+    IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
+
 }
 
 pub fn setup_post_apic_interrupts() {
     let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt);
     IDT.lock().naked_0 = irq0x30_handle;
-
-    let irq0x0e_handle = prepare_default_handle(ata_irq14_handler);
-    IDT.lock().interrupts[14] = irq0x0e_handle;
-
-    let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
-    IDT.lock().interrupts[15] = irq0x0f_handle;
 }
