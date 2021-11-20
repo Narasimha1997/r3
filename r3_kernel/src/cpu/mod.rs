@@ -1,3 +1,5 @@
+extern crate log;
+
 pub mod cpuid;
 pub mod exceptions;
 pub mod hw_interrupts;

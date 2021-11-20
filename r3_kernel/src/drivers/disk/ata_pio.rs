@@ -52,14 +52,15 @@ impl ATADrive {
     #[inline]
     pub fn dump(&self) {
         log::info!(
-            "ATA:{}_{:?} model={}, serial={}",
+            "ATA:{}_{:?} model={}, serial={}, size={}bytes",
             self.bus_no,
             match self.drive_type {
                 ATADriveType::PRIMARY => "primary",
                 ATADriveType::SECONDARY => "secondary",
             },
             self.model_name,
-            self.serial_no
+            self.serial_no,
+            self.size()
         )
     }
 }
@@ -276,7 +277,6 @@ impl ATADevice {
         self.approx_400ns_wait();
 
         self.sel_primary();
-
         self.identify(ATADriveType::PRIMARY)
     }
 
@@ -284,6 +284,7 @@ impl ATADevice {
         self.soft_reset();
         self.approx_400ns_wait();
 
+        self.sel_secondary();
         self.identify(ATADriveType::SECONDARY)
     }
 }

@@ -1,5 +1,6 @@
 extern crate log;
 
+use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
@@ -27,6 +28,14 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
     CHAINED_PIC
         .lock()
         .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
+}
+
+extern "x86-interrupt" fn ata_irq14_handler(_stk: InterruptStackFrame) {
+    LAPICUtils::eoi();
+}
+
+extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
+    LAPICUtils::eoi();
 }
 
 #[naked]
@@ -71,4 +80,10 @@ pub fn setup_hw_interrupts() {
 pub fn setup_post_apic_interrupts() {
     let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt);
     IDT.lock().naked_0 = irq0x30_handle;
+
+    let irq0x0e_handle = prepare_default_handle(ata_irq14_handler);
+    IDT.lock().interrupts[14] = irq0x0e_handle;
+
+    let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
+    IDT.lock().interrupts[15] = irq0x0f_handle;
 }

@@ -12,7 +12,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x892763410067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x892767310067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
@@ -22,7 +22,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2023899600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2604913600
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -34,7 +34,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2196545,
+    instruction_pointer: 2197105,
     code_segment: 8,
     cpu_flags: 2,
     stack_pointer: 549755891368,
@@ -74,10 +74,6 @@ r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=2, func=0
          vendor_id=1234, device_id=1111
 r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=3, func=0
          vendor_id=8086, device_id=100e
-r3_kernel::drivers::pci DEBUG found!
-r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00001
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=3, supports_acpi_2=false
 r3_kernel::acpi::madt DEBUG APIC Tables size: 76
@@ -85,6 +81,10 @@ r3_kernel::acpi::madt INFO  Number of CPU cores: 1, Local APIC Address: 0xffffa0
 r3_kernel::acpi::madt INFO  CPU-0 - 0
 r3_kernel            INFO  Initial stage booted properly.
 r3_kernel::acpi::lapic INFO  Enabled LAPIC and APIC timer for base processor.
+r3_kernel::drivers::pci DEBUG found!
+r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=862208bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=104857600bytes
 r3_kernel::system::process INFO  Initializing Process Pool Manager.
 r3_kernel::system::process INFO  Process pool setup sucessfull. n_procs=0
 r3_kernel::system::thread INFO  Thread pool setup successfull, n_threads=0
@@ -94,21 +94,37 @@ r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001400000
 r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001401000
 r3_kernel::system::process DEBUG Adding thread 0 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x4c4000, rip=0x25b2f0,
+            thread_id=0, page_table=0x4c4000, rip=0x25b6a0,
             stack_end=0x5fff00200000
 r3_kernel::system::process DEBUG Adding thread 1 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x4c4000, rip=0x25b650,
+            thread_id=1, page_table=0x4c4000, rip=0x25ba00,
             stack_end=0x5fff00400000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
-r3_kernel::cpu::exceptions ERROR Double fault exception 0
-Exception info: Exception Info {
-    instruction_pointer: 2196566,
-    code_segment: 8,
-    cpu_flags: 66054,
-    stack_pointer: 549755891680,
-    stack_segment: 0,
-}
-r3_kernel::cpu::exceptions ERROR Double falut rflags: RESUME_FLAG | INTERRUPT_FLAG | PARITY_FLAG
-
+r3_kernel            INFO  Thread-2: 0
+r3_kernel            INFO  Thread-2: 200
+r3_kernel            INFO  Thread-1: 0
+r3_kernel            INFO  Thread-1: 200
+r3_kernel            INFO  Thread-2: 400
+r3_kernel            INFO  Thread-1: 400
+r3_kernel            INFO  Thread-2: 600
+r3_kernel            INFO  Thread-1: 600
+r3_kernel            INFO  Thread-2: 800
+r3_kernel            INFO  Thread-2: 1000
+r3_kernel::system::tasking::srbs DEBUG Thread 1 exited with code=0
+r3_kernel            INFO  Thread-1: 800
+r3_kernel            INFO  Thread-1: 1000
+r3_kernel            INFO  Thread-1: 1200
+r3_kernel            INFO  Thread-1: 1400
+r3_kernel            INFO  Thread-1: 1600
+r3_kernel::mm::stack DEBUG Allocated stack from free-list index=Some(1), n_remaining=0
+r3_kernel::system::process DEBUG Adding thread 2 for process system_test:0
+r3_kernel::system::thread DEBUG Initialized context for new thread
+            thread_id=2, page_table=0x4c4000, rip=0x25ba00,
+            stack_end=0x5fff00400000
+r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
+r3_kernel::system::tasking::srbs DEBUG Thread 0 exited with code=0
+r3_kernel            INFO  Thread-2: 0
+r3_kernel            INFO  Thread-2: 200
+r3_kernel            INFO  Thread-2: 400

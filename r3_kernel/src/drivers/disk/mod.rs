@@ -6,7 +6,6 @@ pub fn init() {
         // register devices
         ata_pio::register_devices();
         ata_pio::probe_drives();
-
         ata_pio::list_drives();
     } else {
         log::warn!("ATA controller not found on this machine.");

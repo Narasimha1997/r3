@@ -4,7 +4,6 @@ extern crate spin;
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use spin::Mutex;
 
-use crate::cpu::io::wait;
 
 #[derive(Debug)]
 #[repr(u64)]
@@ -112,6 +111,6 @@ pub fn wait_ns(ns: u64) {
     let offset = safe_ticks_from_ns(ns);
 
     while (TSC::read_tsc().u64() - current.u64()) < offset.u64() {
-        wait(4);
+        for _ in 0..100 {}
     }
 }

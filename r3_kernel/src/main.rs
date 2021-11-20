@@ -43,11 +43,6 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     // init PCI device list.
     drivers::pci::detect_devices();
 
-    // init ATA device
-    drivers::disk::init();
-
-    // pit sleep for sometime:
-    // cpu::tsc::TSCSleeper::sleep_sec(1);
     acpi::init();
 
     log::info!("Initial stage booted properly.");
@@ -116,6 +111,9 @@ fn test_sample_tasking() {
 fn init_smp() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
+
+    // init ATA device
+    drivers::disk::init();
 
     system::init_tasking();
 
