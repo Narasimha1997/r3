@@ -3,7 +3,7 @@ extern crate alloc;
 pub mod paths;
 pub mod vfs;
 
-use alloc::{string::String, vec::Vec};
+use alloc::{boxed::Box, string::String, vec::Vec};
 use core::cell::RefCell;
 
 #[derive(Debug, Clone)]
@@ -16,10 +16,10 @@ pub enum MountType {
 #[derive(Debug, Clone)]
 /// Represents an entry node in VFS tree
 pub enum NodeType {
-    VFSNode(RefCell<vfs::VFSEntry>),
     DevFSNode,
     Ext2Node,
     Mountpoint,
+    VFSNode(RefCell<vfs::VFSEntry>),
 }
 
 #[derive(Debug, Clone)]
@@ -32,6 +32,7 @@ pub enum FSError {
     InvalidOperation,
     NotFound,
     AlreadyExist,
+    IllegalPath,
 }
 
 pub trait FSOps {
@@ -43,7 +44,7 @@ pub trait FSOps {
         Err(FSError::NotYetImplemented)
     }
 
-    fn open(&self, _path: &str) -> Result<NodeType, FSError> {
+    fn open(&self, _path: &str) -> Result<Box<NodeType>, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
