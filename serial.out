@@ -22,7 +22,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2604913600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2007506800
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -103,28 +103,8 @@ r3_kernel::system::thread DEBUG Initialized context for new thread
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
 r3_kernel            INFO  Thread-2: 0
-r3_kernel            INFO  Thread-2: 200
 r3_kernel            INFO  Thread-1: 0
+r3_kernel            INFO  Thread-2: 200
 r3_kernel            INFO  Thread-1: 200
 r3_kernel            INFO  Thread-2: 400
 r3_kernel            INFO  Thread-1: 400
-r3_kernel            INFO  Thread-2: 600
-r3_kernel            INFO  Thread-1: 600
-r3_kernel            INFO  Thread-2: 800
-r3_kernel            INFO  Thread-2: 1000
-r3_kernel::system::tasking::srbs DEBUG Thread 1 exited with code=0
-r3_kernel            INFO  Thread-1: 800
-r3_kernel            INFO  Thread-1: 1000
-r3_kernel            INFO  Thread-1: 1200
-r3_kernel            INFO  Thread-1: 1400
-r3_kernel            INFO  Thread-1: 1600
-r3_kernel::mm::stack DEBUG Allocated stack from free-list index=Some(1), n_remaining=0
-r3_kernel::system::process DEBUG Adding thread 2 for process system_test:0
-r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=2, page_table=0x4c4000, rip=0x25ba00,
-            stack_end=0x5fff00400000
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
-r3_kernel::system::tasking::srbs DEBUG Thread 0 exited with code=0
-r3_kernel            INFO  Thread-2: 0
-r3_kernel            INFO  Thread-2: 200
-r3_kernel            INFO  Thread-2: 400
