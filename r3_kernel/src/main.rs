@@ -108,12 +108,13 @@ fn test_sample_tasking() {
     system::thread::run_thread(&tid2.unwrap());
 }
 
-fn init_smp() {
+fn init_functionalities() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
 
     // init ATA device
     drivers::disk::init();
+    system::init_fs();
 
     system::init_tasking();
 
@@ -125,7 +126,7 @@ fn init_smp() {
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     init_basic_setup(boot_info);
-    init_smp();
+    init_functionalities();
 
     cpu::halt_with_interrupts();
 }

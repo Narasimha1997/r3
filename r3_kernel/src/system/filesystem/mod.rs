@@ -2,12 +2,13 @@ extern crate alloc;
 
 pub mod paths;
 pub mod vfs;
+pub mod devfs;
 
-use alloc::{boxed::Box, string::String, vec::Vec};
-use core::cell::RefCell;
+use alloc::string::String;
+
 
 #[derive(Debug, Clone)]
-pub enum MountType {
+pub enum MountInfo {
     DevFS,
     MemFS,
     BlockFS,
@@ -18,8 +19,7 @@ pub enum MountType {
 pub enum NodeType {
     DevFSNode,
     Ext2Node,
-    Mountpoint,
-    VFSNode(RefCell<vfs::VFSEntry>),
+    Empty,
 }
 
 #[derive(Debug, Clone)]
@@ -35,32 +35,19 @@ pub enum FSError {
     IllegalPath,
 }
 
+#[derive(Debug, Clone)]
+pub struct FileDescriptor {
+    pub path: String,
+    pub node: NodeType,
+}
+
+
 pub trait FSOps {
-    fn readdir(&self, _path: &str) -> Result<Vec<String>, FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn mkdir(&self, _path: &str) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn open(&self, _path: &str) -> Result<Box<NodeType>, FSError> {
+    fn open(&self, _path: &str) -> Result<FileDescriptor, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
     fn close(&self) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn create(&self, _path: &str) -> Result<NodeType, FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn exists(&self, _path: &str) -> Result<bool, FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn remove(&self, _path: &str, _is_dir: bool) -> Result<bool, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
