@@ -1,11 +1,10 @@
 extern crate alloc;
 
+pub mod devfs;
 pub mod paths;
 pub mod vfs;
-pub mod devfs;
 
 use alloc::string::String;
-
 
 #[derive(Debug, Clone)]
 pub enum MountInfo {
@@ -41,23 +40,24 @@ pub struct FileDescriptor {
     pub node: NodeType,
 }
 
-
+/// Represents the operations performed on File-System
 pub trait FSOps {
     fn open(&self, _path: &str) -> Result<FileDescriptor, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
-    fn close(&self) -> Result<(), FSError> {
+    fn close(&self, _fd: FileDescriptor) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+}
+
+/// Represents the operations performed on File-Descriptors
+pub trait FDOps {
+    fn read(&self, _buffer: &[u8]) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 
-    fn read(&self, _path: &str, _buffer: &[u8]) -> Result<(), FSError> {
+    fn write(&self, _buffer: &[u8]) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
-
-    fn write(&self, _path: &str, _buffer: &[u8]) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    // TODO: Implement more
 }
