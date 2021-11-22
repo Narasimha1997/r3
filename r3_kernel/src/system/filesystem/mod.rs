@@ -60,4 +60,8 @@ pub trait FDOps {
     fn write(&self, _buffer: &[u8]) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
+
+    fn ioctl(&self, _command: u8) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
 }
