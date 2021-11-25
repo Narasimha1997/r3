@@ -1,7 +1,7 @@
 extern crate alloc;
 extern crate spin;
 
-use crate::system::filesystem::{FSError, MountInfo};
+use crate::system::filesystem::{FSError, MountInfo, FSOps};
 
 use alloc::{boxed::Box, string::String, vec::Vec};
 use spin::Mutex;
@@ -116,6 +116,10 @@ impl VFS {
             log::debug!("mountpath={}, mount_type={:?}", mp.path, mp.mountinfo)
         }
     }
+}
+
+impl FSOps for VFS {
+    
 }
 
 lazy_static! {

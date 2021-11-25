@@ -4,8 +4,6 @@ pub mod devfs;
 pub mod paths;
 pub mod vfs;
 
-use alloc::string::String;
-
 #[derive(Debug, Clone)]
 pub enum MountInfo {
     DevFS,
@@ -15,8 +13,8 @@ pub enum MountInfo {
 
 #[derive(Debug, Clone)]
 /// Represents an entry node in VFS tree
-pub enum NodeType {
-    DevFSNode,
+pub enum FileDescriptor {
+    DevFSNode(devfs::DevFSDescriptor),
     Ext2Node,
     Empty,
 }
@@ -35,19 +33,26 @@ pub enum FSError {
     Busy,
 }
 
-#[derive(Debug, Clone)]
-pub struct FileDescriptor {
-    pub path: String,
-    pub node: NodeType,
-}
-
 /// Represents the operations performed on File-System
 pub trait FSOps {
-    fn open(&self, _path: &str) -> Result<FileDescriptor, FSError> {
+    fn open(&self, _path: &str, _flags: u32) -> Result<FileDescriptor, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
     fn close(&self, _fd: FileDescriptor) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+}
+
+/// operations on file-descriptor
+pub trait FDOps {
+    fn read(&self, _fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+    fn write(&self, _fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+    fn ioctl(&self, _fd: &FileDescriptor, command: u8) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 }
