@@ -121,7 +121,7 @@ impl VFS {
 }
 
 impl FSOps for VFS {
-    fn open(&self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
+    fn open(&mut self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
         // get the longest prefix mountpoint:
         let formatted_path_opt = paths::resolve(path);
         if formatted_path_opt.is_none() {
@@ -137,7 +137,7 @@ impl FSOps for VFS {
 
         let (mp_index, spl_pos) = mp_result.unwrap();
         let entry: &mut VFSMountPoint = self.mountpoints.get_mut(mp_index).unwrap();
-        match entry.mountinfo.as_ref() {
+        match entry.mountinfo.as_mut() {
             MountInfo::DevFS(dev_driver) => {
                 let (_, remaining_path) = formatted_path.split_at(spl_pos);
                 return dev_driver.open(&remaining_path, flags);

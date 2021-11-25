@@ -5,14 +5,14 @@ r3_kernel::boot_proto INFO  Memory offset: 0xffffa00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 5222400, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 5222400, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 5283840, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 5283840, end: 1073610752, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0x10000000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x892775110067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0x0, low=0x89280c110067
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
 r3_kernel::cpu::segments INFO  Initialized TSS.
@@ -22,7 +22,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2024181600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2021052000
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -34,7 +34,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 2198945,
+    instruction_pointer: 2209137,
     code_segment: 8,
     cpu_flags: 2,
     stack_pointer: 549755891368,
@@ -42,12 +42,12 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   DEBUG Found memory region start=0x4fb000, end=0x3ffe0000 as usable.
+r3_kernel::mm::phy   DEBUG Found memory region start=0x50a000, end=0x3ffe0000 as usable.
 r3_kernel::mm::phy   INFO  Found 2 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa000004c6000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa000004c6000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffa000004d6000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffa000004d6000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0x8000012bd8
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -83,9 +83,12 @@ r3_kernel            INFO  Initial stage booted properly.
 r3_kernel::acpi::lapic INFO  Enabled LAPIC and APIC timer for base processor.
 r3_kernel::drivers::pci DEBUG found!
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=869888bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=934400bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=104857600bytes
 r3_kernel::system::filesystem::vfs INFO  VFS set-up successful, n_mountpoints=0
+r3_kernel::system::filesystem::devfs INFO  Mounted devfs at /dev/
+r3_kernel::system::filesystem::vfs INFO  Remaining path: serial/urandom
+r3_kernel            INFO  VFS open result=Err(NotFound)
 r3_kernel::system::process INFO  Initializing Process Pool Manager.
 r3_kernel::system::process INFO  Process pool setup sucessfull. n_procs=0
 r3_kernel::system::thread INFO  Thread pool setup successfull, n_threads=0
@@ -95,11 +98,11 @@ r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001400000
 r3_kernel::mm::paging DEBUG Created new page table at 0xffffa00001401000
 r3_kernel::system::process DEBUG Adding thread 0 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x4c6000, rip=0x25c270,
+            thread_id=0, page_table=0x4d6000, rip=0x263860,
             stack_end=0x5fff00200000
 r3_kernel::system::process DEBUG Adding thread 1 for process system_test:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x4c6000, rip=0x25c5d0,
+            thread_id=1, page_table=0x4d6000, rip=0x263bc0,
             stack_end=0x5fff00400000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
@@ -109,3 +112,8 @@ r3_kernel            INFO  Thread-2: 200
 r3_kernel            INFO  Thread-1: 200
 r3_kernel            INFO  Thread-2: 400
 r3_kernel            INFO  Thread-1: 400
+r3_kernel            INFO  Thread-2: 600
+r3_kernel            INFO  Thread-1: 600
+r3_kernel            INFO  Thread-2: 800
+r3_kernel            INFO  Thread-1: 800
+r3_kernel            INFO  Thread-2: 1000

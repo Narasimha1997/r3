@@ -19,7 +19,7 @@ pub struct DevFSEntry {
     pub name: String,
     pub major: u32,
     pub minor: u32,
-    pub device: Box<dyn DevOps>,
+    pub device: Box<dyn DevOps + Sync + Send>,
     pub ref_count: usize,
 }
 
@@ -59,9 +59,9 @@ fn get_dev_index(
 }
 
 impl FSOps for DevFSDriver {
-    fn open(&self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
+    fn open(&mut self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
         // look for the device by it's path and return the file-descriptor:
-        let devfs_lock = DEV_FS.lock();
+        let mut devfs_lock = DEV_FS.lock();
         for entry in devfs_lock.iter_mut() {
             if entry.name == path {
                 entry.ref_count += 1;
@@ -80,7 +80,7 @@ impl FSOps for DevFSDriver {
     fn close(&self, fd: &FileDescriptor) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
-                let devfs_lock = DEV_FS.lock();
+                let mut devfs_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&devfs_lock, devfd.major, devfd.minor) {
                     let entry = devfs_lock.get_mut(dev_index).unwrap();
                     if entry.major == devfd.major && entry.minor == devfd.minor {
@@ -102,7 +102,7 @@ impl FDOps for DevFSDriver {
     fn read(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
-                let dev_lock = DEV_FS.lock();
+                let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
@@ -118,7 +118,7 @@ impl FDOps for DevFSDriver {
     fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
-                let dev_lock = DEV_FS.lock();
+                let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
@@ -134,7 +134,7 @@ impl FDOps for DevFSDriver {
     fn ioctl(&self, fd: &FileDescriptor, command: u8) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
-                let dev_lock = DEV_FS.lock();
+                let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
@@ -151,7 +151,7 @@ impl FDOps for DevFSDriver {
 /// mounts the devfs on the given path:
 pub fn mount_devfs(path: &str) {
     let mount_info = MountInfo::DevFS(DevFSDriver::new());
-    let fs_lock: MutexGuard<VFS> = FILESYSTEM.lock();
-    fs_lock.mount_at(path, mount_info);
+    let mut fs_lock: MutexGuard<VFS> = FILESYSTEM.lock();
+    fs_lock.mount_at(path, mount_info).expect("Error when mounting devfs");
     log::info!("Mounted devfs at {}", path);
 }

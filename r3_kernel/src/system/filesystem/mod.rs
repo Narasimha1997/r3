@@ -35,7 +35,7 @@ pub enum FSError {
 
 /// Represents the operations performed on File-System
 pub trait FSOps {
-    fn open(&self, _path: &str, _flags: u32) -> Result<FileDescriptor, FSError> {
+    fn open(&mut self, _path: &str, _flags: u32) -> Result<FileDescriptor, FSError> {
         Err(FSError::NotYetImplemented)
     }
 
@@ -46,13 +46,13 @@ pub trait FSOps {
 
 /// operations on file-descriptor
 pub trait FDOps {
-    fn read(&self, _fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn read(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn write(&self, _fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn write(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn ioctl(&self, _fd: &FileDescriptor, command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, _fd: &FileDescriptor, _command: u8) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 }

@@ -12,4 +12,5 @@ pub fn init_tasking() {
 
 pub fn init_fs() {
     filesystem::vfs::setup_fs();
+    filesystem::devfs::mount_devfs("/dev/");
 }
