@@ -6,7 +6,7 @@ pub mod vfs;
 
 #[derive(Debug, Clone)]
 pub enum MountInfo {
-    DevFS,
+    DevFS(devfs::DevFSDriver),
     MemFS,
     BlockFS,
 }
@@ -39,7 +39,7 @@ pub trait FSOps {
         Err(FSError::NotYetImplemented)
     }
 
-    fn close(&self, _fd: FileDescriptor) -> Result<(), FSError> {
+    fn close(&self, _fd: &FileDescriptor) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 }

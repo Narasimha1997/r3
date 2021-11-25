@@ -1,7 +1,9 @@
 extern crate alloc;
 extern crate spin;
 
-use crate::system::filesystem::{FSError, MountInfo, FSOps};
+use crate::system::filesystem::devfs::DevFSDriver;
+use crate::system::filesystem::paths;
+use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo};
 
 use alloc::{boxed::Box, string::String, vec::Vec};
 use spin::Mutex;
@@ -18,13 +20,13 @@ pub struct VFSMountPoint {
 impl VFSMountPoint {
     #[inline]
     pub fn incr_refcount(&mut self) {
-        self.ref_count +=1;
+        self.ref_count += 1;
     }
 
     #[inline]
     pub fn decr_refcount(&mut self) {
         if self.ref_count > 0 {
-            self.ref_count -=1;
+            self.ref_count -= 1;
         }
     }
 }
@@ -51,7 +53,7 @@ impl VFS {
         let mountpoint = VFSMountPoint {
             path: String::from(path),
             mountinfo: Box::new(mountinfo),
-            ref_count: 0
+            ref_count: 0,
         };
 
         self.mountpoints.push(mountpoint);
@@ -119,7 +121,84 @@ impl VFS {
 }
 
 impl FSOps for VFS {
-    
+    fn open(&self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
+        // get the longest prefix mountpoint:
+        let formatted_path_opt = paths::resolve(path);
+        if formatted_path_opt.is_none() {
+            return Err(FSError::IllegalPath);
+        }
+
+        let formatted_path = formatted_path_opt.unwrap();
+
+        let mp_result = self.get_matching_mountpoint(&formatted_path);
+        if mp_result.is_err() {
+            return Err(FSError::NotFound);
+        }
+
+        let (mp_index, spl_pos) = mp_result.unwrap();
+        let entry: &mut VFSMountPoint = self.mountpoints.get_mut(mp_index).unwrap();
+        match entry.mountinfo.as_ref() {
+            MountInfo::DevFS(dev_driver) => {
+                let (_, remaining_path) = formatted_path.split_at(spl_pos);
+                return dev_driver.open(&remaining_path, flags);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
+
+    fn close(&self, fd: &FileDescriptor) -> Result<(), FSError> {
+        // get the longest prefix mountpoint:
+        match fd {
+            FileDescriptor::DevFSNode(_) => {
+                // create a new devfs driver and issue close:
+                let devfs_driver = DevFSDriver::new();
+                return devfs_driver.close(fd);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
+}
+
+impl FDOps for VFS {
+    fn read(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+        match fd {
+            FileDescriptor::DevFSNode(_) => {
+                let devfs_driver = DevFSDriver::new();
+                return devfs_driver.read(&fd, &buffer);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
+
+    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+        match fd {
+            FileDescriptor::DevFSNode(_) => {
+                let devfs_driver = DevFSDriver::new();
+                return devfs_driver.read(&fd, &buffer);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
+
+    fn ioctl(&self, fd: &FileDescriptor, command: u8) -> Result<(), FSError> {
+        match fd {
+            FileDescriptor::DevFSNode(_) => {
+                let devfs_driver = DevFSDriver::new();
+                return devfs_driver.ioctl(&fd, command);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
 }
 
 lazy_static! {

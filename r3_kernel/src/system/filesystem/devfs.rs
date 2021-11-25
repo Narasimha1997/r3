@@ -1,7 +1,9 @@
 extern crate alloc;
+extern crate log;
 extern crate spin;
 
-use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor};
+use crate::system::filesystem::vfs::{FILESYSTEM, VFS};
+use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo};
 use alloc::{boxed::Box, string::String, vec::Vec};
 
 use lazy_static::lazy_static;
@@ -34,7 +36,13 @@ pub struct DevFSDescriptor {
 
 #[derive(Debug, Clone)]
 /// a driver that handles all these operations:
-pub struct DevFSDriver {}
+pub struct DevFSDriver;
+
+impl DevFSDriver {
+    pub fn new() -> Self {
+        DevFSDriver {}
+    }
+}
 
 #[inline]
 fn get_dev_index(
@@ -69,7 +77,7 @@ impl FSOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn close(&self, fd: FileDescriptor) -> Result<(), FSError> {
+    fn close(&self, fd: &FileDescriptor) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let devfs_lock = DEV_FS.lock();
@@ -138,4 +146,12 @@ impl FDOps for DevFSDriver {
 
         Err(FSError::NotFound)
     }
+}
+
+/// mounts the devfs on the given path:
+pub fn mount_devfs(path: &str) {
+    let mount_info = MountInfo::DevFS(DevFSDriver::new());
+    let fs_lock: MutexGuard<VFS> = FILESYSTEM.lock();
+    fs_lock.mount_at(path, mount_info);
+    log::info!("Mounted devfs at {}", path);
 }
