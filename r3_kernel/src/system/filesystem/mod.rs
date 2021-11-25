@@ -32,6 +32,7 @@ pub enum FSError {
     NotFound,
     AlreadyExist,
     IllegalPath,
+    Busy,
 }
 
 #[derive(Debug, Clone)]
@@ -47,21 +48,6 @@ pub trait FSOps {
     }
 
     fn close(&self, _fd: FileDescriptor) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-}
-
-/// Represents the operations performed on File-Descriptors
-pub trait FDOps {
-    fn read(&self, _buffer: &[u8]) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn write(&self, _buffer: &[u8]) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
-    }
-
-    fn ioctl(&self, _command: u8) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 }

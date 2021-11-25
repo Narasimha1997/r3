@@ -12,6 +12,21 @@ use lazy_static::lazy_static;
 pub struct VFSMountPoint {
     pub path: String,
     pub mountinfo: Box<MountInfo>,
+    pub ref_count: usize,
+}
+
+impl VFSMountPoint {
+    #[inline]
+    pub fn incr_refcount(&mut self) {
+        self.ref_count +=1;
+    }
+
+    #[inline]
+    pub fn decr_refcount(&mut self) {
+        if self.ref_count > 0 {
+            self.ref_count -=1;
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +51,7 @@ impl VFS {
         let mountpoint = VFSMountPoint {
             path: String::from(path),
             mountinfo: Box::new(mountinfo),
+            ref_count: 0
         };
 
         self.mountpoints.push(mountpoint);
@@ -55,6 +71,11 @@ impl VFS {
 
     pub fn remove_mount(&mut self, path: &str) -> Result<(), FSError> {
         if let Some(mount_index) = self.get_mount_index(path) {
+            if (&self.mountpoints[mount_index]).ref_count != 0 {
+                // device is being referenced by other mountpoints:
+                return Err(FSError::Busy);
+            }
+
             self.mountpoints.remove(mount_index);
             return Ok(());
         }
