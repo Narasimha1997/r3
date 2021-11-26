@@ -164,11 +164,11 @@ impl FSOps for VFS {
 }
 
 impl FDOps for VFS {
-    fn read(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn read(&self, fd: &FileDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(_) => {
                 let devfs_driver = DevFSDriver::new();
-                return devfs_driver.read(&fd, &buffer);
+                return devfs_driver.read(&fd, buffer);
             }
             _ => {
                 return Err(FSError::NotYetImplemented);
@@ -176,11 +176,11 @@ impl FDOps for VFS {
         }
     }
 
-    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(_) => {
                 let devfs_driver = DevFSDriver::new();
-                return devfs_driver.read(&fd, &buffer);
+                return devfs_driver.write(&fd, &buffer);
             }
             _ => {
                 return Err(FSError::NotYetImplemented);

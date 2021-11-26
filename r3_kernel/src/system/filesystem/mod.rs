@@ -31,6 +31,7 @@ pub enum FSError {
     AlreadyExist,
     IllegalPath,
     Busy,
+    DeviceNotFound,
 }
 
 /// Represents the operations performed on File-System
@@ -46,10 +47,10 @@ pub trait FSOps {
 
 /// operations on file-descriptor
 pub trait FDOps {
-    fn read(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<(), FSError> {
+    fn read(&self, _fd: &FileDescriptor, _buffer: &mut [u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn write(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<(), FSError> {
+    fn write(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
     fn ioctl(&self, _fd: &FileDescriptor, _command: u8) -> Result<(), FSError> {

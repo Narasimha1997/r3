@@ -1,4 +1,6 @@
 use crate::cpu::io::Port;
+use crate::system::filesystem::devfs::DevOps;
+use crate::system::filesystem::FSError;
 
 use core::fmt;
 
@@ -139,3 +141,46 @@ fn init_uart() -> Option<Mutex<UART>> {
 lazy_static! {
     pub static ref UART_DRIVER: Option<Mutex<UART>> = init_uart();
 }
+
+// implement devfs operations:
+pub struct UartIODriver;
+
+impl UartIODriver {
+    pub fn empty() -> Self {
+        UartIODriver {}
+    }
+}
+
+impl DevOps for UartIODriver {
+    fn read(&self, buffer: &mut [u8]) -> Result<usize, FSError> {
+        // read till the end
+        if UART_DRIVER.is_some() {
+            let uart_lock = UART_DRIVER.as_ref().unwrap().lock();
+            uart_lock.read_to_buffer(buffer);
+            return Ok(buffer.len());
+        }
+
+        Err(FSError::DeviceNotFound)
+    }
+
+    fn write(&self, buffer: &[u8]) -> Result<usize, FSError> {
+        // read till the end
+        if UART_DRIVER.is_some() {
+            let uart_lock = UART_DRIVER.as_ref().unwrap().lock();
+            uart_lock.write_from_buffer(buffer);
+            return Ok(buffer.len());
+        }
+
+        Err(FSError::DeviceNotFound)
+    }
+
+    fn ioctl(&self, _command: u8) -> Result<(), FSError> {
+        // stub
+        Ok(())
+    }
+}
+
+// TODO: Find a best way to mitigate this
+unsafe impl Sync for UartIODriver {}
+unsafe impl Send for UartIODriver {}
+

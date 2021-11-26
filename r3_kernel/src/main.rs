@@ -22,10 +22,6 @@ use alloc::string::ToString;
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
 
-use system::filesystem::FSOps;
-
-/// This function is called on panic.
-
 fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
 
@@ -110,16 +106,18 @@ fn test_sample_tasking() {
     system::thread::run_thread(&tid2.unwrap());
 }
 
+fn init_filesystem() {
+    system::init_fs();
+    drivers::register_drivers();
+}
+
 fn init_functionalities() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
 
     // init ATA device
     drivers::disk::init();
-    system::init_fs();
-
-    let res = system::filesystem::vfs::FILESYSTEM.lock().open("/dev/serial/urandom", 0);
-    log::info!("VFS open result={:?}", res);
+    init_filesystem();
 
     system::init_tasking();
 

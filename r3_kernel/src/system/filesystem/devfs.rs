@@ -10,8 +10,8 @@ use lazy_static::lazy_static;
 use spin::{Mutex, MutexGuard};
 
 pub trait DevOps {
-    fn read(&self, buffer: &[u8]) -> Result<(), FSError>;
-    fn write(&self, buffer: &[u8]) -> Result<(), FSError>;
+    fn read(&self, buffer: &mut [u8]) -> Result<usize, FSError>;
+    fn write(&self, buffer: &[u8]) -> Result<usize, FSError>;
     fn ioctl(&self, command: u8) -> Result<(), FSError>;
 }
 
@@ -99,14 +99,14 @@ impl FSOps for DevFSDriver {
 }
 
 impl FDOps for DevFSDriver {
-    fn read(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn read(&self, fd: &FileDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
-                    return entry.device.as_ref().read(&buffer);
+                    return entry.device.as_ref().read(buffer);
                 }
             }
             _ => {}
@@ -115,7 +115,7 @@ impl FDOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<(), FSError> {
+    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
@@ -152,6 +152,44 @@ impl FDOps for DevFSDriver {
 pub fn mount_devfs(path: &str) {
     let mount_info = MountInfo::DevFS(DevFSDriver::new());
     let mut fs_lock: MutexGuard<VFS> = FILESYSTEM.lock();
-    fs_lock.mount_at(path, mount_info).expect("Error when mounting devfs");
+    fs_lock
+        .mount_at(path, mount_info)
+        .expect("Error when mounting devfs");
     log::info!("Mounted devfs at {}", path);
+}
+
+/// register a new devfs device
+pub fn register_device(
+    name: &str,
+    major: u32,
+    minor: u32,
+    device: Box<dyn DevOps + Sync + Send>,
+) -> Result<(), FSError> {
+    // exists?
+    let mut devfs_lock = DEV_FS.lock();
+    if let Some(_) = get_dev_index(&devfs_lock, major, minor) {
+        return Err(FSError::AlreadyExist);
+    }
+
+    let device_entry = DevFSEntry {
+        name: String::from(name),
+        major,
+        minor,
+        device,
+        ref_count: 0,
+    };
+
+    devfs_lock.push(device_entry);
+    Ok(())
+}
+
+/// unregister device
+pub fn unregister_device(major: u32, minor: u32) -> Result<(), FSError> {
+    let mut devfs_lock = DEV_FS.lock();
+    if let Some(index) = get_dev_index(&devfs_lock, major, minor) {
+        devfs_lock.remove(index);
+        return Ok(());
+    }
+
+    Err(FSError::NotFound)
 }
