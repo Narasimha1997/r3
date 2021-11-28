@@ -96,7 +96,7 @@ impl Process {
         let page_table: &mut PageTable = unsafe { &mut *new_pt_vaddr.get_mut_ptr() };
 
         // copy the pages of kernel p4 table:
-        let kernel_table: &mut PageTable = unsafe { &mut *new_pt_vaddr.get_mut_ptr() };
+        let kernel_table: &mut PageTable = unsafe { &mut *k_vmm.l4_virtual_address.get_mut_ptr() };
 
         for idx in 0..kernel_table.entries.len() {
             page_table.entries[idx] = kernel_table.entries[idx].clone();
@@ -108,6 +108,7 @@ impl Process {
             l4_virtual_address: new_pt_vaddr,
             l4_phy_addr: frame.addr(),
             phy_offset: k_vmm.phy_offset,
+            offset_base_addr: k_vmm.l4_phy_addr,
         });
 
         let pid = new_pid();

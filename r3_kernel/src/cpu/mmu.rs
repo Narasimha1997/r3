@@ -37,6 +37,11 @@ pub fn get_page_table_address() -> PhysicalAddress {
     PhysicalAddress::from_u64(cr3_val & CR3_PHY_ADDR_MASK)
 }
 
+pub fn set_page_table_address(addr: PhysicalAddress) {
+    let masked_value = addr.as_u64() & CR3_PHY_ADDR_MASK;
+    write_cr3(masked_value);   
+}
+
 pub fn get_page_table_flags() -> u16 {
     let cr3_val = read_cr3();
     (cr3_val & 0xfff) as u16

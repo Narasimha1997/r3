@@ -102,7 +102,7 @@ pub fn bootstrap_kernel_thread(stack_end: u64, code: u64, cs: u16, ds: u16) {
         asm!(
             "push rax;
              push rsi;
-             push 0x204;
+             push 0x200;
              push rdx;
              push rdi;
              iretq;

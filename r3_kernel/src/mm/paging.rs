@@ -274,6 +274,7 @@ pub struct VirtualMemoryManager {
     pub l4_virtual_address: mm::VirtualAddress,
     pub l4_phy_addr: mm::PhysicalAddress,
     pub phy_offset: u64,
+    pub offset_base_addr: mm::PhysicalAddress,
 }
 
 impl VirtualMemoryManager {
@@ -301,12 +302,13 @@ impl VirtualMemoryManager {
             l4_virtual_address: mapped_vmm_addr,
             l4_phy_addr: current_pt_addr,
             phy_offset,
+            offset_base_addr: current_pt_addr,
         }
     }
 
     #[inline]
     fn get_level_address(&self, next_addr: u64) -> mm::VirtualAddress {
-        let offset = next_addr - self.l4_phy_addr.as_u64();
+        let offset = next_addr - self.offset_base_addr.as_u64();
         mm::VirtualAddress(self.l4_virtual_address.as_u64() + offset)
     }
 
@@ -489,6 +491,7 @@ impl VirtualMemoryManager {
     ) -> Result<(), PagingError> {
         let resolved_opt = self.walk_hierarchy(&page.addr(), true, false, true);
         if resolved_opt.is_none() {
+            log::debug!("Walk error");
             return Err(PagingError::MappingError(page.as_u64()));
         }
 
@@ -506,6 +509,7 @@ impl VirtualMemoryManager {
         let page_entry: &PageEntry = &l2_table.entries[l2_index.as_usize()];
 
         if page_entry.is_mapped() {
+            log::error!("Address already mapped!");
             return Err(PagingError::MappingError(page.addr().as_u64()));
         }
 

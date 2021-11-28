@@ -6,6 +6,7 @@ use crate::cpu::{mmu, segments, state::bootstrap_kernel_thread, state::CPURegist
 use crate::mm::paging::{KernelVirtualMemoryManager, Page, PageEntryFlags, VirtualMemoryManager};
 use crate::mm::phy::Frame;
 use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, VirtualAddress};
+use crate::mm::{Alignment, MemorySizes, PhysicalAddress};
 use crate::system::process::{PID, PROCESS_POOL};
 use crate::system::tasking::{Sched, SCHEDULER};
 
@@ -120,11 +121,13 @@ pub struct Thread {
     pub state: ThreadState,
     pub sched_count: u64,
     pub stack_start: VirtualAddress,
+    pub is_user: bool,
+    pub cr3: u64,
 }
 
 impl Thread {
     #[inline]
-    pub fn map_sys_stack(
+    fn map_sys_stack(
         stack_addr: VirtualAddress,
         n_current_threads: usize,
         proc_vmm: &mut VirtualMemoryManager,
@@ -140,14 +143,40 @@ impl Thread {
         }
 
         // map this physical address to given new virtual address as a 2MiB Page
-        proc_vmm
-            .map_huge_page(
-                Page::from_address(new_stack_address),
-                Frame::from_address(stack_phy_address.unwrap()),
-                PageEntryFlags::user_hugepage_flags(),
-            )
-            .expect("Failed to map user level stack");
+        let res = proc_vmm.map_huge_page(
+            Page::from_address(new_stack_address),
+            Frame::from_address(stack_phy_address.unwrap()),
+            PageEntryFlags::user_hugepage_flags(),
+        );
+        if res.is_err() {
+            panic!("{:?}", res);
+        }
         return new_stack_address;
+    }
+
+    #[inline]
+    fn map_fn_code(
+        func_addr: VirtualAddress,
+        proc_vmm: &mut VirtualMemoryManager,
+    ) -> VirtualAddress {
+        let func_phy_addr = KernelVirtualMemoryManager::pt()
+            .translate(func_addr)
+            .unwrap();
+
+        let base_aligned_addr =
+            Alignment::align_down(func_phy_addr.as_u64(), MemorySizes::OneKiB as u64 * 4);
+        let offset = func_phy_addr.as_u64() - base_aligned_addr;
+        let code_base_addr = VirtualAddress::from_u64(USER_CODE_ADDRESS);
+        // map this to virtual memory region:
+        proc_vmm
+            .map_page(
+                Page::from_address(code_base_addr),
+                Frame::from_address(PhysicalAddress::from_u64(base_aligned_addr)),
+                PageEntryFlags::user_flags(),
+            )
+            .expect("Failed to map codebase address for user thread.");
+        // return the code address:
+        VirtualAddress::from_u64(code_base_addr.as_u64() + offset)
     }
 
     pub fn new_from_function(
@@ -166,21 +195,38 @@ impl Thread {
 
         // function exists, now check if it is a user process
         let proc = parent_proc.unwrap();
+
+        let stack: VirtualAddress;
+        let func_addr: VirtualAddress;
+
         if proc.is_usermode() {
-            panic!("User mode threads are not implemented yet.");
+            let stack_alloc_result = STACK_ALLOCATOR.lock().alloc_stack();
+            if stack_alloc_result.is_err() {
+                panic!("Out of stack memory. Failed to allocate memory for thread.");
+            }
+            // allocate a new stack for the kernel
+            stack = Self::map_sys_stack(
+                stack_alloc_result.unwrap(),
+                proc.threads.len(),
+                proc.pt_root.as_mut().unwrap().as_mut(),
+            );
+
+            // map function to given address:
+            func_addr = Self::map_fn_code(function_addr, proc.pt_root.as_mut().unwrap().as_mut());
+        } else {
+            let stack_alloc_result = STACK_ALLOCATOR.lock().alloc_stack();
+            if stack_alloc_result.is_err() {
+                panic!("Out of stack memory. Failed to allocate memory for thread.");
+            }
+            stack = stack_alloc_result.unwrap();
+            func_addr = function_addr;
         }
 
         let parent_cr3 = proc.cr3;
 
-        let stack_alloc_result = STACK_ALLOCATOR.lock().alloc_stack();
-        if stack_alloc_result.is_err() {
-            panic!("Out of stack memory. Failed to allocate memory for thread.");
-        }
-        let stack = stack_alloc_result.unwrap();
-
         let init_context = InitialStateContainer {
             cr3_base: parent_cr3,
-            rip_address: function_addr,
+            rip_address: func_addr,
             stack_end: VirtualAddress::from_u64(stack.as_u64() + STACK_SIZE as u64),
         };
 
@@ -201,6 +247,7 @@ impl Thread {
         let context = ContextType::InitContext(init_context);
 
         Ok(Thread {
+            is_user: proc.is_usermode(),
             parent_pid: pid,
             context: Box::new(context),
             name,
@@ -208,6 +255,7 @@ impl Thread {
             state: ThreadState::Waiting,
             sched_count: 0,
             stack_start: stack,
+            cr3: parent_cr3,
         })
     }
 
@@ -224,17 +272,25 @@ impl Thread {
         match self.context.as_ref() {
             ContextType::InitContext(ctx) => {
                 // initial context, create a new context object:
-                mmu::reload_flush();
+
+                let code_sel = if self.is_user {
+                    segments::get_user_cs().0 | segments::PrivilegeLevel::Ring3 as u16
+                } else {
+                    segments::get_kernel_cs().0
+                };
+
+                mmu::set_page_table_address(PhysicalAddress::from_u64(ctx.cr3_base));
+
                 bootstrap_kernel_thread(
                     ctx.stack_end.as_u64(),
                     ctx.rip_address.as_u64(),
-                    segments::get_kernel_cs().0,
+                    code_sel,
                     0x00,
                 )
             }
             ContextType::SavedContext(ctx) => {
                 // load page tables:
-                mmu::reload_flush();
+                mmu::set_page_table_address(PhysicalAddress::from_u64(self.cr3));
                 CPURegistersState::load_state(&ctx)
             }
         }
