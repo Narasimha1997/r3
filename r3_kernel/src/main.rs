@@ -69,7 +69,7 @@ fn thread_1() {
             log::info!("Thread-1: {}", counter);
         }
 
-        for _ in 0..1000 {
+        for _ in 0..10000 {
             cpu::io::wait(1);
         }
 
@@ -86,7 +86,7 @@ fn thread_1() {
 
         counter += 1;
 
-        if counter % 1001 == 0 {
+        if counter % 10001 == 0 {
             system::tasking::exit(0);
         }
     }
@@ -112,7 +112,7 @@ fn thread_2() {
             log::info!("Thread-2: {}", counter);
         }
 
-        for _ in 0..1000 {
+        for _ in 0..10000 {
             cpu::io::wait(1);
         }
 
@@ -129,7 +129,7 @@ fn thread_2() {
 
         counter += 1;
 
-        if counter % 1001 == 0 {
+        if counter % 10001 == 0 {
             system::tasking::exit(0);
         }
     }

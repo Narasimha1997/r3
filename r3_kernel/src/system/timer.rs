@@ -4,7 +4,6 @@ extern crate spin;
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use spin::Mutex;
 
-
 #[derive(Debug)]
 #[repr(u64)]
 pub enum Time {
@@ -15,7 +14,7 @@ pub enum Time {
 }
 
 /// each tick contains these many time nanoseconds.
-const SYSTEM_TICK_DURATION: u64 = 1000 * 1000000;
+const SYSTEM_TICK_DURATION: u64 = 10 * 1000000;
 
 /// SystemTicker that keeps tracks of number of
 /// ticks and provides few functions to manage timer.

@@ -3,6 +3,7 @@ extern crate bit_field;
 extern crate log;
 extern crate spin;
 
+use crate::cpu;
 use crate::cpu::io::Port;
 use crate::drivers::pci::{search_device, PCIDevice};
 use crate::system::timer::{wait_ns, Time};
@@ -67,6 +68,9 @@ impl ATADrive {
     #[inline]
     pub fn read_block(&self, buffer: &mut [u8], block_no: u32) {
         // get bus device:
+
+        cpu::disable_interrupts();
+
         let bus_lock = ATA_DEVICES.lock();
         let bus_device = bus_lock.get(self.bus_no as usize).unwrap();
         match self.drive_type {
@@ -87,11 +91,15 @@ impl ATADrive {
 
         // read
         bus_device.read_current_block_u8(buffer);
+        cpu::enable_interrupts();
     }
 
     #[inline]
     pub fn write_block(&self, buffer: &[u8], block_no: u32) {
         // get bus device:
+
+        cpu::disable_interrupts();
+
         let bus_lock = ATA_DEVICES.lock();
         let bus_device = bus_lock.get(self.bus_no as usize).unwrap();
         match self.drive_type {
@@ -112,6 +120,9 @@ impl ATADrive {
 
         // write
         bus_device.write_current_block_u8(buffer);
+
+        bus_device.wait_while_busy();
+        cpu::enable_interrupts();
     }
 }
 
