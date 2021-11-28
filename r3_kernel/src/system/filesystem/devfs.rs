@@ -10,9 +10,10 @@ use lazy_static::lazy_static;
 use spin::{Mutex, MutexGuard};
 
 pub trait DevOps {
-    fn read(&self, buffer: &mut [u8]) -> Result<usize, FSError>;
-    fn write(&self, buffer: &[u8]) -> Result<usize, FSError>;
+    fn read(&self, fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError>;
+    fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError>;
     fn ioctl(&self, command: u8) -> Result<(), FSError>;
+    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32) -> Result<(), FSError>;
 }
 
 pub struct DevFSEntry {
@@ -32,6 +33,8 @@ pub struct DevFSDescriptor {
     pub flags: u32,
     pub major: u32,
     pub minor: u32,
+    /// some devices that require offset based reads/writes can use this.
+    pub offset: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -70,6 +73,7 @@ impl FSOps for DevFSDriver {
                     flags,
                     major: entry.major,
                     minor: entry.minor,
+                    offset: 0,
                 }));
             }
         }
@@ -99,14 +103,14 @@ impl FSOps for DevFSDriver {
 }
 
 impl FDOps for DevFSDriver {
-    fn read(&self, fd: &FileDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
+    fn read(&self, fd: &mut FileDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
-                    return entry.device.as_ref().read(buffer);
+                    return entry.device.as_ref().read(&mut devfd, buffer);
                 }
             }
             _ => {}
@@ -115,14 +119,14 @@ impl FDOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn write(&self, fd: &FileDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
+    fn write(&self, fd: &mut FileDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
-                    // perform read operation on the device
-                    return entry.device.as_ref().write(&buffer);
+                    // perform write operation on the device
+                    return entry.device.as_ref().write(&mut devfd, &buffer);
                 }
             }
             _ => {}
@@ -131,14 +135,30 @@ impl FDOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn ioctl(&self, fd: &FileDescriptor, command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, fd: &mut FileDescriptor, command: u8) -> Result<(), FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
-                    // perform read operation on the device
+                    // perform ioctl operation on the device
                     return entry.device.as_ref().ioctl(command);
+                }
+            }
+            _ => {}
+        }
+
+        Err(FSError::NotFound)
+    }
+
+    fn seek(&self, fd: &mut FileDescriptor, offset: u32) -> Result<(), FSError> {
+        match fd {
+            FileDescriptor::DevFSNode(devfd) => {
+                let mut dev_lock = DEV_FS.lock();
+                if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
+                    let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
+                    // perform read operation on the device
+                    return entry.device.as_ref().seek(devfd, offset);
                 }
             }
             _ => {}

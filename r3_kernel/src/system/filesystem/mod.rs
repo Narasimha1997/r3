@@ -47,13 +47,16 @@ pub trait FSOps {
 
 /// operations on file-descriptor
 pub trait FDOps {
-    fn read(&self, _fd: &FileDescriptor, _buffer: &mut [u8]) -> Result<usize, FSError> {
+    fn read(&self, _fd: &mut FileDescriptor, _buffer: &mut [u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn write(&self, _fd: &FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
+    fn write(&self, _fd: &mut FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn ioctl(&self, _fd: &FileDescriptor, _command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, _fd: &mut FileDescriptor, _command: u8) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+    fn seek(&self, _fd: &mut FileDescriptor, _offset: u32) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
 }

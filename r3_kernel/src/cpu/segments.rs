@@ -369,7 +369,7 @@ pub fn create_gdt_for_bp() -> GDTContainer {
         panic!("{}", k_tss_segment_result.unwrap_err());
     }
 
-    // set user mode selector: 
+    // set user mode selector:
     let user_code_segment_res = gdt.set_user_segment(LinuxKernelSegments::UserCode as u64);
     if user_code_segment_res.is_err() {
         panic!("Failed to set user code segment.");
