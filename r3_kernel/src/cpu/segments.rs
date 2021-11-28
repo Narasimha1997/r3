@@ -332,6 +332,7 @@ impl GlobalDescritorTable {
 pub struct GDTContainer {
     gdt_table: GlobalDescritorTable,
     kernel_code_selector: SegmentSelector,
+    user_code_selector: SegmentSelector,
     kernel_tss_selector: SegmentSelector,
 }
 
@@ -368,10 +369,17 @@ pub fn create_gdt_for_bp() -> GDTContainer {
         panic!("{}", k_tss_segment_result.unwrap_err());
     }
 
+    // set user mode selector: 
+    let user_code_segment_res = gdt.set_user_segment(LinuxKernelSegments::UserCode as u64);
+    if user_code_segment_res.is_err() {
+        panic!("Failed to set user code segment.");
+    }
+
     GDTContainer {
         gdt_table: gdt,
         kernel_code_selector: k_code_segment_res.unwrap(),
         kernel_tss_selector: k_tss_segment_result.unwrap(),
+        user_code_selector: user_code_segment_res.unwrap(),
     }
 }
 
@@ -406,4 +414,8 @@ pub fn init_gdt() {
 
 pub fn get_kernel_cs() -> &'static SegmentSelector {
     &KERNEL_BASE_GDT.kernel_code_selector
+}
+
+pub fn get_user_cs() -> &'static SegmentSelector {
+    &KERNEL_BASE_GDT.user_code_selector
 }
