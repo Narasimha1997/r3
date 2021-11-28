@@ -110,7 +110,7 @@ impl FDOps for DevFSDriver {
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
-                    return entry.device.as_ref().read(&mut devfd, buffer);
+                    return entry.device.as_ref().read(devfd, buffer);
                 }
             }
             _ => {}
@@ -126,7 +126,7 @@ impl FDOps for DevFSDriver {
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform write operation on the device
-                    return entry.device.as_ref().write(&mut devfd, &buffer);
+                    return entry.device.as_ref().write(devfd, &buffer);
                 }
             }
             _ => {}

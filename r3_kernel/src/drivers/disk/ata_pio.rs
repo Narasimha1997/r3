@@ -63,6 +63,56 @@ impl ATADrive {
             self.size()
         )
     }
+
+    #[inline]
+    pub fn read_block(&self, buffer: &mut [u8], block_no: u32) {
+        // get bus device:
+        let bus_lock = ATA_DEVICES.lock();
+        let bus_device = bus_lock.get(self.bus_no as usize).unwrap();
+        match self.drive_type {
+            ATADriveType::PRIMARY => {
+                bus_device.sel_primary();
+            }
+            ATADriveType::SECONDARY => {
+                bus_device.sel_secondary();
+            }
+        }
+
+        // setup block for reading
+        bus_device.set_block(self.drive_type.clone(), block_no);
+
+        // set command:
+        bus_device.send_command(ATACommand::READ);
+        bus_device.wait_while_busy();
+
+        // read
+        bus_device.read_current_block_u8(buffer);
+    }
+
+    #[inline]
+    pub fn write_block(&self, buffer: &[u8], block_no: u32) {
+        // get bus device:
+        let bus_lock = ATA_DEVICES.lock();
+        let bus_device = bus_lock.get(self.bus_no as usize).unwrap();
+        match self.drive_type {
+            ATADriveType::PRIMARY => {
+                bus_device.sel_primary();
+            }
+            ATADriveType::SECONDARY => {
+                bus_device.sel_secondary();
+            }
+        }
+
+        // setup block for reading
+        bus_device.set_block(self.drive_type.clone(), block_no);
+
+        // set command:
+        bus_device.send_command(ATACommand::WRITE);
+        bus_device.wait_while_busy();
+
+        // write
+        bus_device.write_current_block_u8(buffer);
+    }
 }
 
 #[repr(u8)]
@@ -189,9 +239,21 @@ impl ATADevice {
     }
 
     #[inline]
-    pub fn write_current_block(&self, buffer: &[u16]) {
-        for offset in 0..(ATA_BLOCK_SIZE / 2) {
-            let current_data = buffer[offset];
+    pub fn read_current_block_u8(&self, buffer: &mut [u8]) {
+        // since we have 16-bit wide data register
+        for offset in 0..(buffer.len() / 2) {
+            let current_data = self.read_data_reg();
+            buffer[2 * offset] = (current_data & 0x00FF) as u8;
+            buffer[2 * offset + 1] = ((current_data >> 8) & 0x00FF) as u8;
+        }
+    }
+
+    #[inline]
+    pub fn write_current_block_u8(&self, buffer: &[u8]) {
+        for offset in 0..(buffer.len() / 2) {
+            let current_data_0 = buffer[2 * offset];
+            let current_data_1 = buffer[2 * offset + 1];
+            let current_data = ((current_data_1 as u16) << 8) | (current_data_0 as u16);
             self.write_data_reg(current_data);
         }
     }

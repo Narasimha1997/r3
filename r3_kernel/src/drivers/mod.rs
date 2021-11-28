@@ -15,4 +15,7 @@ pub fn register_drivers() {
     register_device("uart", 1, 0, Box::new(uart::UartIODriver::empty()))
         .expect("Failed to register devices to devfs");
     log::info!("Registered devfs devices - uart");
+
+    // register all ATA devices
+    disk::register_hdd_devices();
 }

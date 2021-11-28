@@ -1,5 +1,5 @@
 use crate::cpu::io::Port;
-use crate::system::filesystem::devfs::{DevOps, DevFSDescriptor};
+use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
 use crate::system::filesystem::FSError;
 
 use core::fmt;
@@ -152,7 +152,7 @@ impl UartIODriver {
 }
 
 impl DevOps for UartIODriver {
-    fn read(&self, fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
+    fn read(&self, _fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
         // read till the end
         if UART_DRIVER.is_some() {
             let uart_lock = UART_DRIVER.as_ref().unwrap().lock();
@@ -163,7 +163,7 @@ impl DevOps for UartIODriver {
         Err(FSError::DeviceNotFound)
     }
 
-    fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
+    fn write(&self, _fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
         // read till the end
         if UART_DRIVER.is_some() {
             let uart_lock = UART_DRIVER.as_ref().unwrap().lock();
@@ -179,7 +179,7 @@ impl DevOps for UartIODriver {
         Ok(())
     }
 
-    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32) -> Result<(), FSError> {
+    fn seek(&self, _fd: &mut DevFSDescriptor, _offset: u32) -> Result<(), FSError> {
         // stub: because seek is not possible for serial char devices.
         Ok(())
     }
