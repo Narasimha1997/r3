@@ -3,12 +3,14 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::mmu;
-use crate::mm::PhysicalAddress;
+use crate::mm::paging::{KernelVirtualMemoryManager, PageTable, VirtualMemoryManager};
+use crate::mm::phy::PhysicalMemoryManager;
+use crate::mm::{PhysicalAddress, VirtualAddress};
 use crate::system::thread::ThreadID;
 
 use lazy_static::lazy_static;
 
-use alloc::{collections::BTreeMap, string::String, vec::Vec};
+use alloc::{boxed::Box, collections::BTreeMap, string::String, vec::Vec};
 use core::sync::atomic::{AtomicU64, Ordering};
 use spin::Mutex;
 
@@ -65,14 +67,66 @@ pub struct Process {
     pub threads: Vec<ThreadID>,
     /// if true, the process is in userland
     pub user: bool,
-    // more fields will be added in future.
+    /// more fields will be added in future.
     pub name: String,
+
+    /// root page table, if there are any
+    pub pt_root: Option<Box<VirtualMemoryManager>>,
 }
 
 impl Process {
+    #[inline]
+    pub fn create_user_process(name: String) -> Self {
+        // creates a new usermode process
+        // clone the l4 page table of the kernel
+        let k_vmm = KernelVirtualMemoryManager::pt();
+
+        // allocate a new virtual address at 4k aligned region for new virtual address:
+        let frame_opt = PhysicalMemoryManager::alloc();
+        if frame_opt.is_none() {
+            panic!("Failed to allocate memory for new Virtual page table. OOM");
+        }
+
+        let frame = frame_opt.unwrap();
+
+        // get it's address:
+        let new_pt_vaddr = VirtualAddress::from_u64(k_vmm.phy_offset + frame.as_u64());
+
+        // clone the page table
+        let page_table: &mut PageTable = unsafe { &mut *new_pt_vaddr.get_mut_ptr() };
+
+        // copy the pages of kernel p4 table:
+        let kernel_table: &mut PageTable = unsafe { &mut *new_pt_vaddr.get_mut_ptr() };
+
+        for idx in 0..kernel_table.entries.len() {
+            page_table.entries[idx] = kernel_table.entries[idx].clone();
+        }
+
+        // create a new VMM object:
+        let vmm = Box::new(VirtualMemoryManager {
+            n_tables: 1,
+            l4_virtual_address: new_pt_vaddr,
+            l4_phy_addr: frame.addr(),
+            phy_offset: k_vmm.phy_offset,
+        });
+
+        let pid = new_pid();
+
+        Process {
+            pid,
+            state: ProcessState::NoThreads,
+            cr3: frame.addr().as_u64(),
+            threads: Vec::new(),
+            user: true,
+            name,
+            pt_root: Some(vmm),
+        }
+    }
+
     pub fn empty(name: String, user: bool) -> Self {
         if user {
-            panic!("Usermode processes are not supported as of now.");
+            // create and return the user process:
+            return Self::create_user_process(name);
         }
 
         // return the process:
@@ -87,6 +141,8 @@ impl Process {
             threads: Vec::new(),
             user,
             name,
+            // kernel mode processes run with the same kernel page table.
+            pt_root: None,
         }
     }
 

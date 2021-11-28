@@ -3,6 +3,8 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::{mmu, segments, state::bootstrap_kernel_thread, state::CPURegistersState};
+use crate::mm::paging::{KernelVirtualMemoryManager, Page, PageEntryFlags, VirtualMemoryManager};
+use crate::mm::phy::Frame;
 use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, VirtualAddress};
 use crate::system::process::{PID, PROCESS_POOL};
 use crate::system::tasking::{Sched, SCHEDULER};
@@ -11,6 +13,11 @@ use alloc::{boxed::Box, collections::BTreeMap, string::String};
 use core::sync::atomic::{AtomicU64, Ordering};
 use lazy_static::lazy_static;
 use spin::Mutex;
+
+/// Area in which user code will be allocated
+pub const USER_CODE_ADDRESS: u64 = 0x100000000;
+/// Area in which user stack will be allocated
+pub const USER_STACK_ADDRESS: u64 = 0x200000000;
 
 const NEW_RFLAG: u64 = 0x204;
 
@@ -116,6 +123,32 @@ pub struct Thread {
 }
 
 impl Thread {
+    #[inline]
+    pub fn map_sys_stack(
+        stack_addr: VirtualAddress,
+        n_current_threads: usize,
+        proc_vmm: &mut VirtualMemoryManager,
+    ) {
+        // maps the stack address to user code's stack location
+        // using huge pages
+        let new_stack_address =
+            VirtualAddress::from_u64(USER_STACK_ADDRESS + (n_current_threads * STACK_SIZE) as u64);
+        // map the stack to it's virtual address:
+        let stack_phy_address = KernelVirtualMemoryManager::pt().translate(stack_addr);
+        if stack_phy_address.is_none() {
+            panic!("Incosistent memory state while allocating thread.");
+        }
+
+        // map this physical address to given new virtual address as a 2MiB Page
+        proc_vmm
+            .map_huge_page(
+                Page::from_address(new_stack_address),
+                Frame::from_address(stack_phy_address.unwrap()),
+                PageEntryFlags::user_hugepage_flags(),
+            )
+            .expect("Failed to map user level stack");
+    }
+
     pub fn new_from_function(
         pid: PID,
         name: String,

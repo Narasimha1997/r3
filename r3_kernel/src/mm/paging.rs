@@ -164,6 +164,25 @@ impl PageEntryFlags {
         let flags = PageEntryFlags::from_bits_truncate(value);
         return flags;
     }
+
+    #[inline]
+    pub fn user_flags() -> PageEntryFlags {
+        let value: u64 = PageEntryFlags::PRESENT.bits()
+            | PageEntryFlags::READ_WRITE.bits()
+            | PageEntryFlags::USERSPACE.bits();
+        let flags = PageEntryFlags::from_bits_truncate(value);
+        return flags;
+    }
+
+    #[inline]
+    pub fn user_hugepage_flags() -> PageEntryFlags {
+        let value: u64 = PageEntryFlags::PRESENT.bits()
+            | PageEntryFlags::READ_WRITE.bits()
+            | PageEntryFlags::HUGE_PAGE.bits()
+            | PageEntryFlags::USERSPACE.bits();
+        let flags = PageEntryFlags::from_bits_truncate(value);
+        return flags;
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -228,10 +247,10 @@ impl PageEntry {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[repr(align(4096), C)]
 pub struct PageTable {
-    entries: [PageEntry; MAX_ENTRIES_PER_LEVEL as usize],
+    pub entries: [PageEntry; MAX_ENTRIES_PER_LEVEL as usize],
 }
 
 impl PageTable {
@@ -249,6 +268,7 @@ impl PageTable {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct VirtualMemoryManager {
     pub n_tables: usize,
     pub l4_virtual_address: mm::VirtualAddress,
