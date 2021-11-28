@@ -128,7 +128,7 @@ impl Thread {
         stack_addr: VirtualAddress,
         n_current_threads: usize,
         proc_vmm: &mut VirtualMemoryManager,
-    ) {
+    ) -> VirtualAddress {
         // maps the stack address to user code's stack location
         // using huge pages
         let new_stack_address =
@@ -147,6 +147,7 @@ impl Thread {
                 PageEntryFlags::user_hugepage_flags(),
             )
             .expect("Failed to map user level stack");
+        return new_stack_address;
     }
 
     pub fn new_from_function(
