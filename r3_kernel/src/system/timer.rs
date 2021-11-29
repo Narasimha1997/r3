@@ -2,6 +2,7 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
+use crate::system::abi;
 use spin::Mutex;
 
 #[derive(Debug)]
@@ -36,8 +37,8 @@ impl SystemTicker {
     }
 
     #[inline]
-    pub fn total_ticks(&self) -> u128 {
-        (self.epochs * u64::max_value() + self.ticks) as u128
+    pub fn total_ticks(&self) -> u64 {
+        (self.epochs * u64::max_value() + self.ticks) as u64
     }
 
     #[inline]
@@ -51,8 +52,8 @@ impl SystemTicker {
     }
 
     #[inline]
-    pub fn as_ns(&mut self) -> u128 {
-        self.total_ticks() * SYSTEM_TICK_DURATION as u128
+    pub fn as_ns(&mut self) -> u64 {
+        self.total_ticks() * SYSTEM_TICK_DURATION as u64
     }
 
     #[inline]
@@ -111,5 +112,40 @@ pub fn wait_ns(ns: u64) {
 
     while (TSC::read_tsc().u64() - current.u64()) < offset.u64() {
         for _ in 0..100 {}
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[repr(C, packed)]
+pub struct PosixTimeval {
+    pub tv_sec: abi::CTime,
+    pub tv_usec: abi::CSubSeconds,
+}
+
+impl PosixTimeval {
+    pub fn from_ticks() -> Self {
+        let ns = SYSTEM_TICKS.lock().as_ns();
+        let seconds = ns as i64 / Time::Second as i64;
+
+        // get microseconds offset
+        let offset = ns as i64 - (seconds * Time::NanoSecond as i64);
+        let offset_us = offset / Time::MicroSecond as i64;
+
+        PosixTimeval {
+            tv_sec: seconds,
+            tv_usec: offset_us,
+        }
+    }
+
+    #[inline]
+    pub fn empty() -> Self {
+        PosixTimeval {
+            tv_sec: 0,
+            tv_usec: 0,
+        }
+    }
+
+    pub fn mills(&self) -> u64 {
+        (self.tv_sec as u64 * 1000) + (self.tv_usec as u64 / 1000)
     }
 }

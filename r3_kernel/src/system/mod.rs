@@ -5,6 +5,7 @@ pub mod thread;
 pub mod timer;
 pub mod utils;
 pub mod abi;
+pub mod posix;
 
 pub fn init_tasking() {
     process::setup_process_pool();

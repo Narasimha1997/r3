@@ -51,10 +51,24 @@ fn ideal_k_thread() {
 }
 
 fn thread_2() {
+    /*let timeval: [u8; 16] = [0; 16];
+    let mut result: u64 = 0;
     loop {
         unsafe {
-            // make a dummy syscall
-            asm!("int 0x80;");
+            asm!(
+                "int 0x80", in("rax")228,
+                in("rdi")0, in("rsi")&timeval,
+                in("rdx")0,
+                lateout("rax") result
+            )
+        }
+
+        result = result + 1;
+    }*/
+    let no = 255;
+    loop {
+        unsafe {
+            asm!("int 0x80");
         }
     }
 }
