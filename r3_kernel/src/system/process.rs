@@ -100,6 +100,7 @@ impl Process {
 
         for idx in 0..kernel_table.entries.len() {
             page_table.entries[idx] = kernel_table.entries[idx].clone();
+            page_table.entries[idx].set_usermode_flag();
         }
 
         // create a new VMM object:
@@ -109,6 +110,7 @@ impl Process {
             l4_phy_addr: frame.addr(),
             phy_offset: k_vmm.phy_offset,
             offset_base_addr: k_vmm.l4_phy_addr,
+            l4_offset_addr: k_vmm.l4_virtual_address,
         });
 
         let pid = new_pid();
@@ -134,7 +136,6 @@ impl Process {
         let kernel_cr3 = PhysicalAddress::from_u64(mmu::read_cr3());
         let pid = new_pid();
 
-        log::debug!("Created empty kernel process, pid={}.", pid.as_u64());
         Process {
             pid,
             state: ProcessState::NoThreads,

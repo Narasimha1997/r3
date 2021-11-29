@@ -64,8 +64,10 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     SCHEDULER.lock().save_current_ctx(state_repr);
     let thread_opt = SCHEDULER.lock().lease_next_thread();
     if thread_opt.is_some() {
+        let thread = thread_opt.unwrap();
+        log::debug!("Scheduling thread {}", thread.name);
         SystemTimer::next_shot();
-        thread_opt.unwrap().load_state();
+        thread.load_state();
     } else {
         // no threads were returned. Load and continue normally.
         SystemTimer::next_shot();

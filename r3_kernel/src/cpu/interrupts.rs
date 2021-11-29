@@ -106,6 +106,11 @@ impl<T> InterruptDescriptorEntry<T> {
     pub fn set_stack_index(&mut self, stack_index: u16) {
         self.options.set_bits(0..3, stack_index + 1);
     }
+
+    #[inline]
+    pub fn set_privilege_level(&mut self, dpl: segments::PrivilegeLevel) {
+        self.options.set_bits(13..15, dpl as u16);
+    }
 }
 
 // error handler function:

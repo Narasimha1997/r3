@@ -332,17 +332,25 @@ impl GlobalDescritorTable {
 pub struct GDTContainer {
     gdt_table: GlobalDescritorTable,
     kernel_code_selector: SegmentSelector,
+    kernel_data_selector: SegmentSelector,
     user_code_selector: SegmentSelector,
+    user_data_selector: SegmentSelector,
     kernel_tss_selector: SegmentSelector,
 }
 
-const STACK_SIZE: usize = 4096 * 5;
-static mut TSS_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+const STACK_SIZE: usize = 4096 * 8;
+static mut INTERRUPT_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+static mut PRIVILEGE_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
 pub fn create_tss_for_bp() -> TaskStateSegment {
     let mut tss = TaskStateSegment::empty();
     tss.interrupt_stack_table[0] = {
-        let k_stack_start = (unsafe { &TSS_STACK } as *const _) as u64;
+        let k_stack_start = (unsafe { &INTERRUPT_STACK } as *const _) as u64;
+        k_stack_start + STACK_SIZE as u64
+    };
+
+    tss.privilege_stack_table[0] = {
+        let k_stack_start = (unsafe { &PRIVILEGE_STACK } as *const _) as u64;
         k_stack_start + STACK_SIZE as u64
     };
 
@@ -375,11 +383,22 @@ pub fn create_gdt_for_bp() -> GDTContainer {
         panic!("Failed to set user code segment.");
     }
 
+    // set kernel and user data:
+    let kernel_data_selector = gdt
+        .set_user_segment(LinuxKernelSegments::KernelData as u64)
+        .unwrap();
+
+    let user_data_selector = gdt
+        .set_user_segment(LinuxKernelSegments::UserData as u64)
+        .unwrap();
+
     GDTContainer {
         gdt_table: gdt,
         kernel_code_selector: k_code_segment_res.unwrap(),
         kernel_tss_selector: k_tss_segment_result.unwrap(),
         user_code_selector: user_code_segment_res.unwrap(),
+        kernel_data_selector,
+        user_data_selector,
     }
 }
 
@@ -402,9 +421,16 @@ pub fn init_gdt() {
     let kernel_cs = &KERNEL_BASE_GDT.kernel_code_selector;
     SegmentRegister::CS.set(kernel_cs.0);
 
+    log::info!("Kernel code selector: {}", kernel_cs.0);
+
     // assert the register value:
     SegmentRegister::CS.assert_reg(kernel_cs.0);
     log::debug!("Verified Code Segment Register value: 0x{:x}", kernel_cs.0);
+
+    // set kernel data selector:
+    let kernel_ds = &KERNEL_BASE_GDT.kernel_data_selector;
+    SegmentRegister::DS.set(kernel_ds.0);
+
     log::info!("Initialized GDT.");
 
     let tss_sel = &KERNEL_BASE_GDT.kernel_tss_selector;
@@ -416,6 +442,14 @@ pub fn get_kernel_cs() -> &'static SegmentSelector {
     &KERNEL_BASE_GDT.kernel_code_selector
 }
 
+pub fn get_kernel_ds() -> &'static SegmentSelector {
+    &KERNEL_BASE_GDT.kernel_data_selector
+}
+
 pub fn get_user_cs() -> &'static SegmentSelector {
     &KERNEL_BASE_GDT.user_code_selector
+}
+
+pub fn get_user_ds() -> &'static SegmentSelector {
+    &KERNEL_BASE_GDT.user_data_selector
 }

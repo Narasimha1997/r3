@@ -245,6 +245,11 @@ impl PageEntry {
     pub fn has_flag(&self, flag: PageEntryFlags) -> bool {
         PageEntryFlags::from_bits_truncate(self.0).contains(flag)
     }
+
+    #[inline]
+    pub fn set_usermode_flag(&mut self) {
+        self.0 = self.0 | PageEntryFlags::USERSPACE.bits();
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -275,6 +280,7 @@ pub struct VirtualMemoryManager {
     pub l4_phy_addr: mm::PhysicalAddress,
     pub phy_offset: u64,
     pub offset_base_addr: mm::PhysicalAddress,
+    pub l4_offset_addr: mm::VirtualAddress,
 }
 
 impl VirtualMemoryManager {
@@ -303,13 +309,14 @@ impl VirtualMemoryManager {
             l4_phy_addr: current_pt_addr,
             phy_offset,
             offset_base_addr: current_pt_addr,
+            l4_offset_addr: mapped_vmm_addr,
         }
     }
 
     #[inline]
     fn get_level_address(&self, next_addr: u64) -> mm::VirtualAddress {
         let offset = next_addr - self.offset_base_addr.as_u64();
-        mm::VirtualAddress(self.l4_virtual_address.as_u64() + offset)
+        mm::VirtualAddress(self.l4_offset_addr.as_u64() + offset)
     }
 
     #[inline]
@@ -334,7 +341,7 @@ impl VirtualMemoryManager {
             let frame_addr = frame_for_pt_opt.unwrap().addr();
 
             // set address:
-            let res = entry.set_address(frame_addr, PageEntryFlags::kernel_flags());
+            let res = entry.set_address(frame_addr, PageEntryFlags::user_flags());
             if res.is_err() {
                 panic!("{:?}", res.unwrap_err());
             }
@@ -346,8 +353,6 @@ impl VirtualMemoryManager {
             };
 
             new_pt.reset();
-
-            log::debug!("Created new page table at {:p}", new_pt);
             return Some(new_pt);
         }
 
@@ -372,6 +377,7 @@ impl VirtualMemoryManager {
         let l4_entry: &mut PageEntry = &mut l4_table.entries[l4_index.as_usize()];
         let l3_table_opt = self.get_or_create_table(l4_entry, create);
         if l3_table_opt.is_none() {
+            log::debug!("l3 not found!");
             return None;
         }
         let l3_table = l3_table_opt.unwrap();
@@ -385,6 +391,7 @@ impl VirtualMemoryManager {
 
         let l2_table_opt = self.get_or_create_table(l3_entry, create);
         if l2_table_opt.is_none() {
+            log::debug!("l2 not found!");
             return None;
         }
 
@@ -416,6 +423,7 @@ impl VirtualMemoryManager {
 
         let l1_table_opt = self.get_or_create_table(l2_entry, false);
         if l1_table_opt.is_none() {
+            log::debug!("l1 not found!");
             return None;
         }
 

@@ -165,6 +165,13 @@ impl Thread {
 
         let base_aligned_addr =
             Alignment::align_down(func_phy_addr.as_u64(), MemorySizes::OneKiB as u64 * 4);
+
+        log::info!(
+            "Func phy addr: 0x{:x}, aligned: 0x{:x}",
+            func_phy_addr.as_u64(),
+            base_aligned_addr
+        );
+
         let offset = func_phy_addr.as_u64() - base_aligned_addr;
         let code_base_addr = VirtualAddress::from_u64(USER_CODE_ADDRESS);
         // map this to virtual memory region:
@@ -175,6 +182,18 @@ impl Thread {
                 PageEntryFlags::user_flags(),
             )
             .expect("Failed to map codebase address for user thread.");
+        let gaurd_frame = base_aligned_addr + (4 * MemorySizes::OneKiB as u64);
+
+        // map this extra page:
+        proc_vmm
+            .map_page(
+                Page::from_address(VirtualAddress::from_u64(
+                    code_base_addr.as_u64() + (4 * MemorySizes::OneKiB as u64),
+                )),
+                Frame::from_address(PhysicalAddress::from_u64(gaurd_frame)),
+                PageEntryFlags::user_flags(),
+            )
+            .expect("Gaurd page allocation error");
         // return the code address:
         VirtualAddress::from_u64(code_base_addr.as_u64() + offset)
     }
@@ -272,20 +291,21 @@ impl Thread {
         match self.context.as_ref() {
             ContextType::InitContext(ctx) => {
                 // initial context, create a new context object:
-
-                let code_sel = if self.is_user {
-                    segments::get_user_cs().0 | segments::PrivilegeLevel::Ring3 as u16
+                let (code_sel, data_sel) = if self.is_user {
+                    (segments::get_user_cs().0, segments::get_user_ds().0)
                 } else {
-                    segments::get_kernel_cs().0
+                    (segments::get_kernel_cs().0, segments::get_kernel_ds().0)
                 };
 
                 mmu::set_page_table_address(PhysicalAddress::from_u64(ctx.cr3_base));
+
+                mmu::reload_flush();
 
                 bootstrap_kernel_thread(
                     ctx.stack_end.as_u64(),
                     ctx.rip_address.as_u64(),
                     code_sel,
-                    0x00,
+                    data_sel,
                 )
             }
             ContextType::SavedContext(ctx) => {

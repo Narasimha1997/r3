@@ -32,12 +32,13 @@ extern "x86-interrupt" fn overflow(stk: InterruptStackFrame) {
 
 extern "x86-interrupt" fn gpf(stk: InterruptStackFrame, err: u64) {
     log::error!("General protection fault {}\nException info: {:#?}", err, stk);
+    log::error!("GPF rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
     cpu::halt_no_interrupts();
 }
 
 extern "x86-interrupt" fn double_fault(stk: InterruptStackFrame, err: u64) -> ! {
     log::error!("Double fault exception {}\nException info: {:#?}", err, stk);
-    log::error!("Double falut rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
+    log::error!("Double fault rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
     cpu::halt_no_interrupts();
 }
 
