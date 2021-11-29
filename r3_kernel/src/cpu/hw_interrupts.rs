@@ -87,7 +87,6 @@ pub fn setup_hw_interrupts() {
 
     let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
     IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
-
 }
 
 pub fn setup_post_apic_interrupts() {

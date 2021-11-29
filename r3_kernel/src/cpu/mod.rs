@@ -11,6 +11,7 @@ pub mod pit;
 pub mod rflags;
 pub mod segments;
 pub mod tsc;
+pub mod syscall;
 pub mod state;
 
 pub fn enable_interrupts() {

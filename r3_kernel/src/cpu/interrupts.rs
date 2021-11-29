@@ -132,6 +132,8 @@ pub type PageFaultHandlerType =
 
 pub type NakedHandlerType = extern "C" fn(&mut InterruptStackFrame);
 
+pub type Sysv64HandlerType = extern "sysv64" fn(&mut InterruptStackFrame);
+
 // pointer struct which points to the IDT table:
 #[repr(C, packed)]
 pub struct IDTPointer {
@@ -168,7 +170,7 @@ pub struct InterruptDescriptorTable {
     reserved_3: InterruptDescriptorEntry<DefaultHandlerFunction>,
     pub interrupts: [InterruptDescriptorEntry<DefaultHandlerFunction>; 16],
     pub naked_0: InterruptDescriptorEntry<NakedHandlerType>,
-    pub interrupts_1: [InterruptDescriptorEntry<DefaultHandlerFunction>; 239 - 32],
+    pub interrupts_1: [InterruptDescriptorEntry<Sysv64HandlerType>; 239 - 32],
 }
 
 impl InterruptDescriptorTable {
@@ -263,5 +265,15 @@ pub fn prepare_error_code_handle(
     let handle_addr = func as u64;
     let mut idt_entry = InterruptDescriptorEntry::empty();
     idt_entry.set_handler(handle_addr);
+    return idt_entry;
+}
+
+pub fn prepare_syscall_interrupt(
+    func: Sysv64HandlerType
+) -> InterruptDescriptorEntry<Sysv64HandlerType> {
+    let handle_addr = func as u64;
+    let mut idt_entry = InterruptDescriptorEntry::empty();
+    idt_entry.set_handler(handle_addr);
+    idt_entry.set_privilege_level(segments::PrivilegeLevel::Ring3);
     return idt_entry;
 }

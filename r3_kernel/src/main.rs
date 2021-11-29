@@ -22,7 +22,6 @@ use alloc::string::ToString;
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
 
-
 fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
 
@@ -52,7 +51,12 @@ fn ideal_k_thread() {
 }
 
 fn thread_2() {
-    loop {}
+    loop {
+        unsafe {
+            // make a dummy syscall
+            asm!("int 0x80;");
+        }
+    }
 }
 
 fn test_sample_tasking() {
@@ -84,6 +88,7 @@ fn init_filesystem() {
 fn init_functionalities() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
+    cpu::syscall::setup_syscall_interrupt();
 
     // init ATA device
     drivers::disk::init();

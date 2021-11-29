@@ -36,6 +36,20 @@ pub struct CPURegistersState {
     pub ss: u64,
 }
 
+#[derive(Clone, Debug, Default, Copy)]
+#[repr(C, align(8))]
+pub struct SyscallRegsState {
+    pub r11: u64,
+    pub r10: u64,
+    pub r9:  u64,
+    pub r8:  u64,
+    pub rdi: u64,
+    pub rsi: u64,
+    pub rdx: u64,
+    pub rcx: u64,
+    pub rax: u64,
+}
+
 impl CPURegistersState {
     #[inline(always)]
     pub fn get_state() -> *const Self {
@@ -113,30 +127,6 @@ pub fn bootstrap_kernel_thread(stack_end: u64, code: u64, cs: u16, ds: u16) {
             in("rsi")stack_end,
             in("dx") cs,
             in("ax") ds
-        );
-    }
-}
-
-#[naked]
-pub extern "C" fn context_switch(_previous_stk: *mut u64, _next_ptr: u64) {
-    unsafe {
-        asm!(
-            "push rbx
-            push rbp
-            push r12
-            push r13
-            push r14
-            push r15
-            mov [rdi], rsp
-            mov rsp, rsi
-            pop r15
-            pop r14
-            pop r13
-            pop r12
-            pop rbp
-            pop rbx
-            ret",
-            options(noreturn)
         );
     }
 }
