@@ -65,7 +65,6 @@ fn thread_2() {
 
         result = result + 1;
     }*/
-    let no = 255;
     loop {
         unsafe {
             asm!("int 0x80");
