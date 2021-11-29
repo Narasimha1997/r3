@@ -3,9 +3,8 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::mmu;
-use crate::mm::paging::{KernelVirtualMemoryManager, PageTable, VirtualMemoryManager};
-use crate::mm::phy::PhysicalMemoryManager;
-use crate::mm::{PhysicalAddress, VirtualAddress};
+use crate::mm::paging::{KernelVirtualMemoryManager, VirtualMemoryManager};
+use crate::mm::PhysicalAddress;
 use crate::system::thread::ThreadID;
 
 use lazy_static::lazy_static;
@@ -77,52 +76,17 @@ pub struct Process {
 impl Process {
     #[inline]
     pub fn create_user_process(name: String) -> Self {
-        // creates a new usermode process
-        // clone the l4 page table of the kernel
-        let k_vmm = KernelVirtualMemoryManager::pt();
-
-        // allocate a new virtual address at 4k aligned region for new virtual address:
-        let frame_opt = PhysicalMemoryManager::alloc();
-        if frame_opt.is_none() {
-            panic!("Failed to allocate memory for new Virtual page table. OOM");
-        }
-
-        let frame = frame_opt.unwrap();
-
-        // get it's address:
-        let new_pt_vaddr = VirtualAddress::from_u64(k_vmm.phy_offset + frame.as_u64());
-
-        // clone the page table
-        let page_table: &mut PageTable = unsafe { &mut *new_pt_vaddr.get_mut_ptr() };
-
-        // copy the pages of kernel p4 table:
-        let kernel_table: &mut PageTable = unsafe { &mut *k_vmm.l4_virtual_address.get_mut_ptr() };
-
-        for idx in 0..kernel_table.entries.len() {
-            page_table.entries[idx] = kernel_table.entries[idx].clone();
-            page_table.entries[idx].set_usermode_flag();
-        }
-
-        // create a new VMM object:
-        let vmm = Box::new(VirtualMemoryManager {
-            n_tables: 1,
-            l4_virtual_address: new_pt_vaddr,
-            l4_phy_addr: frame.addr(),
-            phy_offset: k_vmm.phy_offset,
-            offset_base_addr: k_vmm.l4_phy_addr,
-            l4_offset_addr: k_vmm.l4_virtual_address,
-        });
-
+        let (vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
         let pid = new_pid();
 
         Process {
             pid,
             state: ProcessState::NoThreads,
-            cr3: frame.addr().as_u64(),
+            cr3: frame_addr.as_u64(),
             threads: Vec::new(),
             user: true,
             name,
-            pt_root: Some(vmm),
+            pt_root: Some(Box::new(vmm)),
         }
     }
 
