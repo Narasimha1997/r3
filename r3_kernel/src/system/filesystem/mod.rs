@@ -3,6 +3,7 @@ extern crate alloc;
 pub mod devfs;
 pub mod paths;
 pub mod vfs;
+pub mod ustar;
 
 #[derive(Debug, Clone)]
 pub enum MountInfo {
