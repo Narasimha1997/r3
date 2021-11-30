@@ -10,6 +10,7 @@ pub enum MountInfo {
     DevFS(devfs::DevFSDriver),
     MemFS,
     BlockFS,
+    TarFS(ustar::TarFSDriver),
 }
 
 #[derive(Debug, Clone)]
@@ -17,6 +18,7 @@ pub enum MountInfo {
 pub enum FileDescriptor {
     DevFSNode(devfs::DevFSDescriptor),
     Ext2Node,
+    TarFSNode(ustar::TarFileDescriptor),
     Empty,
 }
 
@@ -33,6 +35,7 @@ pub enum FSError {
     IllegalPath,
     Busy,
     DeviceNotFound,
+    InvalidSeek,
 }
 
 /// Represents the operations performed on File-System

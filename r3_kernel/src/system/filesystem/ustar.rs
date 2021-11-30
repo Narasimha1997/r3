@@ -2,10 +2,10 @@ extern crate alloc;
 extern crate log;
 
 use crate::system::filesystem::devfs::DevFSDriver;
-use crate::system::filesystem::FDOps;
-use crate::system::filesystem::FileDescriptor;
+use crate::system::filesystem::{FDOps, FSOps};
+use crate::system::filesystem::{FSError, FileDescriptor};
 
-use alloc::string::String;
+use alloc::{format, string::String};
 use core::mem;
 use core::str;
 
@@ -35,11 +35,23 @@ const HEADER_SIZE: usize = mem::size_of::<TarHeader>();
 
 pub struct TarFS;
 
+#[derive(Debug, Clone)]
+pub struct TarFileDescriptor {
+    /// offset of the file on that device
+    pub offset: usize,
+    /// size of the file
+    pub size: usize,
+    /// open flags
+    pub flags: u32,
+    ///seeked offset
+    pub seeked_offset: usize,
+}
+
 #[inline]
 fn oct_to_usize(buffer: &[u8]) -> usize {
     let mut multiplier = 1;
     let mut number = 0;
-    let last_index = buffer.len();
+    let last_index = buffer.len() - 1;
 
     for idx in 0..(last_index + 1) {
         let byte = buffer[last_index - idx];
@@ -53,7 +65,7 @@ fn oct_to_usize(buffer: &[u8]) -> usize {
 }
 
 impl TarFS {
-    pub fn find_offset(devfd: &mut FileDescriptor, path: &str) -> Option<u64> {
+    pub fn find_offset(devfd: &mut FileDescriptor, path: &str) -> Option<(usize, usize)> {
         // iterate over the structure:
 
         let mut buffer: [u8; HEADER_SIZE] = [0; HEADER_SIZE];
@@ -76,14 +88,17 @@ impl TarFS {
                 assert_eq!(head.is_empty(), true);
                 let tar_header = &body[0];
 
-                if str::from_utf8_unchecked(&tar_header.signature) != "ustar" {
+                let signature = str::from_utf8_unchecked(&tar_header.signature);
+
+                if !signature.starts_with("ustar") {
                     break;
                 }
 
+                let read_path = str::from_utf8_unchecked(&tar_header.name);
                 // check path, are they equal?
-                if str::from_utf8_unchecked(&tar_header.name) == path {
+                if read_path.starts_with(path) {
                     let file_entry = (block_no + 1) * mem::size_of::<TarHeader>();
-                    return Some(file_entry as u64);
+                    return Some((file_entry, oct_to_usize(&tar_header.size)));
                 }
 
                 let to_skip_bytes = oct_to_usize(&tar_header.size);
@@ -103,9 +118,62 @@ impl TarFS {
 }
 
 #[derive(Debug, Clone)]
-pub struct TarFileDescriptor {
-    /// name of the device on which the filesystem is formatted.
-    pub dev_name: String,
-    /// offset of the file on that device
-    pub offset: u64,
+pub struct TarFSDriver {
+    pub device: String,
+}
+
+impl TarFSDriver {
+    pub fn new_from_drive(device: &str) -> Self {
+        TarFSDriver {
+            device: String::from(device),
+        }
+    }
+}
+
+impl FSOps for TarFSDriver {
+    fn open(&mut self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
+        let path = format!("/tarfs/{}", path);
+
+        let mut devfs_driver = DevFSDriver::new();
+
+        let devfd_result = devfs_driver.open(&self.device, 0);
+        if devfd_result.is_err() {
+            log::debug!("error=Attempt to open unknown device {}", self.device);
+            return Err(FSError::NotFound);
+        }
+
+        let mut devfd = devfd_result.unwrap();
+        if let Some((offset, size)) = TarFS::find_offset(&mut devfd, &path) {
+            let _ = devfs_driver.close(&devfd);
+            return Ok(FileDescriptor::TarFSNode(TarFileDescriptor {
+                offset,
+                size,
+                flags,
+                seeked_offset: 0,
+            }));
+        }
+
+        let _ = devfs_driver.close(&devfd);
+        Err(FSError::NotFound)
+    }
+
+    fn close(&self, _fd: &FileDescriptor) -> Result<(), FSError> {
+        // a stub
+        Ok(())
+    }
+}
+
+impl FDOps for TarFSDriver {
+    fn write(&self, _fd: &mut FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
+        // tarfs doens't support writes, it is a readonly file-system.
+        Err(FSError::InvalidOperation)
+    }
+
+    fn read(&self, _fd: &mut FileDescriptor, _buffer: &mut [u8]) -> Result<usize, FSError> {
+        Err(FSError::NotYetImplemented)
+    }
+
+    fn seek(&self, _fd: &mut FileDescriptor, _offset: u32) -> Result<(), FSError> {
+        Err(FSError::NotYetImplemented)
+    }
 }

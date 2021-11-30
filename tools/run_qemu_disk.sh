@@ -15,7 +15,7 @@ if [[ "$1" == "--build" || "$2" == "--build" || "$3" == "--build" ]]; then
 fi
 
 
-STORAGE_DISK=storage/ATA_0.img
+STORAGE_DISK=storage/tarfs.tar
 KERNEL_BIN_PATH="./kbin"
 QEMU_ARGS="-enable-kvm -cpu host -m 1G -M pc --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk"
 
