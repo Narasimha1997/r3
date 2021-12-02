@@ -48,6 +48,8 @@ pub struct TarFileDescriptor {
     pub flags: u32,
     ///seeked offset
     pub seeked_offset: usize,
+    /// driver name
+    pub driver_name: String,
 }
 
 #[inline]
@@ -135,7 +137,7 @@ impl TarFSDriver {
 
 impl FSOps for TarFSDriver {
     fn open(&mut self, path: &str, flags: u32) -> Result<FileDescriptor, FSError> {
-        let path = format!("/tarfs/{}", path);
+        let path = format!("tarfs{}", path);
 
         let mut devfs_driver = DevFSDriver::new();
 
@@ -153,6 +155,7 @@ impl FSOps for TarFSDriver {
                 size,
                 flags,
                 seeked_offset: 0,
+                driver_name: self.device.clone(),
             }));
         }
 
@@ -201,18 +204,23 @@ impl FDOps for TarFSDriver {
                     - Alignment::align_down(tarfd.seeked_offset as u64, 512) as usize;
                 let end_slice_offset = aligned_end - end_offset;
 
-                if aligned_start < tarfd.offset {
-                    return Err(FSError::AlignmentError);
-                }
-
                 // how many blocks:
                 let n_blocks: usize = (aligned_end - aligned_start) / 512;
+
                 // read these blocks starting from offset
                 let mut block_data: Vec<u8> = Vec::new();
                 block_data.resize(512, 0);
 
                 if n_blocks == 1 {
                     // read this block
+                    // seek to the location
+
+                    let seek_result =
+                        dev_driver.seek(&mut dev_handle, (tarfd.offset + aligned_start) as u32);
+                    if seek_result.is_err() {
+                        return Err(FSError::InvalidSeek);
+                    }
+
                     let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
                     if read_result.is_err() {
                         return Err(FSError::IOError);
@@ -238,6 +246,15 @@ impl FDOps for TarFSDriver {
                 // copy other blocks completely
                 if n_blocks > 2 {
                     for idx in 1..(n_blocks - 1) {
+                        let seek_result = dev_driver.seek(
+                            &mut dev_handle,
+                            (tarfd.offset + aligned_start + (idx * 512)) as u32,
+                        );
+
+                        if seek_result.is_err() {
+                            return Err(FSError::InvalidSeek);
+                        }
+
                         let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
                         if read_result.is_err() {
                             return Err(FSError::IOError);
@@ -247,13 +264,21 @@ impl FDOps for TarFSDriver {
                     }
                 }
 
+                let n_read = (n_blocks - 1) * 512;
+                let seek_result = dev_driver.seek(
+                    &mut dev_handle,
+                    (tarfd.offset + aligned_start + (n_read * 512)) as u32,
+                );
+
+                if seek_result.is_err() {
+                    return Err(FSError::InvalidSeek);
+                }
+
                 // last block
                 let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
                 if read_result.is_err() {
                     return Err(FSError::IOError);
                 }
-
-                let n_read = (n_blocks - 1) * 512;
 
                 dest_slice[n_read..n_read + end_slice_offset]
                     .clone_from_slice(&block_data[0..end_slice_offset]);
@@ -290,4 +315,5 @@ pub fn mount_tarfs(device: &str, path: &str) {
     fs_lock
         .mount_at(path, mount_info)
         .expect("Failed to mount tarfs");
+    log::info!("Mounted tarfs at {}", path);
 }

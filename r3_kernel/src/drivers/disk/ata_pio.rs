@@ -84,7 +84,6 @@ impl ATADrive {
 
         // setup block for reading
         bus_device.set_block(self.drive_type.clone(), block_no);
-
         // set command:
         bus_device.send_command(ATACommand::READ);
         bus_device.wait_while_busy();
@@ -113,7 +112,6 @@ impl ATADrive {
 
         // setup block for reading
         bus_device.set_block(self.drive_type.clone(), block_no);
-
         // set command:
         bus_device.send_command(ATACommand::WRITE);
         bus_device.wait_while_busy();

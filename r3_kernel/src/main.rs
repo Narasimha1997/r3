@@ -22,6 +22,9 @@ use alloc::string::ToString;
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
 
+use core::str;
+use system::filesystem::{FDOps, FSOps};
+
 fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
 
@@ -96,6 +99,37 @@ fn test_sample_tasking() {
 fn init_filesystem() {
     system::init_fs();
     drivers::register_drivers();
+
+    system::init_tarfs();
+}
+
+fn test_tarfs_read() {
+    unsafe {
+        let handle_res = system::filesystem::vfs::FILESYSTEM
+            .lock()
+            .open("/sbin/file1.txt", 0);
+        
+        if handle_res.is_err() {
+            log::error!("{:?}", handle_res.unwrap_err());
+            return;
+        }
+
+        let mut handle = handle_res.unwrap();
+
+        let mut buffer: [u8; 100] = [0; 100];
+        let read_res = system::filesystem::vfs::FILESYSTEM
+            .lock()
+            .read(&mut handle, &mut buffer);
+        if read_res.is_err() {
+            log::error!("{:?}", read_res.unwrap_err());
+            return;
+        }
+
+        log::info!(
+            "Read Data: {}",
+            str::from_utf8_unchecked(&buffer[0..read_res.unwrap()])
+        );
+    }
 }
 
 fn init_functionalities() {
@@ -108,6 +142,7 @@ fn init_functionalities() {
     init_filesystem();
 
     system::init_tasking();
+    test_tarfs_read();
 
     test_sample_tasking();
 

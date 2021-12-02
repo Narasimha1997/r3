@@ -3,6 +3,7 @@ extern crate spin;
 
 use crate::system::filesystem::devfs::DevFSDriver;
 use crate::system::filesystem::paths;
+use crate::system::filesystem::ustar::TarFSDriver;
 use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo};
 
 use alloc::{boxed::Box, string::String, vec::Vec};
@@ -142,6 +143,10 @@ impl FSOps for VFS {
                 let (_, remaining_path) = formatted_path.split_at(spl_pos);
                 return dev_driver.open(&remaining_path, flags);
             }
+            MountInfo::TarFS(tar_driver) => {
+                let (_, remaining_path) = formatted_path.split_at(spl_pos);
+                return tar_driver.open(&remaining_path, flags);
+            }
             _ => {
                 return Err(FSError::NotYetImplemented);
             }
@@ -170,6 +175,10 @@ impl FDOps for VFS {
                 let devfs_driver = DevFSDriver::new();
                 return devfs_driver.read(fd, buffer);
             }
+            FileDescriptor::TarFSNode(tarfd) => {
+                let tarfs_driver = TarFSDriver::new_from_drive(&tarfd.driver_name);
+                return tarfs_driver.read(fd, buffer);
+            }
             _ => {
                 return Err(FSError::NotYetImplemented);
             }
@@ -181,6 +190,10 @@ impl FDOps for VFS {
             FileDescriptor::DevFSNode(_) => {
                 let devfs_driver = DevFSDriver::new();
                 return devfs_driver.write(fd, &buffer);
+            }
+            FileDescriptor::TarFSNode(tarfd) => {
+                let tarfs_driver = TarFSDriver::new_from_drive(&tarfd.driver_name);
+                return tarfs_driver.write(fd, buffer);
             }
             _ => {
                 return Err(FSError::NotYetImplemented);
