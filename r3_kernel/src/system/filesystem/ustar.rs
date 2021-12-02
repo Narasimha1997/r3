@@ -1,11 +1,14 @@
 extern crate alloc;
 extern crate log;
 
+use crate::mm::Alignment;
 use crate::system::filesystem::devfs::DevFSDriver;
+use crate::system::filesystem::vfs::FILESYSTEM;
+use crate::system::filesystem::MountInfo;
 use crate::system::filesystem::{FDOps, FSOps};
 use crate::system::filesystem::{FSError, FileDescriptor};
 
-use alloc::{format, string::String};
+use alloc::{format, string::String, vec::Vec};
 use core::mem;
 use core::str;
 
@@ -169,11 +172,122 @@ impl FDOps for TarFSDriver {
         Err(FSError::InvalidOperation)
     }
 
-    fn read(&self, _fd: &mut FileDescriptor, _buffer: &mut [u8]) -> Result<usize, FSError> {
-        Err(FSError::NotYetImplemented)
+    fn read(&self, fd: &mut FileDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
+        let mut dev_driver = DevFSDriver::new();
+        let dev_result = dev_driver.open(&self.device, 0);
+
+        if dev_result.is_err() {
+            return Err(FSError::DeviceNotFound);
+        }
+        let mut dev_handle = dev_result.unwrap();
+
+        match fd {
+            FileDescriptor::TarFSNode(tarfd) => {
+                let dest_slice = if buffer.len() > tarfd.size - tarfd.seeked_offset {
+                    &mut buffer[0..(tarfd.size - tarfd.seeked_offset)]
+                } else {
+                    buffer
+                };
+
+                // how many number of blocks should I read?
+                let start_offset = tarfd.seeked_offset;
+                let end_offset = start_offset + dest_slice.len();
+
+                // align them to 512 blocks
+                let aligned_start = Alignment::align_down(start_offset as u64, 512) as usize;
+                let aligned_end = Alignment::align_up(end_offset as u64, 512) as usize;
+
+                let first_seek_offset = tarfd.seeked_offset
+                    - Alignment::align_down(tarfd.seeked_offset as u64, 512) as usize;
+                let end_slice_offset = aligned_end - end_offset;
+
+                if aligned_start < tarfd.offset {
+                    return Err(FSError::AlignmentError);
+                }
+
+                // how many blocks:
+                let n_blocks: usize = (aligned_end - aligned_start) / 512;
+                // read these blocks starting from offset
+                let mut block_data: Vec<u8> = Vec::new();
+                block_data.resize(512, 0);
+
+                if n_blocks == 1 {
+                    // read this block
+                    let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
+                    if read_result.is_err() {
+                        return Err(FSError::IOError);
+                    }
+
+                    // copy this data to the slice
+                    dest_slice.clone_from_slice(
+                        &block_data[tarfd.seeked_offset..(tarfd.size - tarfd.seeked_offset)],
+                    );
+
+                    return Ok(dest_slice.len());
+                }
+
+                let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
+                if read_result.is_err() {
+                    return Err(FSError::IOError);
+                }
+
+                // first block
+                dest_slice[0..first_seek_offset]
+                    .clone_from_slice(&block_data[tarfd.seeked_offset..]);
+
+                // copy other blocks completely
+                if n_blocks > 2 {
+                    for idx in 1..(n_blocks - 1) {
+                        let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
+                        if read_result.is_err() {
+                            return Err(FSError::IOError);
+                        }
+                        dest_slice[512 + ((idx - 1) * 512)..512 + (idx * 512)]
+                            .clone_from_slice(&block_data);
+                    }
+                }
+
+                // last block
+                let read_result = dev_driver.read(&mut dev_handle, &mut block_data);
+                if read_result.is_err() {
+                    return Err(FSError::IOError);
+                }
+
+                let n_read = (n_blocks - 1) * 512;
+
+                dest_slice[n_read..n_read + end_slice_offset]
+                    .clone_from_slice(&block_data[0..end_slice_offset]);
+
+                return Ok(dest_slice.len());
+            }
+            _ => {}
+        }
+        Err(FSError::NotFound)
     }
 
-    fn seek(&self, _fd: &mut FileDescriptor, _offset: u32) -> Result<(), FSError> {
-        Err(FSError::NotYetImplemented)
+    fn seek(&self, fd: &mut FileDescriptor, offset: u32) -> Result<(), FSError> {
+        match fd {
+            FileDescriptor::TarFSNode(tarfd) => {
+                if tarfd.seeked_offset + offset as usize > tarfd.size {
+                    return Err(FSError::InvalidSeek);
+                }
+
+                tarfd.seeked_offset = tarfd.seeked_offset + offset as usize;
+                return Ok(());
+            }
+            _ => {}
+        }
+
+        return Err(FSError::NotFound);
     }
+}
+
+pub fn mount_tarfs(device: &str, path: &str) {
+    let mut fs_lock = FILESYSTEM.lock();
+    let tarfs = TarFSDriver::new_from_drive(device);
+    let mount_info = MountInfo::TarFS(tarfs);
+
+    fs_lock
+        .mount_at(path, mount_info)
+        .expect("Failed to mount tarfs");
 }

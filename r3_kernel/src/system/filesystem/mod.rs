@@ -36,6 +36,8 @@ pub enum FSError {
     Busy,
     DeviceNotFound,
     InvalidSeek,
+    AlignmentError,
+    IOError,
 }
 
 /// Represents the operations performed on File-System
