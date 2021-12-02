@@ -219,6 +219,10 @@ impl FDOps for VFS {
                 let devfs_driver = DevFSDriver::new();
                 return devfs_driver.seek(fd, offset);
             }
+            FileDescriptor::TarFSNode(tarfd) => {
+                let tar_driver = TarFSDriver::new_from_drive(&tarfd.driver_name);
+                return tar_driver.seek(fd, offset);
+            }
             _ => {
                 return Err(FSError::NotYetImplemented);
             }

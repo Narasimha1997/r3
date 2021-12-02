@@ -107,8 +107,7 @@ fn test_tarfs_read() {
     unsafe {
         let handle_res = system::filesystem::vfs::FILESYSTEM
             .lock()
-            .open("/sbin/file1.txt", 0);
-        
+            .open("/sbin/random.txt", 0);
         if handle_res.is_err() {
             log::error!("{:?}", handle_res.unwrap_err());
             return;
@@ -116,19 +115,27 @@ fn test_tarfs_read() {
 
         let mut handle = handle_res.unwrap();
 
-        let mut buffer: [u8; 100] = [0; 100];
-        let read_res = system::filesystem::vfs::FILESYSTEM
-            .lock()
-            .read(&mut handle, &mut buffer);
-        if read_res.is_err() {
-            log::error!("{:?}", read_res.unwrap_err());
-            return;
-        }
+        let mut buffer: [u8; 512] = [0; 512];
+        for i in 0..3 {
+            let read_res = system::filesystem::vfs::FILESYSTEM
+                .lock()
+                .read(&mut handle, &mut buffer);
+            if read_res.is_err() {
+                log::error!("{:?}", read_res.unwrap_err());
+                return;
+            }
 
-        log::info!(
-            "Read Data: {}",
-            str::from_utf8_unchecked(&buffer[0..read_res.unwrap()])
-        );
+            log::info!(
+                "Read Data: {}",
+                str::from_utf8_unchecked(&buffer[0..read_res.unwrap()])
+            );
+
+            // seek
+            system::filesystem::vfs::FILESYSTEM
+                .lock()
+                .seek(&mut handle, (i + 1) * 512)
+                .expect("Failed to seek");
+        }
     }
 }
 
@@ -140,9 +147,9 @@ fn init_functionalities() {
     // init ATA device
     drivers::disk::init();
     init_filesystem();
+    test_tarfs_read();
 
     system::init_tasking();
-    test_tarfs_read();
 
     test_sample_tasking();
 
