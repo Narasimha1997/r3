@@ -11,6 +11,8 @@ spin = "0.5.2"
 log = "0.4.13"
 bit_field = "0.10.1"
 bitflags = "1.0.4"
+object = { version = "0.27.1", default-features = false, features = ["read"] }
+
 
 [package.metadata.bootimage]
 build-command = ["xbuild"]

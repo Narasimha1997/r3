@@ -1,14 +1,13 @@
 extern crate alloc;
 extern crate log;
 
-use crate::mm::Alignment;
 use crate::system::filesystem::devfs::DevFSDriver;
 use crate::system::filesystem::vfs::FILESYSTEM;
 use crate::system::filesystem::MountInfo;
 use crate::system::filesystem::{FDOps, FSOps};
 use crate::system::filesystem::{FSError, FileDescriptor};
 
-use alloc::{format, string::String, vec::Vec};
+use alloc::{format, string::String};
 use core::mem;
 use core::str;
 

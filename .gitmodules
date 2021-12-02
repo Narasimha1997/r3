@@ -7,3 +7,8 @@
 	path = third_party/crates/linked-list-allocator
 	url = https://github.com/phil-opp/linked-list-allocator.git
 	branch = master
+
+[submodule "third_party/crates/object"]
+        path = third_party/crates/object
+        url = https://github.com/gimli-rs/object
+        branch = master
