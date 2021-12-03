@@ -18,12 +18,10 @@ pub mod logging;
 pub mod mm;
 pub mod system;
 
-use alloc::string::ToString;
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
 
-use core::str;
-use system::filesystem::{FDOps, FSOps};
+use alloc::format;
 
 fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
@@ -53,47 +51,26 @@ fn ideal_k_thread() {
     cpu::halt_with_interrupts();
 }
 
-fn thread_2() {
-    /*let timeval: [u8; 16] = [0; 16];
-    let mut result: u64 = 0;
-    loop {
-        unsafe {
-            asm!(
-                "int 0x80", in("rax")228,
-                in("rdi")0, in("rsi")&timeval,
-                in("rdx")0,
-                lateout("rax") result
-            )
-        }
+fn start_idle_kthread() {
+    // this will always run in the background and keep atleast
+    // one task running in the kernel with CPU interrupts enabled.
+    let process = system::process::new(format!("kernel_background"), false);
 
-        result = result + 1;
-    }*/
-    loop {
-        unsafe {
-            asm!("int 0x80");
-        }
-    }
-}
-
-fn test_sample_tasking() {
-    let pid1 = system::process::new("system_main".to_string(), false);
-
-    let tid1 = system::thread::new_from_function(
-        &pid1,
-        "th_1".to_string(),
+    // start a thread for this process
+    let thread_result = system::thread::new_from_function(
+        &process,
+        format!("idle_thread"),
         mm::VirtualAddress::from_u64(ideal_k_thread as fn() as u64),
     );
 
-    let pid2 = system::process::new("user_test".to_string(), true);
+    if thread_result.is_err() {
+        log::error!("Failed to run system idle thread, threading not working!!!");
+        return;
+    }
 
-    let tid2 = system::thread::new_from_function(
-        &pid2,
-        "th_2".to_string(),
-        mm::VirtualAddress::from_u64(thread_2 as fn() as u64),
-    );
-
-    system::thread::run_thread(&tid1.unwrap());
-    system::thread::run_thread(&tid2.unwrap());
+    // run this thread
+    system::thread::run_thread(&thread_result.unwrap());
+    log::info!("Started system idle thread in background.")
 }
 
 fn init_filesystem() {
@@ -101,42 +78,6 @@ fn init_filesystem() {
     drivers::register_drivers();
 
     system::init_tarfs();
-}
-
-fn test_tarfs_read() {
-    unsafe {
-        let handle_res = system::filesystem::vfs::FILESYSTEM
-            .lock()
-            .open("/sbin/random.txt", 0);
-        if handle_res.is_err() {
-            log::error!("{:?}", handle_res.unwrap_err());
-            return;
-        }
-
-        let mut handle = handle_res.unwrap();
-
-        let mut buffer: [u8; 512] = [0; 512];
-        for i in 0..3 {
-            let read_res = system::filesystem::vfs::FILESYSTEM
-                .lock()
-                .read(&mut handle, &mut buffer);
-            if read_res.is_err() {
-                log::error!("{:?}", read_res.unwrap_err());
-                return;
-            }
-
-            log::info!(
-                "Read Data: {}",
-                str::from_utf8_unchecked(&buffer[0..read_res.unwrap()])
-            );
-
-            // seek
-            system::filesystem::vfs::FILESYSTEM
-                .lock()
-                .seek(&mut handle, (i + 1) * 512)
-                .expect("Failed to seek");
-        }
-    }
 }
 
 fn init_functionalities() {
@@ -147,12 +88,9 @@ fn init_functionalities() {
     // init ATA device
     drivers::disk::init();
     init_filesystem();
-    test_tarfs_read();
-
     system::init_tasking();
 
-    test_sample_tasking();
-
+    start_idle_kthread();
     system::timer::SystemTimer::start_ticks();
 }
 

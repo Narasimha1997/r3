@@ -82,9 +82,9 @@ impl ELFLoader {
     }
 
     pub fn load_from_path(
-        path: &str,
-        vmm: &mut VirtualMemoryManager,
-        at_addr: VirtualAddress,
+        _path: &str,
+        _vmm: &mut VirtualMemoryManager,
+        _at_addr: VirtualAddress,
     ) -> Result<VirtualAddress, LoaderError> {
         return Err(LoaderError::InvalidELF);
     }

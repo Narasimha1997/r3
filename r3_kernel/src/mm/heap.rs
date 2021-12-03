@@ -11,7 +11,7 @@ use linked_list_allocator::LockedHeap;
 
 use crate::mm::paging;
 
-pub const HEAP_START_ADDRESS: u64 = 0x7fff00000000;
+pub const HEAP_START_ADDRESS: u64 = 0xffffa00000000000;
 
 // 10 MB of heap initially
 pub const HEAP_SIZE: u64 = 10 * (mm::MemorySizes::OneMib as u64);
@@ -72,6 +72,7 @@ fn test_heap_alloc() {
     log::debug!("Testing heap by allocating a vector: ");
     let mut test_vec: Vec<u64> = Vec::new();
 
+    log::info!("Allocated info!");
     // insert some elements:
     test_vec.push(10);
     test_vec.push(20);

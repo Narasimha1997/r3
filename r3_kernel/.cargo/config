@@ -1,6 +1,7 @@
 [build]
 target = "x86_64.json"
 target-dir = "../kbin"
+rustflags = ["-C", "link-arg=--image-base=0xffff800000000000"]
 
 [target.'cfg(target_os = "none")']
 runner = "bootimage runner"

@@ -13,9 +13,9 @@ use crate::mm::{MemorySizes, VirtualAddress};
 use core::mem;
 
 // stack start
-const STACK_ALLOCATOR_START_ADDR: u64 = 0x5fff00000000;
+const STACK_ALLOCATOR_START_ADDR: u64 = 0xffffb00000000000;
 // stack end
-const STACK_ALLOCATOR_END_ADDR: u64 = 0x600080000000;
+const STACK_ALLOCATOR_END_ADDR: u64 = 0xffffc00400000000;
 pub const STACK_SIZE: usize = 2 * MemorySizes::OneMib as usize;
 
 #[derive(Debug)]

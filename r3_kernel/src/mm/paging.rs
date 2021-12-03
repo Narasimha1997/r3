@@ -352,6 +352,12 @@ impl VirtualMemoryManager {
                     .get_mut_ptr()
             };
 
+            log::debug!(
+                "Created new page table at phy=0x{:x} virt={:p}",
+                frame_addr.as_u64(),
+                &new_pt
+            );
+
             new_pt.reset();
             return Some(new_pt);
         }
@@ -384,7 +390,6 @@ impl VirtualMemoryManager {
 
         // l2 table:
         let l3_entry: &mut PageEntry = &mut l3_table.entries[l3_index.as_usize()];
-
         if l3 {
             return Some(l3_entry);
         }
@@ -811,7 +816,7 @@ impl KernelVirtualMemoryManager {
         // copy the pages of kernel p4 table:
         let kernel_table: &mut PageTable = unsafe { &mut *k_vmm.l4_virtual_address.get_mut_ptr() };
 
-        for idx in 0..kernel_table.entries.len() {
+        for idx in 256..kernel_table.entries.len() {
             page_table.entries[idx] = kernel_table.entries[idx].clone();
             page_table.entries[idx].set_usermode_flag();
         }
