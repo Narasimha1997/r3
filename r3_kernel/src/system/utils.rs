@@ -9,7 +9,7 @@ use core::mem;
 
 use crate::mm::{
     paging::KernelVirtualMemoryManager, paging::Page, paging::PageEntryFlags,
-    paging::VirtualMemoryManager, phy::Frame, phy::PhysicalMemoryManager, Alignment, Alignment,
+    paging::VirtualMemoryManager, phy::Frame, phy::PhysicalMemoryManager, Alignment,
     MemorySizes, PhysicalAddress, VirtualAddress,
 };
 
@@ -48,7 +48,7 @@ pub struct ProcessData {
     /// start address from where process heap is allocated
     pub heap_start: VirtualAddress,
     /// current heap size
-    pub heap_size: VirtualAddress,
+    pub heap_size: u64,
     /// list of open file descriptors for the process
     pub file_descriptors: Vec<FileDescriptor>,
     /// proc code entrypoint
@@ -128,6 +128,9 @@ impl ProcessStackManager {
         proc_data.free_stack_holes.push(nth);
     }
 }
+
+pub struct ProcessHeapAllocator;
+
 
 pub fn map_user_stack(
     stack_addr: VirtualAddress,
