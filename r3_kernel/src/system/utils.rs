@@ -1,9 +1,11 @@
 extern crate alloc;
+extern crate object;
 
 use alloc::vec::Vec;
 
 use crate::mm::stack::STACK_SIZE;
 use crate::system::filesystem::FileDescriptor;
+use crate::system::loader;
 
 use core::mem;
 
@@ -44,6 +46,7 @@ pub enum ProcessError {
     StackAllocError,
     HeapOOM,
     HeapOOB,
+    InvalidELF,
 }
 
 #[derive(Debug, Clone)]
@@ -220,10 +223,7 @@ impl ProcessHeapAllocator {
     }
 
     #[inline]
-    pub fn contract(
-        proc_vmm: &mut ProcessData,
-        size: usize,
-    ) -> Result<usize, ProcessError> {
+    pub fn contract(proc_vmm: &mut ProcessData, size: usize) -> Result<usize, ProcessError> {
         let align_size = if USE_HUGEPAGE_HEAP {
             2 * MemorySizes::OneMib as u64
         } else {
@@ -239,6 +239,39 @@ impl ProcessHeapAllocator {
         let current_end = proc_vmm.heap_pages * align_size;
         proc_vmm.heap_pages = proc_vmm.heap_pages - n_pages;
         Ok(current_end as usize)
+    }
+}
+
+pub struct CodeMapper;
+
+impl CodeMapper {
+    #[inline]
+    pub fn load_elf(
+        proc_vmm: &mut ProcessData,
+        vmm: &mut VirtualMemoryManager,
+        path: &str,
+    ) -> Result<(), ProcessError> {
+        
+        let file_buffer_res = loader::read_executable(&path);
+        if file_buffer_res.is_err() {
+            log::error!("{:?}", file_buffer_res.unwrap_err());
+            return Err(ProcessError::InvalidELF);
+        }
+
+        let file_buffer = file_buffer_res.unwrap();
+        
+        // map this buffer as ELF
+        let buffer_ref = &file_buffer[0..];
+        let elf_result = object::File::parse(buffer_ref);
+
+        if elf_result.is_err() {
+            log::error!("ELF Loader Error {:?}", elf_result.unwrap_err());
+            return Err(ProcessError::InvalidELF);
+        }
+
+        // 
+
+        Ok(())
     }
 }
 
