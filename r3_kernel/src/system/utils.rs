@@ -9,8 +9,8 @@ use core::mem;
 
 use crate::mm::{
     paging::KernelVirtualMemoryManager, paging::Page, paging::PageEntryFlags,
-    paging::VirtualMemoryManager, phy::Frame, phy::PhysicalMemoryManager, Alignment,
-    MemorySizes, PhysicalAddress, VirtualAddress,
+    paging::VirtualMemoryManager, phy::Frame, phy::PhysicalMemoryManager, Alignment, MemorySizes,
+    PhysicalAddress, VirtualAddress,
 };
 
 /// Area in which user code will be allocated
@@ -35,6 +35,17 @@ pub const PROCESS_STACKS_SIZE: u64 = 16 * MemorySizes::OneGiB as u64;
 
 pub const THREAD_STACK_SIZE: u64 = 2 * MemorySizes::OneMib as u64;
 
+pub const USE_HUGEPAGE_HEAP: bool = true;
+
+#[derive(Debug, Clone)]
+pub enum ProcessError {
+    StackOOM,
+    StackOOB,
+    StackAllocError,
+    HeapOOM,
+    HeapOOB,
+}
+
 #[derive(Debug, Clone)]
 pub struct ProcessData {
     /// current allocated page allocated stack
@@ -48,7 +59,11 @@ pub struct ProcessData {
     /// start address from where process heap is allocated
     pub heap_start: VirtualAddress,
     /// current heap size
-    pub heap_size: u64,
+    pub heap_pages: u64,
+    /// number of pages already allocated
+    pub heap_alloc_pages: u64,
+    /// max heap pages
+    pub max_heap_pages: u64,
     /// list of open file descriptors for the process
     pub file_descriptors: Vec<FileDescriptor>,
     /// proc code entrypoint
@@ -73,7 +88,7 @@ impl ProcessStackManager {
     pub fn allocate_stack(
         proc_data: &mut ProcessData,
         vmm: &mut VirtualMemoryManager,
-    ) -> Option<VirtualAddress> {
+    ) -> Result<VirtualAddress, ProcessError> {
         // is there a free stack in the pool?
         if proc_data.free_stack_holes.len() > 0 {
             let stk_index = proc_data.free_stack_holes.pop().unwrap();
@@ -83,14 +98,14 @@ impl ProcessStackManager {
             );
 
             Self::zero(vaddr);
-            return Some(vaddr);
+            return Ok(vaddr);
         }
 
         // allocate a new 2MiB stack:
         let alloc_result = PhysicalMemoryManager::alloc_huge_page();
         if alloc_result.is_none() {
             log::error!("Stack allocation failed, out of memory!");
-            return None;
+            return Err(ProcessError::StackOOM);
         }
 
         let page = Page::from_address(VirtualAddress::from_u64(
@@ -109,7 +124,7 @@ impl ProcessStackManager {
                 "Stack allocation failed, error={:?}",
                 map_result.unwrap_err()
             );
-            return None;
+            return Err(ProcessError::StackAllocError);
         }
 
         let vaddr = page.addr();
@@ -117,20 +132,115 @@ impl ProcessStackManager {
 
         // increment the counter
         proc_data.n_stacks += 2;
-        Some(vaddr)
+        Ok(vaddr)
     }
 
     #[inline]
-    pub fn free_stack(proc_data: &mut ProcessData, addr: VirtualAddress) {
+    pub fn free_stack(
+        proc_data: &mut ProcessData,
+        addr: VirtualAddress,
+    ) -> Result<(), ProcessError> {
+        // check out of bounds
+        if addr.as_u64() > (proc_data.stack_space_start.as_u64() + STACK_SIZE as u64) {
+            return Err(ProcessError::StackOOB);
+        }
+
         let aligned_loc = Alignment::align_down(addr.as_u64(), 4 * MemorySizes::OneMib as u64);
         let nth = aligned_loc / (4 * MemorySizes::OneMib as u64);
 
         proc_data.free_stack_holes.push(nth);
+        Ok(())
     }
 }
 
 pub struct ProcessHeapAllocator;
 
+impl ProcessHeapAllocator {
+    #[inline]
+    pub fn expand(
+        proc_vmm: &mut ProcessData,
+        vmm: &mut VirtualMemoryManager,
+        size: usize,
+    ) -> Result<usize, ProcessError> {
+        // align the size to page sized blocks
+        let align_size = if USE_HUGEPAGE_HEAP {
+            2 * MemorySizes::OneMib as u64
+        } else {
+            4 * MemorySizes::OneKiB as u64
+        };
+
+        // align this address:
+        let aligned_size = Alignment::align_up(size as u64, align_size);
+        // allocate the heap
+        let mut n_pages = aligned_size / align_size;
+
+        // can we re-use already allocated pages?
+        if proc_vmm.heap_pages + n_pages <= proc_vmm.heap_alloc_pages {
+            let current_pages = proc_vmm.heap_pages;
+            proc_vmm.heap_pages = proc_vmm.heap_pages + n_pages;
+            return Ok((current_pages * align_size) as usize);
+        }
+
+        n_pages = n_pages + proc_vmm.heap_pages - proc_vmm.heap_alloc_pages;
+        proc_vmm.heap_pages = proc_vmm.heap_alloc_pages + n_pages;
+        let current_end = proc_vmm.heap_alloc_pages * align_size;
+        let mut new_addr = proc_vmm.heap_start.as_u64() + current_end;
+
+        if proc_vmm.heap_alloc_pages + n_pages > proc_vmm.max_heap_pages {
+            return Err(ProcessError::HeapOOM);
+        }
+
+        for _ in 0..n_pages {
+            let new_page = Page::from_address(VirtualAddress::from_u64(new_addr));
+            let alloc_result = if USE_HUGEPAGE_HEAP {
+                let huge_frame_res = PhysicalMemoryManager::alloc_huge_page();
+                if huge_frame_res.is_none() {
+                    return Err(ProcessError::HeapOOM);
+                }
+                let huge_frame = huge_frame_res.unwrap();
+                new_addr = new_addr + align_size;
+                vmm.map_huge_page(new_page, huge_frame, PageEntryFlags::user_hugepage_flags())
+            } else {
+                let frame_res = PhysicalMemoryManager::alloc();
+                if frame_res.is_none() {
+                    return Err(ProcessError::HeapOOM);
+                }
+                let frame = frame_res.unwrap();
+                new_addr = new_addr + align_size;
+                vmm.map_page(new_page, frame, PageEntryFlags::user_flags())
+            };
+
+            if alloc_result.is_err() {
+                log::error!("Failed to expand heap.");
+            }
+        }
+
+        proc_vmm.heap_alloc_pages = proc_vmm.heap_alloc_pages + n_pages;
+        Ok(current_end as usize)
+    }
+
+    #[inline]
+    pub fn contract(
+        proc_vmm: &mut ProcessData,
+        size: usize,
+    ) -> Result<usize, ProcessError> {
+        let align_size = if USE_HUGEPAGE_HEAP {
+            2 * MemorySizes::OneMib as u64
+        } else {
+            4 * MemorySizes::OneKiB as u64
+        };
+        let aligned_size = Alignment::align_up(size as u64, align_size);
+        let n_pages = aligned_size / align_size;
+
+        if n_pages > proc_vmm.heap_pages {
+            return Err(ProcessError::HeapOOB);
+        }
+
+        let current_end = proc_vmm.heap_pages * align_size;
+        proc_vmm.heap_pages = proc_vmm.heap_pages - n_pages;
+        Ok(current_end as usize)
+    }
+}
 
 pub fn map_user_stack(
     stack_addr: VirtualAddress,
