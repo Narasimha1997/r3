@@ -7,7 +7,8 @@ use crate::mm::stack::STACK_SIZE;
 use crate::system::filesystem::FileDescriptor;
 use crate::system::loader;
 
-use core::mem;
+use core::{mem, ptr};
+use object::{Object, ObjectSegment};
 
 use crate::mm::{
     paging::KernelVirtualMemoryManager, paging::Page, paging::PageEntryFlags,
@@ -47,6 +48,7 @@ pub enum ProcessError {
     HeapOOM,
     HeapOOB,
     InvalidELF,
+    CodeAllocationError,
 }
 
 #[derive(Debug, Clone)]
@@ -71,6 +73,8 @@ pub struct ProcessData {
     pub file_descriptors: Vec<FileDescriptor>,
     /// proc code entrypoint
     pub code_entry: VirtualAddress,
+    /// code page count - code segment uses 4KiB pages
+    pub code_pages: u64,
 }
 
 pub struct ProcessStackManager;
@@ -251,7 +255,6 @@ impl CodeMapper {
         vmm: &mut VirtualMemoryManager,
         path: &str,
     ) -> Result<(), ProcessError> {
-        
         let file_buffer_res = loader::read_executable(&path);
         if file_buffer_res.is_err() {
             log::error!("{:?}", file_buffer_res.unwrap_err());
@@ -259,7 +262,6 @@ impl CodeMapper {
         }
 
         let file_buffer = file_buffer_res.unwrap();
-        
         // map this buffer as ELF
         let buffer_ref = &file_buffer[0..];
         let elf_result = object::File::parse(buffer_ref);
@@ -269,7 +271,46 @@ impl CodeMapper {
             return Err(ProcessError::InvalidELF);
         }
 
-        // 
+        let elf = elf_result.unwrap();
+        let mut size_sum: u64 = 0;
+        for segment in elf.segments() {
+            size_sum += Alignment::align_up(
+                segment.size() + 4 * MemorySizes::OneKiB as u64,
+                4 * MemorySizes::OneKiB as u64,
+            );
+        }
+
+        let aligned_size = Alignment::align_up(size_sum, 4 * MemorySizes::OneKiB as u64);
+        let n_pages = aligned_size / (4 * MemorySizes::OneKiB as u64);
+
+        let start_addr = VirtualAddress::from_u64(
+            USER_CODE_ADDRESS + (proc_vmm.code_pages * 4 * MemorySizes::OneKiB as u64),
+        );
+
+        // allocate those n_pages
+        for i in 0..n_pages {
+            let page = Page::from_address(VirtualAddress::from_u64(
+                start_addr.as_u64() + (i * 4 * MemorySizes::OneKiB as u64),
+            ));
+
+            let frame_res = PhysicalMemoryManager::alloc();
+            if frame_res.is_none() {
+                return Err(ProcessError::CodeAllocationError);
+            }
+
+            let frame = frame_res.unwrap();
+            let alloc_result = vmm.map_page(page, frame, PageEntryFlags::user_flags());
+
+            if alloc_result.is_err() {
+                return Err(ProcessError::CodeAllocationError);
+            }
+        }
+
+        // zero the region
+        unsafe {
+            ptr::write_bytes(start_addr.get_mut_ptr::<u8>(), 0, size_sum as usize);
+            // copy segments of data:
+        }
 
         Ok(())
     }
