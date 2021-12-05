@@ -6,8 +6,9 @@ extern crate spin;
 
 use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::state::CPURegistersState;
+use crate::system::process::PID;
 use crate::system::tasking::srbs::SimpleRoundRobinSchduler;
-use crate::system::thread::Thread;
+use crate::system::thread::{Thread, ThreadID};
 use crate::system::timer::SystemTimer;
 
 use crate::system::thread::THREAD_POOL;
@@ -39,6 +40,12 @@ pub trait Sched {
     /// this function will automatically make the thread non-schedulable
     /// and it's entry will be removed from everywhere. Including the process
     fn exit(&mut self, code: u64);
+
+    /// this function should return the current thread ID
+    /// that called this function, or that was scheduled.
+    fn current_tid(&self) -> Option<ThreadID>;
+
+    fn current_pid(&self) -> Option<PID>;
 }
 
 lazy_static! {

@@ -1,9 +1,10 @@
 use alloc::vec::Vec;
 
-use crate::cpu::state::CPURegistersState;
-use crate::system::tasking::{handle_exit, Sched};
-use crate::system::thread::{ContextType, Thread};
 use crate::alloc::boxed::Box;
+use crate::cpu::state::CPURegistersState;
+use crate::system::process::PID;
+use crate::system::tasking::{handle_exit, Sched};
+use crate::system::thread::{ContextType, Thread, ThreadID};
 
 #[derive(Debug, Clone)]
 /// A scheduler that schedules tasks from
@@ -80,5 +81,23 @@ impl Sched for SimpleRoundRobinSchduler {
         };
 
         None
+    }
+
+    fn current_tid(&self) -> Option<ThreadID> {
+        if self.thread_index.is_none() {
+            return None;
+        }
+
+        let thread = self.thread_list.get(self.thread_index.unwrap());
+        Some(thread.as_ref().unwrap().thread_id)
+    }
+
+    fn current_pid(&self) -> Option<PID> {
+        if self.thread_index.is_none() {
+            return None;
+        }
+
+        let thread = self.thread_list.get(self.thread_index.unwrap());
+        Some(thread.as_ref().unwrap().parent_pid.clone())
     }
 }

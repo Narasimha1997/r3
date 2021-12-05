@@ -1,12 +1,14 @@
 pub mod abi;
 pub mod filesystem;
+pub mod loader;
 pub mod posix;
 pub mod process;
 pub mod tasking;
 pub mod thread;
 pub mod timer;
 pub mod utils;
-pub mod loader;
+
+use tasking::Sched;
 
 pub fn init_tasking() {
     process::setup_process_pool();
@@ -21,4 +23,14 @@ pub fn init_fs() {
 
 pub fn init_tarfs() {
     filesystem::ustar::mount_tarfs("hdb", "/sbin");
+}
+
+#[inline]
+pub fn current_tid() -> Option<thread::ThreadID> {
+    tasking::SCHEDULER.lock().current_tid()
+}
+
+#[inline]
+pub fn current_pid() -> Option<process::PID> {
+    tasking::SCHEDULER.lock().current_pid()
 }
