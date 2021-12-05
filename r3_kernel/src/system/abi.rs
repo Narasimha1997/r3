@@ -12,8 +12,6 @@ use crate::system::posix::dispatch_syscall;
 use alloc::{string::String, vec};
 use core::str;
 
-const MAX_PATH_LENGTH: usize = 512;
-
 // C numerical types
 pub type CInt16 = i16;
 pub type CInt32 = i32;
