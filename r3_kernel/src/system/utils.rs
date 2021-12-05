@@ -4,7 +4,7 @@ extern crate object;
 use alloc::vec::Vec;
 
 use crate::mm::stack::STACK_SIZE;
-use crate::system::filesystem::FileDescriptor;
+use crate::system::filesystem::{vfs::FILESYSTEM, FSOps, FileDescriptor};
 use crate::system::loader;
 
 use core::{mem, ptr};
@@ -36,9 +36,14 @@ pub const USER_VIRT_END: u64 = 0x800000000000;
 /// So each allocation will cost 2MiB physically and 4MiB virtually
 pub const PROCESS_STACKS_SIZE: u64 = 16 * MemorySizes::OneGiB as u64;
 
+/// Size of stack for each thread
 pub const THREAD_STACK_SIZE: u64 = 2 * MemorySizes::OneMib as u64;
 
+/// use huge pages to map heap
 pub const USE_HUGEPAGE_HEAP: bool = true;
+
+/// maximum file-descriptors that a process can have open any time
+pub const MAX_FILE_DESCRIPTORS: usize = 512;
 
 #[derive(Debug, Clone)]
 pub enum ProcessError {
@@ -48,7 +53,14 @@ pub enum ProcessError {
     HeapOOM,
     HeapOOB,
     InvalidELF,
+    MaxFDLimit,
     CodeAllocationError,
+}
+
+#[derive(Debug, Clone)]
+pub struct FDEntry {
+    index: usize,
+    pub fd: FileDescriptor,
 }
 
 #[derive(Debug, Clone)]
@@ -70,7 +82,9 @@ pub struct ProcessData {
     /// max heap pages
     pub max_heap_pages: u64,
     /// list of open file descriptors for the process
-    pub file_descriptors: Vec<FileDescriptor>,
+    pub file_descriptors: Vec<FDEntry>,
+    /// current fd allocated:
+    pub fd_index: usize,
     /// proc code entrypoint
     pub code_entry: VirtualAddress,
     /// code page count - code segment uses 4KiB pages
@@ -342,9 +356,9 @@ impl CodeMapper {
                 let page = Page::from_address(VirtualAddress::from_u64(
                     aligned_sec_start + (i * 4 * MemorySizes::OneKiB as u64),
                 ));
-                KernelVirtualMemoryManager::pt().unmap_page(page).expect(
-                    "Failed to unmap mapped kernel pages."
-                );
+                KernelVirtualMemoryManager::pt()
+                    .unmap_page(page)
+                    .expect("Failed to unmap mapped kernel pages.");
             }
         }
 
@@ -363,6 +377,59 @@ impl CodeMapper {
     }
 }
 
+pub struct FDPool;
+
+impl FDPool {
+    #[inline]
+    pub fn put(proc_data: &mut ProcessData, fd: FileDescriptor) -> Result<usize, ProcessError> {
+        if proc_data.file_descriptors.len() + 1 > MAX_FILE_DESCRIPTORS {
+            return Err(ProcessError::MaxFDLimit);
+        }
+
+        let index = proc_data.fd_index;
+        let fd_entry = FDEntry { index, fd };
+        proc_data.fd_index = index + 1;
+        proc_data.file_descriptors.push(fd_entry);
+        Ok(index)
+    }
+
+    #[inline]
+    pub fn get_mut(proc_data: &mut ProcessData, fd_index: usize) -> Option<&mut FDEntry> {
+        for idx in 0..proc_data.file_descriptors.len() {
+            if proc_data.file_descriptors[idx].index == fd_index {
+                return proc_data.file_descriptors.get_mut(idx);
+            }
+        }
+
+        None
+    }
+
+    #[inline]
+    pub fn remove(proc_data: &mut ProcessData, fd_index: usize) {
+        for idx in 0..proc_data.file_descriptors.len() {
+            if proc_data.file_descriptors[idx].index == fd_index {
+                proc_data.file_descriptors.remove(idx);
+                return;
+            }
+        }
+    }
+}
+
+pub fn create_default_descriptors(proc_data: &mut ProcessData) {
+    let dev_fd = FILESYSTEM
+        .lock()
+        .open("/dev/serial", 0)
+        .expect("/dev/serial not found on this platform, cannot create process stdout.");
+
+    let stdin = dev_fd.clone();
+    let stdout = dev_fd.clone();
+    let stderr = dev_fd;
+
+    FDPool::put(proc_data, stdin).expect("Failed to create default stdin");
+    FDPool::put(proc_data, stdout).expect("Failed to create default stdin");
+    FDPool::put(proc_data, stderr).expect("Failed to create default stdin");
+}
+
 pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> ProcessData {
     // create an empty layout
     let stack_space_start = VirtualAddress::from_u64(USER_VIRT_END - PROCESS_STACKS_SIZE);
@@ -376,6 +443,7 @@ pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> Proc
         heap_alloc_pages: 0,
         max_heap_pages: 0,
         file_descriptors: Vec::new(),
+        fd_index: 0,
         code_entry: VirtualAddress::from_u64(0),
         code_pages: 0,
     };
