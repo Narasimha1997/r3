@@ -54,7 +54,7 @@ fn ideal_k_thread() {
 fn start_idle_kthread() {
     // this will always run in the background and keep atleast
     // one task running in the kernel with CPU interrupts enabled.
-    let process = system::process::new(format!("kernel_background"), false);
+    let process = system::process::new(format!("kernel_background"), false, format!(""));
 
     // start a thread for this process
     let thread_result = system::thread::new_from_function(

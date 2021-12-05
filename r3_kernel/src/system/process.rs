@@ -6,6 +6,7 @@ use crate::cpu::mmu;
 use crate::mm::paging::{KernelVirtualMemoryManager, VirtualMemoryManager};
 use crate::mm::PhysicalAddress;
 use crate::system::thread::ThreadID;
+use crate::system::utils::{create_process_layout, ProcessData};
 
 use lazy_static::lazy_static;
 
@@ -68,16 +69,23 @@ pub struct Process {
     pub user: bool,
     /// more fields will be added in future.
     pub name: String,
-
     /// root page table, if there are any
     pub pt_root: Option<Box<VirtualMemoryManager>>,
+    /// process data, this will be null for kernel process
+    pub proc_data: Option<ProcessData>,
 }
 
 impl Process {
     #[inline]
-    pub fn create_user_process(name: String) -> Self {
+    pub fn create_user_process(name: String, path: &str) -> Self {
         let (vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
         let pid = new_pid();
+
+        let proc_data = if path.len() > 0 {
+            Some(create_process_layout(path, &mut vmm))
+        } else {
+            None
+        };
 
         Process {
             pid,
@@ -87,13 +95,14 @@ impl Process {
             user: true,
             name,
             pt_root: Some(Box::new(vmm)),
+            proc_data,
         }
     }
 
-    pub fn empty(name: String, user: bool) -> Self {
+    pub fn empty(name: String, user: bool, path: &str) -> Self {
         if user {
             // create and return the user process:
-            return Self::create_user_process(name);
+            return Self::create_user_process(name, &path);
         }
 
         // return the process:
@@ -107,8 +116,8 @@ impl Process {
             threads: Vec::new(),
             user,
             name,
-            // kernel mode processes run with the same kernel page table.
             pt_root: None,
+            proc_data: None,
         }
     }
 
@@ -254,8 +263,8 @@ pub fn setup_process_pool() {
     );
 }
 
-pub fn new(name: String, is_user: bool) -> PID {
-    let process = Process::empty(name, is_user);
+pub fn new(name: String, is_user: bool, path: &str) -> PID {
+    let process = Process::empty(name, is_user, &path);
     let pid = process.pid.clone();
     PROCESS_POOL.lock().add_process(process);
     pid

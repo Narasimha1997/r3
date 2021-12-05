@@ -91,6 +91,70 @@ pub struct Thread {
 }
 
 impl Thread {
+    pub fn new(pid: PID, name: String) -> Result<Self, ThreadError> {
+        let proc_lock = PROCESS_POOL.lock();
+
+        let parent_proc_opt = proc_lock.get_mut_ref(&pid);
+
+        if parent_proc_opt.is_none() {
+            return Err(ThreadError::NoPID);
+        }
+
+        let parent_proc = parent_proc_opt.unwrap();
+        if parent_proc.proc_data.is_none() {
+            panic!("Cannot run thread on empty user process layout.");
+        }
+
+        if !parent_proc.is_usermode() {
+            panic!("Kernel threads cannot load and run ELF binaries.");
+        }
+
+        let proc_data = parent_proc.proc_data.as_mut().unwrap();
+
+        // allocate a stack
+        let stack_start = utils::ProcessStackManager::allocate_stack(
+            &mut proc_data,
+            parent_proc.pt_root.as_mut().unwrap().as_mut(),
+        )
+        .expect("Failed to allocate stack for user thread.");
+        // get the entrypoint:
+        let entrypoint = proc_data.code_entry;
+
+        let tid = new_tid();
+        parent_proc.add_thread(tid.clone());
+
+        // init context
+        let init_context = InitialStateContainer {
+            cr3_base: parent_proc.cr3,
+            rip_address: entrypoint,
+            stack_end: VirtualAddress::from_u64(stack_start.as_u64() + STACK_SIZE as u64),
+        };
+
+        log::debug!(
+            "Initialized context for new thread
+            thread_id={}, page_table=0x{:x}, rip=0x{:x},
+            stack_end=0x{:x}",
+            tid.as_u64(),
+            init_context.cr3_base,
+            init_context.rip_address.as_u64(),
+            init_context.stack_end.as_u64()
+        );
+
+        let context = ContextType::InitContext(init_context);
+
+        Ok(Thread {
+            is_user: true,
+            parent_pid: parent_proc.pid,
+            context: Box::new(context),
+            name,
+            thread_id: tid,
+            state: ThreadState::Waiting,
+            sched_count: 0,
+            stack_start: stack_start,
+            cr3: parent_proc.cr3,
+        })
+    }
+
     pub fn new_from_function(
         pid: PID,
         name: String,
@@ -289,6 +353,18 @@ pub fn new_from_function(
         return Err(th_res.unwrap_err());
     }
 
+    let thread = th_res.unwrap();
+    let tid = thread.thread_id;
+
+    THREAD_POOL.lock().add_thread(thread);
+    Ok(tid)
+}
+
+pub fn new_main_thread(pid: &PID, name: String) -> Result<ThreadID, ThreadError> {
+    let th_res = Thread::new(pid.clone(), name);
+    if th_res.is_err() {
+        return Err(th_res.unwrap_err());
+    }
     let thread = th_res.unwrap();
     let tid = thread.thread_id;
 

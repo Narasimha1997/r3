@@ -283,6 +283,8 @@ impl CodeMapper {
         let aligned_size = Alignment::align_up(size_sum, 4 * MemorySizes::OneKiB as u64);
         let n_pages = aligned_size / (4 * MemorySizes::OneKiB as u64);
 
+        proc_vmm.code_pages = n_pages;
+
         let start_addr = VirtualAddress::from_u64(
             USER_CODE_ADDRESS + (proc_vmm.code_pages * 4 * MemorySizes::OneKiB as u64),
         );
@@ -306,14 +308,67 @@ impl CodeMapper {
             }
         }
 
-        // zero the region
         unsafe {
-            ptr::write_bytes(start_addr.get_mut_ptr::<u8>(), 0, size_sum as usize);
+            let code_ptr = start_addr.get_mut_ptr::<u8>();
+            // zero the region
+            ptr::write_bytes(code_ptr, 0, size_sum as usize);
             // copy segments of data:
+            for segment in elf.segments() {
+                if let Ok(segment_data) = segment.data() {
+                    let offset_addr = segment.address();
+                    let start_offset_ptr = code_ptr.add(offset_addr as usize);
+                    for (idx, byte) in segment_data.iter().enumerate() {
+                        let offset_ptr = start_offset_ptr.add(idx);
+                        ptr::write(offset_ptr, *byte);
+                    }
+                }
+            }
         }
+
+        let entry_addr = elf.entry();
+        proc_vmm.code_entry = VirtualAddress::from_u64(entry_addr);
+
+        // mark the end of heap as 2MiB aligned page
+        let aligned_hugepage_size =
+            Alignment::align_up(aligned_size, 4 * MemorySizes::OneMib as u64);
+        proc_vmm.heap_start = VirtualAddress::from_u64(aligned_hugepage_size);
 
         Ok(())
     }
+}
+
+pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> ProcessData {
+    // create an empty layout
+    let stack_space_start = VirtualAddress::from_u64(USER_VIRT_END - PROCESS_STACKS_SIZE);
+
+    let mut proc_data = ProcessData {
+        stack_space_start,
+        free_stack_holes: Vec::new(),
+        n_stacks: 0,
+        heap_pages: 0,
+        heap_start: VirtualAddress::from_u64(0),
+        heap_alloc_pages: 0,
+        max_heap_pages: 0,
+        file_descriptors: Vec::new(),
+        code_entry: VirtualAddress::from_u64(0),
+        code_pages: 0,
+    };
+
+    // create the code segment
+    let code_alloc_result = CodeMapper::load_elf(&mut proc_data, vmm, &path);
+    if code_alloc_result.is_err() {
+        panic!("Failed to allocate code for the process.");
+    }
+
+    let max_heap_size = stack_space_start.as_u64() - proc_data.heap_start.as_u64();
+    let max_heap_pages = if USE_HUGEPAGE_HEAP {
+        max_heap_size / (4 * MemorySizes::OneMib as u64)
+    } else {
+        max_heap_size / (4 * MemorySizes::OneKiB as u64)
+    };
+
+    proc_data.max_heap_pages = max_heap_pages;
+    proc_data
 }
 
 pub fn map_user_stack(
