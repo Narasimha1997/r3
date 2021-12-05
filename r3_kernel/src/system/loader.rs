@@ -18,7 +18,7 @@ pub fn is_elf(binary: &[u8]) -> bool {
         return false;
     }
 
-    unsafe { str::from_utf8_unchecked(&binary[0..4]) == "ELF" }
+    unsafe { str::from_utf8_unchecked(&binary[1..4]) == "ELF" }
 }
 
 pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
@@ -46,15 +46,6 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
         }
 
         let n_read = read_res.unwrap();
-
-        if iter == 0 {
-            // check if it's a valid ELF
-            if !is_elf(&temp_buffer) {
-                log::debug!("ELF load failed, {} is not an ELF binary.", path);
-                return Err(LoadError::InvalidFormat);
-            }
-        }
-
         binary_buffer.extend_from_slice(&temp_buffer[0..n_read]);
 
         if n_read < 512 {
@@ -63,8 +54,7 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
 
         let seek_result = FILESYSTEM.lock().seek(&mut fd, (iter + 1) * 512);
         if seek_result.is_err() {
-            log::debug!("ELF load failed, {:?}", seek_result.unwrap_err());
-            return Err(LoadError::FileReadError);
+            break;
         }
 
         iter += 1;

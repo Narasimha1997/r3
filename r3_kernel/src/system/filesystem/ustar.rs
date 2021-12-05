@@ -227,7 +227,7 @@ impl FDOps for TarFSDriver {
                     return Err(FSError::InvalidSeek);
                 }
 
-                if tarfd.seeked_offset + offset as usize > tarfd.size {
+                if tarfd.seeked_offset > tarfd.size {
                     return Err(FSError::InvalidSeek);
                 }
 

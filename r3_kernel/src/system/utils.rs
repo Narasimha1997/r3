@@ -126,6 +126,15 @@ impl ProcessStackManager {
             PageEntryFlags::user_hugepage_flags(),
         );
 
+        // also map a kernel page
+        KernelVirtualMemoryManager::pt()
+            .map_huge_page(
+                page,
+                alloc_result.unwrap(),
+                PageEntryFlags::user_hugepage_flags(),
+            )
+            .expect("Failed to map kernel page");
+
         if map_result.is_err() {
             log::error!(
                 "Stack allocation failed, error={:?}",
@@ -136,6 +145,11 @@ impl ProcessStackManager {
 
         let vaddr = page.addr();
         Self::zero(vaddr);
+
+        // unmap it now
+        KernelVirtualMemoryManager::pt()
+            .unmap_page(page)
+            .expect("Failed to unmap mapped page.");
 
         // increment the counter
         proc_data.n_stacks += 2;
@@ -272,65 +286,77 @@ impl CodeMapper {
         }
 
         let elf = elf_result.unwrap();
-        let mut size_sum: u64 = 0;
+        let mut total_pages = 0;
+
+        // map all the segments:
         for segment in elf.segments() {
-            size_sum += Alignment::align_up(
-                segment.size() + 4 * MemorySizes::OneKiB as u64,
-                4 * MemorySizes::OneKiB as u64,
+            log::debug!(
+                "{} allocation section={:?} at=0x{:x}, size={}",
+                path,
+                segment.name(),
+                segment.address(),
+                segment.size()
             );
-        }
 
-        let aligned_size = Alignment::align_up(size_sum, 4 * MemorySizes::OneKiB as u64);
-        let n_pages = aligned_size / (4 * MemorySizes::OneKiB as u64);
+            let section_start = segment.address();
+            let aligned_sec_start =
+                Alignment::align_down(section_start, 4 * MemorySizes::OneKiB as u64);
+            let aligned_size = Alignment::align_up(segment.size(), 4 * MemorySizes::OneKiB as u64);
 
-        proc_vmm.code_pages = n_pages;
+            let n_pages = aligned_size / (4 * MemorySizes::OneKiB as u64);
+            total_pages = total_pages + n_pages;
 
-        let start_addr = VirtualAddress::from_u64(
-            USER_CODE_ADDRESS + (proc_vmm.code_pages * 4 * MemorySizes::OneKiB as u64),
-        );
-
-        // allocate those n_pages
-        for i in 0..n_pages {
-            let page = Page::from_address(VirtualAddress::from_u64(
-                start_addr.as_u64() + (i * 4 * MemorySizes::OneKiB as u64),
-            ));
-
-            let frame_res = PhysicalMemoryManager::alloc();
-            if frame_res.is_none() {
-                return Err(ProcessError::CodeAllocationError);
+            for i in 0..n_pages {
+                // map kernel and user pages
+                let frame = PhysicalMemoryManager::alloc().expect("RAM OOM");
+                let page = Page::from_address(VirtualAddress::from_u64(
+                    aligned_sec_start + (i * 4 * MemorySizes::OneKiB as u64),
+                ));
+                KernelVirtualMemoryManager::pt()
+                    .map_page(page, frame, PageEntryFlags::user_flags())
+                    .expect("Failed to map kernel page while mapping code.");
+                vmm.map_page(page, frame, PageEntryFlags::user_flags())
+                    .expect("Failed to map user page while mapping code");
             }
 
-            let frame = frame_res.unwrap();
-            let alloc_result = vmm.map_page(page, frame, PageEntryFlags::user_flags());
-
-            if alloc_result.is_err() {
-                return Err(ProcessError::CodeAllocationError);
-            }
-        }
-
-        unsafe {
-            let code_ptr = start_addr.get_mut_ptr::<u8>();
-            // zero the region
-            ptr::write_bytes(code_ptr, 0, size_sum as usize);
-            // copy segments of data:
-            for segment in elf.segments() {
-                if let Ok(segment_data) = segment.data() {
-                    let offset_addr = segment.address();
-                    let start_offset_ptr = code_ptr.add(offset_addr as usize);
-                    for (idx, byte) in segment_data.iter().enumerate() {
-                        let offset_ptr = start_offset_ptr.add(idx);
-                        ptr::write(offset_ptr, *byte);
-                    }
+            if let Ok(data) = segment.data() {
+                // zero this layout
+                let start_ptr = VirtualAddress::from_u64(aligned_sec_start).get_mut_ptr::<u8>();
+                unsafe {
+                    ptr::write_bytes(
+                        start_ptr,
+                        0,
+                        n_pages as usize * 4 * MemorySizes::OneKiB as usize,
+                    );
+                    // write data
+                    ptr::copy_nonoverlapping(
+                        data.as_ptr(),
+                        start_ptr.add((segment.address() - aligned_sec_start) as usize),
+                        segment.size() as usize,
+                    );
                 }
+            }
+
+            // unmap kernel entries:
+            for i in 0..n_pages {
+                let page = Page::from_address(VirtualAddress::from_u64(
+                    aligned_sec_start + (i * 4 * MemorySizes::OneKiB as u64),
+                ));
+                KernelVirtualMemoryManager::pt().unmap_page(page).expect(
+                    "Failed to unmap mapped kernel pages."
+                );
             }
         }
 
         let entry_addr = elf.entry();
         proc_vmm.code_entry = VirtualAddress::from_u64(entry_addr);
+        proc_vmm.code_pages = total_pages;
 
         // mark the end of heap as 2MiB aligned page
-        let aligned_hugepage_size =
-            Alignment::align_up(aligned_size, 4 * MemorySizes::OneMib as u64);
+        let aligned_hugepage_size = Alignment::align_up(
+            total_pages * 4 * MemorySizes::OneKiB as u64,
+            2 * MemorySizes::OneMib as u64,
+        );
         proc_vmm.heap_start = VirtualAddress::from_u64(aligned_hugepage_size);
 
         Ok(())

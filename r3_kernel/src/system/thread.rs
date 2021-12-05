@@ -92,7 +92,7 @@ pub struct Thread {
 
 impl Thread {
     pub fn new(pid: PID, name: String) -> Result<Self, ThreadError> {
-        let proc_lock = PROCESS_POOL.lock();
+        let mut proc_lock = PROCESS_POOL.lock();
 
         let parent_proc_opt = proc_lock.get_mut_ref(&pid);
 
@@ -109,7 +109,7 @@ impl Thread {
             panic!("Kernel threads cannot load and run ELF binaries.");
         }
 
-        let proc_data = parent_proc.proc_data.as_mut().unwrap();
+        let mut proc_data = parent_proc.proc_data.as_mut().unwrap();
 
         // allocate a stack
         let stack_start = utils::ProcessStackManager::allocate_stack(
@@ -144,7 +144,7 @@ impl Thread {
 
         Ok(Thread {
             is_user: true,
-            parent_pid: parent_proc.pid,
+            parent_pid: parent_proc.pid.clone(),
             context: Box::new(context),
             name,
             thread_id: tid,

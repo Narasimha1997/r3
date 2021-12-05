@@ -54,22 +54,29 @@ fn ideal_k_thread() {
 fn start_idle_kthread() {
     // this will always run in the background and keep atleast
     // one task running in the kernel with CPU interrupts enabled.
-    let process = system::process::new(format!("kernel_background"), false, format!(""));
+    let process = system::process::new(format!("kernel_background"), false, "");
 
     // start a thread for this process
-    let thread_result = system::thread::new_from_function(
+    let k_thread_result = system::thread::new_from_function(
         &process,
         format!("idle_thread"),
         mm::VirtualAddress::from_u64(ideal_k_thread as fn() as u64),
     );
 
-    if thread_result.is_err() {
+    if k_thread_result.is_err() {
         log::error!("Failed to run system idle thread, threading not working!!!");
         return;
     }
 
+    let pid = system::process::new(format!("test"), true, "/sbin/syscall");
+    let thread_result = system::thread::new_main_thread(&pid, format!("main"));
+    if thread_result.is_err() {
+        log::error!("Failed to run system idle thread, threading not working!!!");
+        return;
+    }
     // run this thread
     system::thread::run_thread(&thread_result.unwrap());
+    system::thread::run_thread(&k_thread_result.unwrap());
     log::info!("Started system idle thread in background.")
 }
 

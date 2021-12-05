@@ -328,6 +328,8 @@ impl VirtualMemoryManager {
         if entry.is_mapped() {
             let pt: &mut PageTable =
                 unsafe { &mut *self.get_level_address(entry.addr().as_u64()).get_mut_ptr() };
+            
+            entry.set_flags(PageEntryFlags::user_flags());
 
             return Some(pt);
         }
@@ -396,14 +398,12 @@ impl VirtualMemoryManager {
 
         let l2_table_opt = self.get_or_create_table(l3_entry, create);
         if l2_table_opt.is_none() {
-            log::debug!("l2 not found!");
             return None;
         }
 
         let l2_table = l2_table_opt.unwrap();
 
         let l2_entry: &mut PageEntry = &mut l2_table.entries[l2_index.as_usize()];
-
         if assert_huge_page {
             assert_eq!(l2_entry.has_flag(PageEntryFlags::HUGE_PAGE), true);
         }
@@ -438,7 +438,7 @@ impl VirtualMemoryManager {
         if !l1_entry.is_mapped() {
             return None;
         }
-
+        
         Frame::from_aligned_address(l1_entry.addr()).ok()
     }
 
@@ -493,6 +493,10 @@ impl VirtualMemoryManager {
         let mut page_entry = PageEntry::empty();
         page_entry.set_phy_frame(frame, flags);
         l1_table.entries[l1_index.as_usize()] = page_entry;
+
+        // reload tlb
+        mmu::reload_flush();
+
         Ok(())
     }
 

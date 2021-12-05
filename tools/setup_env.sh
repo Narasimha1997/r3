@@ -33,6 +33,14 @@ function install_rust_cargo () {
     fi
 }
 
+function install_nasm () {
+    if ! command -v nasm &> /dev/null; then
+        sudo apt install nasm
+    else
+        echo "nasm already installed."
+    fi
+}
+
 function setup_toolchain_env () {
     echo "Configuring project to use rust nightly cross compiler."
     ./tools/sub/get_cargo_prerequsites.sh

@@ -78,7 +78,7 @@ pub struct Process {
 impl Process {
     #[inline]
     pub fn create_user_process(name: String, path: &str) -> Self {
-        let (vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
+        let (mut vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
         let pid = new_pid();
 
         let proc_data = if path.len() > 0 {
