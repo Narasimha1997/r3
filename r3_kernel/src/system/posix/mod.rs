@@ -1,11 +1,18 @@
 pub mod gettime;
+pub mod io;
 
+use crate::mm::VirtualAddress;
 use crate::system::abi;
+use crate::system::filesystem::POSIXOpenFlags;
 
-pub const SYSCALL_NO_GETTIME: usize = 228;
+const SYSCALL_NO_READ: usize = 0;
+const SYSCALL_NO_WRITE: usize = 1;
+const SYSCALL_NO_OPEN: usize = 2;
+const SYSCALL_NO_CLOSE: usize = 3;
+const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
-pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, _arg2: usize) -> i32 {
+pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) -> i32 {
     let syscall_result = match sys_no {
         SYSCALL_NO_GETTIME => {
             // is the pointer null?
@@ -22,6 +29,34 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, _arg2: usize) -
             // call the function:
             gettime::sys_clock_gettime(clock_type, userptr)
         }
+        SYSCALL_NO_OPEN => {
+            if arg0 == 0 {
+                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+            }
+
+            let path_res = abi::copy_cstring(VirtualAddress::from_u64(arg0 as u64), 512);
+            let open_res = match path_res {
+                Err(err_code) => Err(err_code),
+                Ok(path) => io::sys_open(&path, POSIXOpenFlags::from_bits_truncate(arg1 as u32)),
+            };
+
+            open_res
+        }
+        SYSCALL_NO_READ => {
+            if arg1 == 0 {
+                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+            }
+
+            io::sys_read(arg0, VirtualAddress::from_u64(arg1 as u64), arg2)
+        }
+        SYSCALL_NO_WRITE => {
+            if arg1 == 0 {
+                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+            }
+
+            io::sys_write(arg0, VirtualAddress::from_u64(arg1 as u64), arg2)
+        }
+        SYSCALL_NO_CLOSE => io::sys_close(arg0),
         _ => Err(abi::Errno::ENOSYS),
     };
 

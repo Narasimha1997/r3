@@ -54,6 +54,7 @@ pub enum ProcessError {
     HeapOOB,
     InvalidELF,
     MaxFDLimit,
+    InvalidFD,
     CodeAllocationError,
 }
 
@@ -377,9 +378,9 @@ impl CodeMapper {
     }
 }
 
-pub struct FDPool;
+pub struct ProcessFDPool;
 
-impl FDPool {
+impl ProcessFDPool {
     #[inline]
     pub fn put(proc_data: &mut ProcessData, fd: FileDescriptor) -> Result<usize, ProcessError> {
         if proc_data.file_descriptors.len() + 1 > MAX_FILE_DESCRIPTORS {
@@ -405,13 +406,15 @@ impl FDPool {
     }
 
     #[inline]
-    pub fn remove(proc_data: &mut ProcessData, fd_index: usize) {
+    pub fn remove(proc_data: &mut ProcessData, fd_index: usize) -> Result<(), ProcessError> {
         for idx in 0..proc_data.file_descriptors.len() {
             if proc_data.file_descriptors[idx].index == fd_index {
                 proc_data.file_descriptors.remove(idx);
-                return;
+                return Ok(());
             }
         }
+
+        Err(ProcessError::InvalidFD)
     }
 }
 
@@ -425,9 +428,9 @@ pub fn create_default_descriptors(proc_data: &mut ProcessData) {
     let stdout = dev_fd.clone();
     let stderr = dev_fd;
 
-    FDPool::put(proc_data, stdin).expect("Failed to create default stdin");
-    FDPool::put(proc_data, stdout).expect("Failed to create default stdin");
-    FDPool::put(proc_data, stderr).expect("Failed to create default stdin");
+    ProcessFDPool::put(proc_data, stdin).expect("Failed to create default stdin");
+    ProcessFDPool::put(proc_data, stdout).expect("Failed to create default stdin");
+    ProcessFDPool::put(proc_data, stderr).expect("Failed to create default stdin");
 }
 
 pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> ProcessData {
