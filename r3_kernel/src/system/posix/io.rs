@@ -90,8 +90,8 @@ pub fn sys_write(
     }
 
     // TODO: make writes possible on all the types of files
-    if fd_index > 3 {
-        log::error!("As of now, writes are possible on stdout, stderr, stdin");
+    if fd_index == 0 || fd_index > 2 {
+        log::error!("As of now, writes are possible on stdout, stderr.");
         return Err(abi::Errno::EINVAL);
     }
 

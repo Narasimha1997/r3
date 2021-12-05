@@ -6,7 +6,7 @@ use crate::cpu::mmu;
 use crate::mm::paging::{KernelVirtualMemoryManager, VirtualMemoryManager};
 use crate::mm::PhysicalAddress;
 use crate::system::thread::ThreadID;
-use crate::system::utils::{create_process_layout, ProcessData};
+use crate::system::utils::{create_default_descriptors, create_process_layout, ProcessData};
 
 use lazy_static::lazy_static;
 
@@ -82,7 +82,9 @@ impl Process {
         let pid = new_pid();
 
         let proc_data = if path.len() > 0 {
-            Some(create_process_layout(path, &mut vmm))
+            let mut p_data = create_process_layout(path, &mut vmm);
+            create_default_descriptors(&mut p_data);
+            Some(p_data)
         } else {
             None
         };

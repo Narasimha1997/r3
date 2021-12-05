@@ -54,7 +54,6 @@ pub extern "sysv64" fn syscall_handler(
     let arg1 = regs.rsi as usize;
     let arg2 = regs.rdx as usize;
 
-    log::info!("Syscall!");
     let result = dispatch_syscall(sys_no, arg0, arg1, arg2);
 
     regs.rax = result as u64;
