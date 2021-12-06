@@ -17,6 +17,14 @@ pub fn sys_brk(addr: VirtualAddress) -> Result<isize, abi::Errno> {
     let mut proc_pool = PROCESS_POOL.lock();
     let proc_ref: &mut Process = proc_pool.get_mut_ref(&pid.unwrap()).unwrap();
 
+    if addr.as_u64() == 0 {
+        // return the heap start
+        let current_end =
+            ProcessHeapAllocator::current_end_address(&mut proc_ref.proc_data.as_mut().unwrap());
+
+        return Ok(current_end.as_u64() as isize);
+    }
+
     let brk_res = ProcessHeapAllocator::set_break_at(
         &mut proc_ref.proc_data.as_mut().unwrap(),
         &mut proc_ref.pt_root.as_mut().unwrap(),
@@ -26,7 +34,10 @@ pub fn sys_brk(addr: VirtualAddress) -> Result<isize, abi::Errno> {
         return Err(abi::Errno::ENOMEM);
     }
 
-    Ok(0)
+    Ok(
+        ProcessHeapAllocator::current_end_address(&mut proc_ref.proc_data.as_mut().unwrap())
+            .as_u64() as isize,
+    )
 }
 
 pub fn sys_sbrk(size: usize) -> Result<isize, abi::Errno> {

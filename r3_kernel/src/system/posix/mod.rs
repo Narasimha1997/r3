@@ -69,13 +69,7 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
 
             uname::sys_uname(VirtualAddress::from_u64(arg0 as u64))
         }
-        SYSCALL_NO_BRK => {
-            if arg0 == 0 {
-                panic!("Got null pointer - syscall: {} sys_brk", SYSCALL_NO_BRK);
-            }
-
-            mm::sys_brk(VirtualAddress::from_u64(arg0 as u64))
-        }
+        SYSCALL_NO_BRK => mm::sys_brk(VirtualAddress::from_u64(arg0 as u64)),
         SYSCALL_NO_SBRK => mm::sys_sbrk(arg0),
         _ => Err(abi::Errno::ENOSYS),
     };
