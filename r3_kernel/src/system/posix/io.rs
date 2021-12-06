@@ -157,7 +157,7 @@ pub fn sys_lseek(fd_index: usize, offset: u32, whence: u8) -> Result<isize, abi:
         _ => {
             return Err(abi::Errno::EINVAL)
         }
-    }
+    };
 
     let pid = system::current_pid();
     if pid.is_none() {

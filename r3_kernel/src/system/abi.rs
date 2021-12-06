@@ -10,7 +10,7 @@ use crate::mm::VirtualAddress;
 
 use crate::system::posix::dispatch_syscall;
 use alloc::{string::String, vec};
-use core::str;
+use core::{ptr, str};
 
 // C numerical types
 pub type CInt16 = i16;
@@ -34,6 +34,7 @@ pub type CClockID = CInt;
 pub enum Errno {
     EIO = 5,
     EBADF = 9,
+    EFAULT = 14,
     EEXIST = 17,
     ENOSYS = 32,
     EINVAL = 22,
@@ -87,4 +88,21 @@ pub fn copy_cstring(source: VirtualAddress, max_len: usize) -> Result<String, Er
     }
 
     Ok(String::from(rust_str_res.unwrap()))
+}
+
+/// copies the bytes until the lenght of the buffer, then remaining
+/// length with 0s.
+pub fn copy_pad_buffer(src: &[u8], dest: *mut u8, size: usize) -> Result<(), Errno> {
+    unsafe {
+        let src_len = src.len();
+        if size < src_len {
+            return Err(Errno::EFAULT);
+        }
+        let zero_pad_len = size - src_len;
+        // copy bytes of the buffer
+        ptr::copy_nonoverlapping(src.as_ptr(), dest, src_len);
+        ptr::write_bytes(dest.add(src_len), 0, zero_pad_len);
+    }
+
+    Ok(())
 }
