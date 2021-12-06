@@ -174,9 +174,9 @@ impl DevOps for UartIODriver {
         Err(FSError::DeviceNotFound)
     }
 
-    fn ioctl(&self, _command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, _command: usize, _arg: usize) -> Result<usize, FSError> {
         // stub
-        Ok(())
+        Ok(0)
     }
 
     fn seek(&self, _fd: &mut DevFSDescriptor, _offset: u32, _st: SeekType) -> Result<u32, FSError> {

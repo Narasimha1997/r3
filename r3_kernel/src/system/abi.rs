@@ -40,6 +40,7 @@ pub enum Errno {
     ENOSYS = 32,
     EINVAL = 22,
     EMFILE = 24,
+    ENOTTY = 25,
     ENAMETOOLONG = 63,
 }
 

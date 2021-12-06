@@ -4,6 +4,7 @@ pub mod framebuffer;
 
 use framebuffer::{setup_framebuffer, Framebuffer, Pixel};
 
+
 pub fn init() {
     setup_framebuffer();
 

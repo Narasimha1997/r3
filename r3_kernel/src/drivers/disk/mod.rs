@@ -86,7 +86,7 @@ impl DevOps for ATAIODriver {
         Ok(buffer.len())
     }
 
-    fn ioctl(&self, _command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, _command: usize, _arg: usize) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
 

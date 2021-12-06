@@ -88,7 +88,7 @@ pub trait FDOps {
     fn write(&self, _fd: &mut FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn ioctl(&self, _fd: &mut FileDescriptor, _command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, _fd: &mut FileDescriptor, _command: usize, _arg: usize) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
     fn seek(&self, _fd: &mut FileDescriptor, _offset: u32, _st: SeekType) -> Result<u32, FSError> {

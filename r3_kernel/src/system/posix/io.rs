@@ -149,14 +149,11 @@ pub fn sys_close(fd_index: usize) -> Result<isize, abi::Errno> {
 }
 
 pub fn sys_lseek(fd_index: usize, offset: u32, whence: u8) -> Result<isize, abi::Errno> {
-
     let seek_type = match whence {
         0 => SeekType::SEEK_SET,
         1 => SeekType::SEEK_CUR,
         2 => SeekType::SEEK_END,
-        _ => {
-            return Err(abi::Errno::EINVAL)
-        }
+        _ => return Err(abi::Errno::EINVAL),
     };
 
     let pid = system::current_pid();
@@ -182,4 +179,31 @@ pub fn sys_lseek(fd_index: usize, offset: u32, whence: u8) -> Result<isize, abi:
     }
 
     Ok(seek_res.unwrap() as isize)
+}
+
+pub fn sys_ioctl(fd_index: usize, command: usize, arg: usize) -> Result<isize, abi::Errno> {
+    let pid = system::current_pid();
+    if pid.is_none() {
+        log::error!("PID is null.");
+        return Err(abi::Errno::EINVAL);
+    }
+
+    // call close on the file-system and remove the fd
+    let mut proc_pool = PROCESS_POOL.lock();
+    let proc_ref: &mut Process = proc_pool.get_mut_ref(&pid.unwrap()).unwrap();
+
+    let proc_data = proc_ref.proc_data.as_mut().unwrap();
+    let fdref_opt = ProcessFDPool::get_mut(proc_data, fd_index);
+    if fdref_opt.is_none() {
+        return Err(abi::Errno::EBADF);
+    }
+
+    let fdref = fdref_opt.unwrap();
+
+    let ioctl_res = FILESYSTEM.lock().ioctl(command, arg);
+    if ioctl_res.is_err() {
+        return Err(abi::Errno::ENOTTY);
+    }
+
+    Ok(ioctl_res.unwrap() as isize)
 }

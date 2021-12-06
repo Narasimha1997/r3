@@ -14,6 +14,7 @@ const SYSCALL_NO_CLOSE: usize = 3;
 const SYSCALL_NO_LSEEK: usize = 8;
 const SYSCALL_NO_BRK: usize = 12;
 const SYSCALL_NO_SBRK: usize = 13;
+const SYSCALL_NO_IOCTL: usize = 16;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
@@ -73,6 +74,7 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
         }
         SYSCALL_NO_BRK => mm::sys_brk(VirtualAddress::from_u64(arg0 as u64)),
         SYSCALL_NO_SBRK => mm::sys_sbrk(arg0),
+        SYSCALL_NO_IOCTL => io::sys_ioctl(arg0, arg1, arg2),
         _ => Err(abi::Errno::ENOSYS),
     };
 

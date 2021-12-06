@@ -12,7 +12,7 @@ use spin::{Mutex, MutexGuard};
 pub trait DevOps {
     fn read(&self, fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError>;
     fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError>;
-    fn ioctl(&self, command: u8) -> Result<(), FSError>;
+    fn ioctl(&self, command: usize, arg: usize) -> Result<usize, FSError>;
     fn seek(&self, fd: &mut DevFSDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError>;
 }
 
@@ -135,14 +135,14 @@ impl FDOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn ioctl(&self, fd: &mut FileDescriptor, command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, fd: &mut FileDescriptor, command: usize, arg: usize) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform ioctl operation on the device
-                    return entry.device.as_ref().ioctl(command);
+                    return entry.device.as_ref().ioctl(command, arg);
                 }
             }
             _ => {}

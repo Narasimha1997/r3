@@ -201,11 +201,11 @@ impl FDOps for VFS {
         }
     }
 
-    fn ioctl(&self, fd: &mut FileDescriptor, command: u8) -> Result<(), FSError> {
+    fn ioctl(&self, fd: &mut FileDescriptor, command: usize, arg: usize) -> Result<usize, FSError> {
         match fd {
             FileDescriptor::DevFSNode(_) => {
                 let devfs_driver = DevFSDriver::new();
-                return devfs_driver.ioctl(fd, command);
+                return devfs_driver.ioctl(fd, command, arg);
             }
             _ => {
                 return Err(FSError::NotYetImplemented);
