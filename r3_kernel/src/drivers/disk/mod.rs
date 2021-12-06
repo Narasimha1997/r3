@@ -2,7 +2,7 @@ extern crate alloc;
 extern crate log;
 
 use crate::system::filesystem::devfs::{register_device, DevFSDescriptor, DevOps};
-use crate::system::filesystem::FSError;
+use crate::system::filesystem::{FSError, SeekType};
 
 use alloc::{boxed::Box, format};
 
@@ -90,9 +90,20 @@ impl DevOps for ATAIODriver {
         Err(FSError::NotYetImplemented)
     }
 
-    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32) -> Result<(), FSError> {
-        fd.offset = offset;
-        Ok(())
+    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError> {
+        match st {
+            SeekType::SEEK_SET => {
+                fd.offset = offset;
+            }
+            SeekType::SEEK_CUR => {
+                fd.offset = fd.offset + offset;
+            }
+            SeekType::SEEK_END => {
+                return Err(FSError::InvalidSeek);
+            }
+        }
+
+        Ok(fd.offset as u32)
     }
 }
 

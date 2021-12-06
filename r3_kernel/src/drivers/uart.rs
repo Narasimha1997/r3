@@ -1,6 +1,6 @@
 use crate::cpu::io::Port;
 use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
-use crate::system::filesystem::FSError;
+use crate::system::filesystem::{FSError, SeekType};
 
 use core::fmt;
 
@@ -179,7 +179,7 @@ impl DevOps for UartIODriver {
         Ok(())
     }
 
-    fn seek(&self, _fd: &mut DevFSDescriptor, _offset: u32) -> Result<(), FSError> {
+    fn seek(&self, _fd: &mut DevFSDescriptor, _offset: u32, _st: SeekType) -> Result<u32, FSError> {
         // stub: because seek is not possible for serial char devices.
         Ok(())
     }

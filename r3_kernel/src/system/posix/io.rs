@@ -3,7 +3,7 @@ extern crate bitflags;
 use crate::mm::VirtualAddress;
 use crate::system;
 use crate::system::abi;
-use crate::system::filesystem::{vfs::FILESYSTEM, FDOps, FSOps, POSIXOpenFlags};
+use crate::system::filesystem::{vfs::FILESYSTEM, FDOps, FSOps, POSIXOpenFlags, SeekType};
 use crate::system::process::{Process, PROCESS_POOL};
 use crate::system::utils::ProcessFDPool;
 
@@ -146,4 +146,40 @@ pub fn sys_close(fd_index: usize) -> Result<i32, abi::Errno> {
     // remove from process pool
     let _ = ProcessFDPool::remove(proc_data, fd_index);
     Ok(0)
+}
+
+pub fn sys_lseek(fd_index: usize, offset: u32, whence: u8) -> Result<isize, abi::Errno> {
+
+    let seek_type = match whence {
+        0 => SeekType::SEEK_SET,
+        1 => SeekType::SEEK_CUR,
+        2 => SeekType::SEEK_END,
+        _ => {
+            return Err(abi::Errno::EINVAL)
+        }
+    }
+
+    let pid = system::current_pid();
+    if pid.is_none() {
+        log::error!("PID is null.");
+        return Err(abi::Errno::EINVAL);
+    }
+
+    // call close on the file-system and remove the fd
+    let mut proc_pool = PROCESS_POOL.lock();
+    let proc_ref: &mut Process = proc_pool.get_mut_ref(&pid.unwrap()).unwrap();
+
+    let proc_data = proc_ref.proc_data.as_mut().unwrap();
+    let fdref_opt = ProcessFDPool::get_mut(proc_data, fd_index);
+    if fdref_opt.is_none() {
+        return Err(abi::Errno::EBADF);
+    }
+
+    let fdref = fdref_opt.unwrap();
+    let seek_res = FILESYSTEM.lock().seek(&mut fdref.fd, offset, seek_type);
+    if seek_res.is_err() {
+        return Err(abi::Errno::EINVAL);
+    }
+
+    Ok(seek_res.unwrap() as isize)
 }

@@ -9,6 +9,7 @@ const SYSCALL_NO_READ: usize = 0;
 const SYSCALL_NO_WRITE: usize = 1;
 const SYSCALL_NO_OPEN: usize = 2;
 const SYSCALL_NO_CLOSE: usize = 3;
+const SYSCALL_NO_LSEEK: usize = 8;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
@@ -44,18 +45,19 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
         }
         SYSCALL_NO_READ => {
             if arg1 == 0 {
-                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+                panic!("Got null pointer - syscall: {} sys_read", SYSCALL_NO_OPEN);
             }
 
             io::sys_read(arg0, VirtualAddress::from_u64(arg1 as u64), arg2)
         }
         SYSCALL_NO_WRITE => {
             if arg1 == 0 {
-                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+                panic!("Got null pointer - syscall: {} sys_write", SYSCALL_NO_OPEN);
             }
 
             io::sys_write(arg0, VirtualAddress::from_u64(arg1 as u64), arg2)
         }
+        SYSCALL_NO_LSEEK => io::sys_lseek(arg0, arg1 as u32, arg2 as u8),
         SYSCALL_NO_CLOSE => io::sys_close(arg0),
         _ => Err(abi::Errno::ENOSYS),
     };

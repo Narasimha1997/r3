@@ -3,7 +3,7 @@ extern crate log;
 extern crate spin;
 
 use crate::system::filesystem::vfs::{FILESYSTEM, VFS};
-use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo};
+use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo, SeekType};
 use alloc::{boxed::Box, string::String, vec::Vec};
 
 use lazy_static::lazy_static;
@@ -13,7 +13,7 @@ pub trait DevOps {
     fn read(&self, fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError>;
     fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError>;
     fn ioctl(&self, command: u8) -> Result<(), FSError>;
-    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32) -> Result<(), FSError>;
+    fn seek(&self, fd: &mut DevFSDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError>;
 }
 
 pub struct DevFSEntry {
@@ -151,14 +151,14 @@ impl FDOps for DevFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn seek(&self, fd: &mut FileDescriptor, offset: u32) -> Result<(), FSError> {
+    fn seek(&self, fd: &mut FileDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError> {
         match fd {
             FileDescriptor::DevFSNode(devfd) => {
                 let mut dev_lock = DEV_FS.lock();
                 if let Some(dev_index) = get_dev_index(&dev_lock, devfd.major, devfd.minor) {
                     let entry: &mut DevFSEntry = dev_lock.get_mut(dev_index).unwrap();
                     // perform read operation on the device
-                    return entry.device.as_ref().seek(devfd, offset);
+                    return entry.device.as_ref().seek(devfd, offset, st);
                 }
             }
             _ => {}

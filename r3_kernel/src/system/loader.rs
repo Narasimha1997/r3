@@ -2,7 +2,7 @@ extern crate alloc;
 
 use crate::system::filesystem::vfs::FILESYSTEM;
 
-use crate::system::filesystem::{FDOps, FSOps};
+use crate::system::filesystem::{FDOps, FSOps, SeekType};
 
 use alloc::vec::Vec;
 use core::str;
@@ -52,7 +52,7 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
             break;
         }
 
-        let seek_result = FILESYSTEM.lock().seek(&mut fd, (iter + 1) * 512);
+        let seek_result = FILESYSTEM.lock().seek(&mut fd, 512, SeekType::SEEK_CUR);
         if seek_result.is_err() {
             break;
         }

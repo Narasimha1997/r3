@@ -24,6 +24,14 @@ bitflags! {
     }
 }
 
+#[allow(non_camel_case_types)]
+#[repr(u8)]
+pub enum SeekType {
+    SEEK_SET = 0,
+    SEEK_CUR = 1,
+    SEEK_END = 2,
+}
+
 pub struct FileMode(u32);
 
 #[derive(Debug, Clone)]
@@ -83,7 +91,7 @@ pub trait FDOps {
     fn ioctl(&self, _fd: &mut FileDescriptor, _command: u8) -> Result<(), FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn seek(&self, _fd: &mut FileDescriptor, _offset: u32) -> Result<(), FSError> {
+    fn seek(&self, _fd: &mut FileDescriptor, _offset: u32, _st: SeekType) -> Result<u32, FSError> {
         Err(FSError::NotYetImplemented)
     }
 }

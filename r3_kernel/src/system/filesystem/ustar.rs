@@ -5,7 +5,7 @@ use crate::system::filesystem::devfs::DevFSDriver;
 use crate::system::filesystem::vfs::FILESYSTEM;
 use crate::system::filesystem::MountInfo;
 use crate::system::filesystem::{FDOps, FSOps};
-use crate::system::filesystem::{FSError, FileDescriptor};
+use crate::system::filesystem::{FSError, FileDescriptor, SeekType};
 
 use alloc::{format, string::String};
 use core::mem;
@@ -109,7 +109,8 @@ impl TarFS {
                 block_no += (to_skip_bytes + HEADER_SIZE - 1) / HEADER_SIZE;
                 block_no += 1;
 
-                let seek_result = devfs_driver.seek(devfd, (block_no * HEADER_SIZE) as u32);
+                let seek_result =
+                    devfs_driver.seek(devfd, (block_no * HEADER_SIZE) as u32, SeekType::SEEK_SET);
                 if seek_result.is_err() {
                     log::debug!("IO error on disk seek");
                     break;
@@ -193,7 +194,8 @@ impl FDOps for TarFSDriver {
                 let block_offset = tarfd.offset + tarfd.seeked_offset;
 
                 // seek to this offset
-                let seek_result = dev_driver.seek(&mut dev_handle, block_offset as u32);
+                let seek_result =
+                    dev_driver.seek(&mut dev_handle, block_offset as u32, SeekType::SEEK_SET);
                 if seek_result.is_err() {
                     return Err(FSError::InvalidSeek);
                 }
@@ -219,7 +221,7 @@ impl FDOps for TarFSDriver {
         Err(FSError::NotFound)
     }
 
-    fn seek(&self, fd: &mut FileDescriptor, offset: u32) -> Result<(), FSError> {
+    fn seek(&self, fd: &mut FileDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError> {
         match fd {
             FileDescriptor::TarFSNode(tarfd) => {
                 if offset % 512 != 0 {
@@ -227,12 +229,25 @@ impl FDOps for TarFSDriver {
                     return Err(FSError::InvalidSeek);
                 }
 
-                if tarfd.seeked_offset > tarfd.size {
-                    return Err(FSError::InvalidSeek);
+                match st {
+                    SeekType::SEEK_SET => {
+                        if tarfd.seeked_offset > tarfd.size {
+                            return Err(FSError::InvalidSeek);
+                        }
+                        tarfd.seeked_offset = offset as usize;
+                    }
+                    SeekType::SEEK_CUR => {
+                        if tarfd.seeked_offset + offset as usize > tarfd.size {
+                            return Err(FSError::InvalidSeek);
+                        }
+                        tarfd.seeked_offset = tarfd.seeked_offset + offset as usize;
+                    }
+                    SeekType::SEEK_END => {
+                        tarfd.seeked_offset = tarfd.size + offset as usize;
+                    }
                 }
 
-                tarfd.seeked_offset = offset as usize;
-                return Ok(());
+                return Ok(tarfd.seeked_offset as u32)
             }
             _ => {}
         }
