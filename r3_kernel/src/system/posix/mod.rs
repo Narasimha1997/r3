@@ -1,5 +1,6 @@
 pub mod gettime;
 pub mod io;
+pub mod uname;
 
 use crate::mm::VirtualAddress;
 use crate::system::abi;
@@ -9,6 +10,7 @@ const SYSCALL_NO_READ: usize = 0;
 const SYSCALL_NO_WRITE: usize = 1;
 const SYSCALL_NO_OPEN: usize = 2;
 const SYSCALL_NO_CLOSE: usize = 3;
+const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
@@ -57,6 +59,13 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
             io::sys_write(arg0, VirtualAddress::from_u64(arg1 as u64), arg2)
         }
         SYSCALL_NO_CLOSE => io::sys_close(arg0),
+        SYSCALL_NO_UNAME => {
+            if arg0 == 0 {
+                panic!("Got null pointer - syscall: {} sys_uname", SYSCALL_NO_UNAME);
+            }
+
+            uname::sys_uname(VirtualAddress::from_u64(arg0 as u64))
+        }
         _ => Err(abi::Errno::ENOSYS),
     };
 
