@@ -7,7 +7,7 @@ const UNAME_STRINGS: &'static [&'static str] = &["LINUX", "", "0.0.1", "r3", "x8
 
 const FIELD_LEN: usize = 65;
 
-pub fn sys_uname(buffer_addr: VirtualAddress) -> Result<i32, abi::Errno> {
+pub fn sys_uname(buffer_addr: VirtualAddress) -> Result<isize, abi::Errno> {
     unsafe {
         let mut buffer_ptr = buffer_addr.get_mut_ptr::<u8>();
 

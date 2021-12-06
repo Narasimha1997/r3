@@ -1,5 +1,6 @@
 pub mod gettime;
 pub mod io;
+pub mod mm;
 pub mod uname;
 
 use crate::mm::VirtualAddress;
@@ -11,11 +12,13 @@ const SYSCALL_NO_WRITE: usize = 1;
 const SYSCALL_NO_OPEN: usize = 2;
 const SYSCALL_NO_CLOSE: usize = 3;
 const SYSCALL_NO_LSEEK: usize = 8;
+const SYSCALL_NO_BRK: usize = 12;
+const SYSCALL_NO_SBRK: usize = 13;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
-pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) -> i32 {
+pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) -> isize {
     let syscall_result = match sys_no {
         SYSCALL_NO_GETTIME => {
             // is the pointer null?
@@ -68,13 +71,16 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
 
             uname::sys_uname(VirtualAddress::from_u64(arg0 as u64))
         }
+        SYSCALL_NO_BRK => mm::sys_brk(VirtualAddress::from_u64(arg0 as u64)),
+        SYSCALL_NO_SBRK => mm::sys_sbrk(arg0),
+        SYSCALL_NO_LSEEK => io::sys_lseek(arg0, arg1 as u32, arg2 as i8),
         _ => Err(abi::Errno::ENOSYS),
     };
 
     if syscall_result.is_err() {
         log::debug!("System Call {} cought error - {:?}", sys_no, syscall_result);
-        return syscall_result.unwrap_err() as i32;
+        return syscall_result.unwrap_err() as isize;
     }
 
-    return 0;
+    return syscall_result.unwrap() as isize;
 }
