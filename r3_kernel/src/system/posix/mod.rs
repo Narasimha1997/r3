@@ -73,7 +73,6 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
         }
         SYSCALL_NO_BRK => mm::sys_brk(VirtualAddress::from_u64(arg0 as u64)),
         SYSCALL_NO_SBRK => mm::sys_sbrk(arg0),
-        SYSCALL_NO_LSEEK => io::sys_lseek(arg0, arg1 as u32, arg2 as i8),
         _ => Err(abi::Errno::ENOSYS),
     };
 
