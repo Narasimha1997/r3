@@ -273,6 +273,58 @@ impl ProcessHeapAllocator {
         proc_vmm.heap_pages = proc_vmm.heap_pages - n_pages;
         Ok(current_end as usize)
     }
+
+    #[inline]
+    pub fn current_size(proc_data: &mut ProcessData) -> u64 {
+        if USE_HUGEPAGE_HEAP {
+            (proc_data.heap_pages as u64) * (MemorySizes::OneMib as u64 * 2)
+        } else {
+            (proc_data.heap_pages as u64) * (MemorySizes::OneKiB as u64 * 4)
+        }
+    }
+
+    #[inline]
+    pub fn current_end_address(proc_data: &mut ProcessData) -> VirtualAddress {
+        let size = Self::current_size(proc_data) as u64;
+        VirtualAddress::from_u64(proc_data.heap_start.as_u64() + size)
+    }
+
+    #[inline]
+    pub fn set_break_at(
+        proc_data: &mut ProcessData,
+        vmm: &mut VirtualMemoryManager,
+        addr: VirtualAddress,
+    ) -> Result<(), ProcessError> {
+        let mut aligned_addr = addr.clone();
+        if USE_HUGEPAGE_HEAP {
+            aligned_addr.align_up(2 * MemorySizes::OneMib as u64);
+        } else {
+            aligned_addr.align_up(4 * MemorySizes::OneKiB as u64);
+        }
+
+        if aligned_addr.as_u64() < proc_data.heap_start.as_u64() {
+            return Err(ProcessError::HeapOOB);
+        }
+
+        // expand or contract?
+        let current_end_addr = Self::current_end_address(proc_data);
+        if current_end_addr.as_u64() > aligned_addr.as_u64() {
+            // contract
+            let size = current_end_addr.as_u64() - aligned_addr.as_u64();
+            let contract_res = Self::contract(proc_data, size as usize);
+            if contract_res.is_err() {
+                return Err(contract_res.unwrap_err());
+            }
+        } else {
+            let size = aligned_addr.as_u64() - current_end_addr.as_u64();
+            let expand_res = Self::expand(proc_data, vmm, size as usize);
+            if expand_res.is_err() {
+                return Err(expand_res.unwrap_err());
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub struct CodeMapper;

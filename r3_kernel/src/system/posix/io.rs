@@ -11,7 +11,7 @@ use core::ptr;
 
 // TODO: lot of things needs to be handled properly here.
 
-pub fn sys_open(path: &str, flags: POSIXOpenFlags) -> Result<i32, abi::Errno> {
+pub fn sys_open(path: &str, flags: POSIXOpenFlags) -> Result<isize, abi::Errno> {
     let pid = system::current_pid();
     if pid.is_none() {
         log::error!("PID is null.");
@@ -40,14 +40,14 @@ pub fn sys_open(path: &str, flags: POSIXOpenFlags) -> Result<i32, abi::Errno> {
     }
 
     let fd_index = fd_res.unwrap();
-    Ok(fd_index as i32)
+    Ok(fd_index as isize)
 }
 
 pub fn sys_read(
     fd_index: usize,
     buffer_addr: VirtualAddress,
     size: usize,
-) -> Result<i32, abi::Errno> {
+) -> Result<isize, abi::Errno> {
     let pid = system::current_pid();
     if pid.is_none() {
         log::error!("PID is null.");
@@ -75,14 +75,14 @@ pub fn sys_read(
     }
 
     // return the number of bytes read
-    return Ok(read_res.unwrap() as i32);
+    return Ok(read_res.unwrap() as isize);
 }
 
 pub fn sys_write(
     fd_index: usize,
     buffer_addr: VirtualAddress,
     size: usize,
-) -> Result<i32, abi::Errno> {
+) -> Result<isize, abi::Errno> {
     let pid = system::current_pid();
     if pid.is_none() {
         log::error!("PID is null.");
@@ -115,10 +115,10 @@ pub fn sys_write(
     }
 
     // return the number of bytes wrote
-    return Ok(read_res.unwrap() as i32);
+    return Ok(read_res.unwrap() as isize);
 }
 
-pub fn sys_close(fd_index: usize) -> Result<i32, abi::Errno> {
+pub fn sys_close(fd_index: usize) -> Result<isize, abi::Errno> {
     let pid = system::current_pid();
     if pid.is_none() {
         log::error!("PID is null.");

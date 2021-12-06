@@ -34,6 +34,7 @@ pub type CClockID = CInt;
 pub enum Errno {
     EIO = 5,
     EBADF = 9,
+    ENOMEM = 12,
     EFAULT = 14,
     EEXIST = 17,
     ENOSYS = 32,
