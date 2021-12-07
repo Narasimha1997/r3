@@ -82,6 +82,12 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     }
 }
 
+pub fn schedule_yield() {
+    // make an immediate preemption
+    // make a manual timer interrupt shot.
+    SystemTimer::manual_shot();
+}
+
 pub fn handle_exit(thread: &mut Thread) {
     thread.free_stack();
 

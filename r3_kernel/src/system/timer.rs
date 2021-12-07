@@ -92,7 +92,7 @@ impl SystemTimer {
         unsafe {
             // call an interrupt over line 48
             // i.e 32 + 16, which is the tsc deadline interrupt line.
-            asm!("0x30");
+            asm!("int 0x30");
         }
     }
 

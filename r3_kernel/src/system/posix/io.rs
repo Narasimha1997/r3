@@ -200,7 +200,7 @@ pub fn sys_ioctl(fd_index: usize, command: usize, arg: usize) -> Result<isize, a
 
     let fdref = fdref_opt.unwrap();
 
-    let ioctl_res = FILESYSTEM.lock().ioctl(command, arg);
+    let ioctl_res = FILESYSTEM.lock().ioctl(&mut fdref.fd, command, arg);
     if ioctl_res.is_err() {
         return Err(abi::Errno::ENOTTY);
     }

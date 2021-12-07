@@ -7,9 +7,12 @@ global _start
 section .text
 _start:
 LOOP_START:
-  mov rax, 1      ; syscall 1 - write
-  mov rdi, 1      ; select stdout
-  mov rsi, msg    ; pointer to message in .data
-  mov rdx, 14     ; length
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, msg
+  mov rdx, 14
+  int 0x80
+  mov rax, 42
   int 0x80
   jmp LOOP_START
+

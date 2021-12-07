@@ -41,8 +41,8 @@ pub struct CPURegistersState {
 pub struct SyscallRegsState {
     pub r11: u64,
     pub r10: u64,
-    pub r9:  u64,
-    pub r8:  u64,
+    pub r9: u64,
+    pub r8: u64,
     pub rdi: u64,
     pub rsi: u64,
     pub rdx: u64,
@@ -130,3 +130,4 @@ pub fn bootstrap_kernel_thread(stack_end: u64, code: u64, cs: u16, ds: u16) {
         );
     }
 }
+
