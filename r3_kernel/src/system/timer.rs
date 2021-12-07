@@ -3,6 +3,7 @@ extern crate spin;
 
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use crate::system::abi;
+use crate::mm::Alignment;
 use spin::Mutex;
 
 #[derive(Debug)]
@@ -145,7 +146,15 @@ impl PosixTimeval {
         }
     }
 
+    #[inline]
     pub fn mills(&self) -> u64 {
         (self.tv_sec as u64 * 1000) + (self.tv_usec as u64 / 1000)
+    }
+
+    #[inline]
+    pub fn to_ticks(&self) -> usize {
+        let mills = self.mills();
+        let ns = mills * 1000000;
+        (Alignment::align_up(ns, SYSTEM_TICK_DURATION) / SYSTEM_TICK_DURATION) as usize
     }
 }

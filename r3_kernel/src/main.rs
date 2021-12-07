@@ -4,6 +4,7 @@
 #![feature(asm)] // enable asm
 #![feature(alloc_error_handler)] // enable allocation errors
 #![feature(naked_functions)] // allow naked calling convention
+#![feature(drain_filter)] // used to remove threads to wake up from sleep queue
 #![feature(llvm_asm)]
 
 extern crate alloc;

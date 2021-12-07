@@ -44,8 +44,15 @@ pub trait Sched {
     /// this function should return the current thread ID
     /// that called this function, or that was scheduled.
     fn current_tid(&self) -> Option<ThreadID>;
-
+    
+    /// gets the current pid of thread's process
     fn current_pid(&self) -> Option<PID>;
+
+    /// check how many threads can be woken up from wait queue.
+    fn check_wakeup(&mut self);
+
+    /// suspend current thread to sleep for x ticks
+    fn sleep_current_thread(&mut self, n_ticks: usize);
 }
 
 lazy_static! {
@@ -69,6 +76,10 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     LAPICUtils::eoi();
 
     SCHEDULER.lock().save_current_ctx(state_repr);
+
+    // if any thread needs to wake up, wake them up.
+    SCHEDULER.lock().check_wakeup();
+
     let thread_opt = SCHEDULER.lock().lease_next_thread();
     if thread_opt.is_some() {
         let thread = thread_opt.unwrap();

@@ -7,6 +7,57 @@ use crate::system::tasking::{handle_exit, Sched};
 use crate::system::thread::{ContextType, Thread, ThreadID};
 
 #[derive(Debug, Clone)]
+pub struct SleepingThread {
+    pub till_ticks: usize,
+    pub thread: Thread,
+}
+
+#[derive(Debug, Clone)]
+pub struct WaitQueue {
+    /// contains a list of threads that are waiting
+    pub sleep_threads: Vec<SleepingThread>,
+}
+
+impl WaitQueue {
+    #[inline]
+    pub fn empty() -> Self {
+        WaitQueue {
+            sleep_threads: Vec::new(),
+        }
+    }
+
+    #[inline]
+    pub fn put_sleep(&mut self, thread: Thread, ticks: usize) {
+        self.sleep_threads.push(SleepingThread {
+            till_ticks: ticks,
+            thread,
+        });
+    }
+
+    #[inline]
+    pub fn wake_sleeping_threads(&mut self, run_queue: &mut Vec<Thread>) {
+        // decrement the tick of each of thread
+        // if ticks = 0 after decrementing, remove those threads and put them
+        // into the run queue, this algorithm can be improved too much.
+        // this is a rough implementation.
+        self.sleep_threads = self
+            .sleep_threads
+            .drain_filter(|entry| {
+                let should_retain = if entry.till_ticks - 1 == 0 {
+                    // add this to run queue
+                    run_queue.push(entry.thread.clone());
+                    false
+                } else {
+                    entry.till_ticks = entry.till_ticks - 1;
+                    true
+                };
+                should_retain
+            })
+            .collect();
+    }
+}
+
+#[derive(Debug, Clone)]
 /// A scheduler that schedules tasks from
 /// thread queue. As of now, this scheduler is not
 /// actually multiprocessor, and it schedules only for BSP.
@@ -15,6 +66,9 @@ use crate::system::thread::{ContextType, Thread, ThreadID};
 pub struct SimpleRoundRobinSchduler {
     pub thread_list: Vec<Thread>,
     pub thread_index: Option<usize>,
+    pub wait_queue: WaitQueue,
+    pub suspend_next: bool,
+    pub suspend_next_ticks: usize,
 }
 
 impl Sched for SimpleRoundRobinSchduler {
@@ -22,6 +76,9 @@ impl Sched for SimpleRoundRobinSchduler {
         SimpleRoundRobinSchduler {
             thread_list: Vec::new(),
             thread_index: None,
+            wait_queue: WaitQueue::empty(),
+            suspend_next: false,
+            suspend_next_ticks: 0,
         }
     }
 
@@ -36,6 +93,16 @@ impl Sched for SimpleRoundRobinSchduler {
             if let Some(thread_ref) = self.thread_list.get_mut(thread_id) {
                 thread_ref.context = Box::new(ContextType::SavedContext(state));
             }
+        }
+
+        if self.suspend_next {
+            // suspend this thread
+            let thread_idx = self.thread_index.unwrap();
+            let thread = self.thread_list.remove(thread_idx);
+            self.wait_queue.put_sleep(thread, self.suspend_next_ticks);
+            self.thread_index = None;
+            self.suspend_next = false;
+            self.suspend_next_ticks = 0;
         }
     }
 
@@ -99,5 +166,19 @@ impl Sched for SimpleRoundRobinSchduler {
 
         let thread = self.thread_list.get(self.thread_index.unwrap());
         Some(thread.as_ref().unwrap().parent_pid.clone())
+    }
+
+    fn check_wakeup(&mut self) {
+        self.wait_queue.wake_sleeping_threads(&mut self.thread_list);
+    }
+
+    fn sleep_current_thread(&mut self, n_ticks: usize) {
+        if self.thread_index.is_none() || n_ticks == 0 {
+            // no threads running currently
+            return;
+        }
+
+        self.suspend_next = true;
+        self.suspend_next_ticks = n_ticks;
     }
 }

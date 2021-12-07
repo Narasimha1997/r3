@@ -17,6 +17,7 @@ const SYSCALL_NO_BRK: usize = 12;
 const SYSCALL_NO_SBRK: usize = 13;
 const SYSCALL_NO_IOCTL: usize = 16;
 const SYSCALL_NO_YIELD: usize = 42;
+const SYSCALL_NO_SLEEP: usize = 46;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
@@ -83,6 +84,12 @@ pub fn dispatch_syscall(
         SYSCALL_NO_SBRK => mm::sys_sbrk(arg0),
         SYSCALL_NO_IOCTL => io::sys_ioctl(arg0, arg1, arg2),
         SYSCALL_NO_YIELD => sched::sys_yield(),
+        SYSCALL_NO_SLEEP => {
+            if arg0 == 0 {
+                panic!("Got null pointer - syscall: {} sys_sleep_us", SYSCALL_NO_SLEEP);
+            }
+            sched::sys_sleep_us(VirtualAddress::from_u64(arg0 as u64))
+        }
         _ => Err(abi::Errno::ENOSYS),
     };
 
