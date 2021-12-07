@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3106489200
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2913620600
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x95baa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
@@ -108,8 +108,8 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1604000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1605000 virt=0xffffc000c01fd538
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1606000 virt=0xffffc000c01fd538
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1607000 virt=0xffffc000c01fd6e8
-r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x401000, size=36
-r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x402000, size=14
+r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x401000, size=46
+r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x402000, size=30
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a00000 virt=0xffffc000c01fde28
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a01000 virt=0xffffc000c01fdfd8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a02000 virt=0xffffc000c01fde28
@@ -124,39 +124,266 @@ r3_kernel            INFO  Started system idle thread in background.
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hello, World!
-r3_kernel::system::posix DEBUG System Call 4 cought error - Err(ENOSYS)
-Hell
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
