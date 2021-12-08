@@ -21,8 +21,8 @@ pub fn init_fs() {
     filesystem::devfs::mount_devfs("/dev/");
 }
 
-pub fn init_tarfs() {
-    filesystem::ustar::mount_tarfs("hdb", "/sbin");
+pub fn probe_filesystems() {
+    filesystem::detect::detect_filesystems();
 }
 
 #[inline]

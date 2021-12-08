@@ -5,6 +5,7 @@ pub mod devfs;
 pub mod paths;
 pub mod ustar;
 pub mod vfs;
+pub mod detect;
 
 use bitflags::bitflags;
 

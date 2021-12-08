@@ -5,7 +5,6 @@ extern crate spin;
 
 use crate::cpu;
 use crate::cpu::io::Port;
-use crate::drivers::pci::{search_device, PCIDevice};
 use crate::system::timer::{wait_ns, Time};
 use bit_field::BitField;
 
@@ -15,12 +14,6 @@ use alloc::{string::String, vec::Vec};
 use spin::Mutex;
 
 use lazy_static::lazy_static;
-
-/// ATA Device ID in PCI device bus
-const ATA_DEVICE_ID: usize = 0x7010;
-
-/// ATA vendor ID
-const ATA_VENDOR_ID: usize = 0x8086;
 
 /// ATA soft-reset bit
 const ATA_SOFT_RESET: u8 = 0x04;
@@ -367,16 +360,6 @@ lazy_static! {
 pub struct ATAController;
 
 impl ATAController {
-    #[inline]
-    pub fn probe_pci() -> Option<PCIDevice> {
-        let probe_result = search_device(ATA_VENDOR_ID as u16, ATA_DEVICE_ID as u16);
-        if probe_result.is_none() {
-            log::warn!("ATA device not found");
-            return None;
-        }
-
-        probe_result
-    }
 
     #[inline]
     pub fn new_drive(io_start: usize, ctrl_start: usize, irq_no: u8, id: u8) -> ATADevice {

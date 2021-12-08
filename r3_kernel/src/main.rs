@@ -81,24 +81,30 @@ fn start_idle_kthread() {
     log::info!("Started system idle thread in background.")
 }
 
-fn init_filesystem() {
-    system::init_fs();
-    drivers::register_drivers();
-
-    system::init_tarfs();
-}
-
 fn init_functionalities() {
     acpi::setup_smp_prerequisites();
     cpu::hw_interrupts::setup_post_apic_interrupts();
     cpu::syscall::setup_syscall_interrupt();
 
-    // init ATA device
-    drivers::disk::init();
-    init_filesystem();
+    // init file-system
+    system::init_fs();
+    // register core system devices that usaually
+    // are usually attacked to Non-PCI bus
+    drivers::register_buultin_devices();
+
+    // setup devices that are connected to PCI bus
+    drivers::load_pci_drivers();
+
+    // mount necessary file-systems
+    system::probe_filesystems();
+
+    // setup multi-tasking
     system::init_tasking();
 
+    // start the idle thread that just keeps the scheduler filled.
     start_idle_kthread();
+
+    // start ticking
     system::timer::SystemTimer::start_ticks();
 }
 
