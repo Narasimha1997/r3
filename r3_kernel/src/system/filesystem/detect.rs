@@ -6,7 +6,6 @@ use crate::system::filesystem::devfs::{DevFSDescriptor, DEV_FS, DevOps};
 use crate::system::filesystem::ustar::mount_tarfs;
 
 use alloc::boxed::Box;
-use core::str;
 
 /// Devices capable of storage have major number 2
 const STORAGE_DEVICE_MAJOR: usize = 2;

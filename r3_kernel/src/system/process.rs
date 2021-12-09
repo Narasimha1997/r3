@@ -59,6 +59,8 @@ pub enum ProcessState {
 pub struct Process {
     /// PID of the process, will be allocated linearly
     pub pid: PID,
+    /// parent PID
+    pub ppid: PID,
     /// state - running/terminated or waiting
     pub state: ProcessState,
     /// Page table base physical address
@@ -91,6 +93,7 @@ impl Process {
 
         Process {
             pid,
+            ppid: PID(0), // as of now
             state: ProcessState::NoThreads,
             cr3: frame_addr.as_u64(),
             threads: Vec::new(),
@@ -113,6 +116,7 @@ impl Process {
 
         Process {
             pid,
+            ppid: PID(0), // as of now,
             state: ProcessState::NoThreads,
             cr3: kernel_cr3.as_u64(),
             threads: Vec::new(),
