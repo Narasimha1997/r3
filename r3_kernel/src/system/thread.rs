@@ -156,6 +156,44 @@ impl Thread {
         })
     }
 
+    pub fn new_from_parent(
+        name: String,
+        pid: PID,
+        state: ContextType,
+    ) -> Result<Self, ThreadError> {
+        let mut proc_lock = PROCESS_POOL.lock();
+
+        let child = proc_lock.get_mut_ref(&pid).unwrap();
+
+        let rsp = match &state {
+            ContextType::InitContext(ctx) => ctx.stack_end.as_u64(),
+            ContextType::SavedContext(ctx) => ctx.rsp,
+        };
+
+        // allocate a new stack and copy the parent stack:
+        let stack_start = utils::ProcessStackManager::allocate_and_clone(
+            &mut child.proc_data.as_mut().unwrap(),
+            &mut child.pt_root.as_mut().unwrap(),
+            rsp,
+        )
+        .expect("Failed to allocate stack for new thread.");
+
+        let tid = new_tid();
+        child.add_thread(tid.clone());
+
+        Ok(Thread {
+            is_user: true,
+            parent_pid: pid,
+            context: Box::new(state),
+            name,
+            thread_id: tid,
+            state: ThreadState::Waiting,
+            sched_count: 0,
+            stack_start: stack_start,
+            cr3: child.cr3,
+        })
+    }
+
     pub fn new_from_function(
         pid: PID,
         name: String,
