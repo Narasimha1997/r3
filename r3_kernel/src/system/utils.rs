@@ -11,9 +11,9 @@ use core::{mem, ptr};
 use object::{Object, ObjectSegment};
 
 use crate::mm::{
-    paging::KernelVirtualMemoryManager, paging::Page, paging::PageEntryFlags,
+    paging::KernelVirtualMemoryManager, paging::Page, paging::PageEntryFlags, paging::PageTable,
     paging::VirtualMemoryManager, phy::Frame, phy::PhysicalMemoryManager, Alignment, MemorySizes,
-    PhysicalAddress, VirtualAddress,
+    PageTableLevel, PhysicalAddress, VirtualAddress,
 };
 
 /// Area in which user code will be allocated
@@ -90,6 +90,8 @@ pub struct ProcessData {
     pub code_entry: VirtualAddress,
     /// code page count - code segment uses 4KiB pages
     pub code_pages: u64,
+    /// code references - number of child processes referencing the same section
+    pub code_ref: u64,
 }
 
 pub struct ProcessStackManager;
@@ -110,6 +112,7 @@ impl ProcessStackManager {
     pub fn allocate_stack(
         proc_data: &mut ProcessData,
         vmm: &mut VirtualMemoryManager,
+        unmap_k: bool,
     ) -> Result<VirtualAddress, ProcessError> {
         // is there a free stack in the pool?
         if proc_data.free_stack_holes.len() > 0 {
@@ -162,9 +165,11 @@ impl ProcessStackManager {
         Self::zero(vaddr);
 
         // unmap it now
-        KernelVirtualMemoryManager::pt()
-            .unmap_page(page)
-            .expect("Failed to unmap mapped page.");
+        if unmap_k {
+            KernelVirtualMemoryManager::pt()
+                .unmap_page(page)
+                .expect("Failed to unmap mapped page.");
+        }
 
         // increment the counter
         proc_data.n_stacks += 2;
@@ -186,6 +191,40 @@ impl ProcessStackManager {
 
         proc_data.free_stack_holes.push(nth);
         Ok(())
+    }
+
+    #[inline]
+    pub fn allocate_and_clone(
+        child: &mut ProcessData,
+        child_vmm: &mut VirtualMemoryManager,
+        rsp: u64,
+    ) -> Result<VirtualAddress, ProcessError> {
+        // allocate a new child stack
+        let child_stk = Self::allocate_stack(child, child_vmm, false);
+        if child_stk.is_err() {
+            return child_stk;
+        }
+
+        let child_start = child_stk.unwrap();
+        let parent_start = VirtualAddress::from_u64(Alignment::align_down(rsp, STACK_SIZE as u64));
+
+        // get the stack offset in reverse order
+        let offset = rsp - parent_start.as_u64();
+        let end_size = STACK_SIZE as u64 - offset;
+
+        unsafe {
+            // copy from offset till the end to the new stack:
+            let parent_ptr = parent_start.get_ptr::<u8>().add(offset as usize);
+            let child_ptr = child_start.get_mut_ptr::<u8>().add(offset as usize);
+            ptr::copy_nonoverlapping(parent_ptr, child_ptr, end_size as usize);
+        }
+
+        // late unmap the kernel region
+        KernelVirtualMemoryManager::pt()
+            .unmap_page(Page::from_address(child_start))
+            .expect("Failed to unmap mapped page.");
+
+        Ok(child_start)
     }
 }
 
@@ -428,6 +467,34 @@ impl CodeMapper {
 
         Ok(())
     }
+
+    #[inline]
+    pub fn share_pages(
+        parent: &mut ProcessData,
+        child: &mut ProcessData,
+        parent_vmm: &mut VirtualMemoryManager,
+        child_vmm: &mut VirtualMemoryManager,
+    ) {
+        if parent.code_pages == 0 {
+            return;
+        }
+
+        // map the top level table
+        let code_addr = VirtualAddress::from_u64(USER_CODE_ADDRESS);
+
+        // map the page
+        let l4_index = code_addr.get_level_index(PageTableLevel::Level4);
+        // clone this index:
+        let child_pt: &mut PageTable = unsafe { &mut *child_vmm.l4_virtual_address.get_mut_ptr() };
+        let parent_pt: &PageTable = unsafe { &*parent_vmm.l4_virtual_address.get_ptr() };
+
+        child_pt.entries[l4_index.as_usize()] = parent_pt.entries[l4_index.as_usize()].clone();
+
+        child.code_ref = parent.code_ref + 1;
+        child.code_pages = parent.code_pages;
+        child.heap_start = child.heap_start;
+        child.heap_pages = child.heap_pages;
+    }
 }
 
 pub struct ProcessFDPool;
@@ -458,6 +525,15 @@ impl ProcessFDPool {
     }
 
     #[inline]
+    pub fn clone(parent: &mut ProcessData, child: &mut ProcessData) {
+        for fd in parent.file_descriptors.iter() {
+            child.file_descriptors.push(fd.clone());
+        }
+
+        child.fd_index = parent.fd_index;
+    }
+
+    #[inline]
     pub fn remove(proc_data: &mut ProcessData, fd_index: usize) -> Result<(), ProcessError> {
         for idx in 0..proc_data.file_descriptors.len() {
             if proc_data.file_descriptors[idx].index == fd_index {
@@ -485,6 +561,33 @@ pub fn create_default_descriptors(proc_data: &mut ProcessData) {
     ProcessFDPool::put(proc_data, stderr).expect("Failed to create default stdin");
 }
 
+pub fn create_cloned_layout(
+    parent: &mut ProcessData,
+    parent_vmm: &mut VirtualMemoryManager,
+    child_vmm: &mut VirtualMemoryManager,
+) -> ProcessData {
+    // create an empty layout
+    let stack_space_start = VirtualAddress::from_u64(USER_VIRT_END - PROCESS_STACKS_SIZE);
+
+    let mut proc_data = ProcessData {
+        stack_space_start,
+        free_stack_holes: Vec::new(),
+        n_stacks: 0,
+        heap_pages: 0,
+        heap_start: VirtualAddress::from_u64(0),
+        heap_alloc_pages: 0,
+        max_heap_pages: 0,
+        file_descriptors: Vec::new(),
+        fd_index: 0,
+        code_entry: VirtualAddress::from_u64(0),
+        code_pages: 0,
+        code_ref: 0,
+    };
+
+    CodeMapper::share_pages(parent, &mut proc_data, parent_vmm, child_vmm);
+    proc_data
+}
+
 pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> ProcessData {
     // create an empty layout
     let stack_space_start = VirtualAddress::from_u64(USER_VIRT_END - PROCESS_STACKS_SIZE);
@@ -501,6 +604,7 @@ pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> Proc
         fd_index: 0,
         code_entry: VirtualAddress::from_u64(0),
         code_pages: 0,
+        code_ref: 0,
     };
 
     // create the code segment

@@ -115,6 +115,7 @@ impl Thread {
         let stack_start = utils::ProcessStackManager::allocate_stack(
             &mut proc_data,
             parent_proc.pt_root.as_mut().unwrap().as_mut(),
+            true,
         )
         .expect("Failed to allocate stack for user thread.");
         // get the entrypoint:

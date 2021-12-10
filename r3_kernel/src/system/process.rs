@@ -6,7 +6,9 @@ use crate::cpu::mmu;
 use crate::mm::paging::{KernelVirtualMemoryManager, VirtualMemoryManager};
 use crate::mm::PhysicalAddress;
 use crate::system::thread::ThreadID;
-use crate::system::utils::{create_default_descriptors, create_process_layout, ProcessData};
+use crate::system::utils::{
+    create_cloned_layout, create_default_descriptors, create_process_layout, ProcessData,
+};
 
 use lazy_static::lazy_static;
 
@@ -78,6 +80,39 @@ pub struct Process {
 }
 
 impl Process {
+    #[inline]
+    pub fn create_from_parent(ppid: PID, name: String) -> Self {
+        let (mut vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
+        let pid = new_pid();
+
+        let mut parent_lock = PROCESS_POOL.lock();
+        let parent_opt = parent_lock.get_mut_ref(&ppid);
+
+        if parent_opt.is_none() {
+            panic!("PID {} not found.", ppid.as_u64());
+        }
+
+        let parent = parent_opt.unwrap();
+
+        let proc_data = Some(create_cloned_layout(
+            &mut parent.proc_data.as_mut().unwrap(),
+            &mut parent.pt_root.as_mut().unwrap(),
+            &mut vmm,
+        ));
+
+        Process {
+            pid,
+            ppid: PID(0), // as of now
+            state: ProcessState::NoThreads,
+            cr3: frame_addr.as_u64(),
+            threads: Vec::new(),
+            user: true,
+            name,
+            pt_root: Some(Box::new(vmm)),
+            proc_data,
+        }
+    }
+
     #[inline]
     pub fn create_user_process(name: String, path: &str) -> Self {
         let (mut vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
