@@ -12,7 +12,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890e45890067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890e46890067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2017743200
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=1817239600
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -35,7 +35,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221889409,
+    instruction_pointer: 18446603336221889633,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -108,14 +108,14 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1600000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1601000 virt=0xffffc000c01fdfa8
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x569000, rip=0xffff8000000ac300,
+            thread_id=0, page_table=0x569000, rip=0xffff8000000ac3e0,
             stack_end=0xffffb00000200000
-r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x400000, size=243
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1604000 virt=0xffffc000c01fd668
+r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x0, size=908
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1604000 virt=0xffffc000c01fd4b8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1605000 virt=0xffffc000c01fd4b8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1606000 virt=0xffffc000c01fd4b8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1607000 virt=0xffffc000c01fd668
-r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x6000f4, size=30
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1606000 virt=0xffffc000c01fd668
+r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x200f20, size=224
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1608000 virt=0xffffc000c01fd668
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1609000 virt=0xffffc000c01fd668
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a00000 virt=0xffffc000c01fde48
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a01000 virt=0xffffc000c01fdff8
@@ -123,136 +123,791 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a02000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a03000 virt=0xffffc000c01fdff8
 r3_kernel::system::process DEBUG Adding thread 1 for process test:1
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x1602000, rip=0x4000b0,
+            thread_id=1, page_table=0x1602000, rip=0x2e3,
             stack_end=0x7ffc00200000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel            INFO  Started system idle thread in background.
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e00000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e01000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 2 for process test:2
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2200000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2201000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 3 for process test:3
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(3) to the thread queue.
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2600000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2601000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 4 for process test:4
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(4) to the thread queue.
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a00000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a01000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 5 for process test:5
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(5) to the thread queue.
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e00000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e01000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 6 for process test:6
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(6) to the thread queue.
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3200000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3201000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 7 for process test:7
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(7) to the thread queue.
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3600000 virt=0xffff8000000e2d98
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3601000 virt=0xffff8000000e2f48
-r3_kernel::system::utils INFO  0x7ffc00000000, 0x7ffc00000000
-r3_kernel::system::process DEBUG Adding thread 8 for process test:8
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(8) to the thread queue.
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
-Hello, World!
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x1, arg2=0xe
+ELF        r3_kernel::system::posix DEBUG 
