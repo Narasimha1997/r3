@@ -81,7 +81,7 @@ pub struct Process {
 
 impl Process {
     #[inline]
-    pub fn create_from_parent(ppid: PID, name: String) -> Self {
+    pub fn create_from_parent(ppid: &PID) -> Self {
         let (mut vmm, frame_addr) = KernelVirtualMemoryManager::new_vmm();
         let pid = new_pid();
 
@@ -107,7 +107,7 @@ impl Process {
             cr3: frame_addr.as_u64(),
             threads: Vec::new(),
             user: true,
-            name,
+            name: parent.name.clone(),
             pt_root: Some(Box::new(vmm)),
             proc_data,
         }

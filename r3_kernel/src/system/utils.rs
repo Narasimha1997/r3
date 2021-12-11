@@ -197,7 +197,7 @@ impl ProcessStackManager {
     pub fn allocate_and_clone(
         child: &mut ProcessData,
         child_vmm: &mut VirtualMemoryManager,
-        rsp: u64,
+        _rsp: u64,
     ) -> Result<VirtualAddress, ProcessError> {
         // allocate a new child stack
         let child_stk = Self::allocate_stack(child, child_vmm, false);
@@ -205,26 +205,27 @@ impl ProcessStackManager {
             return child_stk;
         }
 
-        let child_start = child_stk.unwrap();
-        let parent_start = VirtualAddress::from_u64(Alignment::align_down(rsp, STACK_SIZE as u64));
+        let parent_stack_start = child.stack_space_start;
+        let child_stack_start = child_stk.unwrap();
 
-        // get the stack offset in reverse order
-        let offset = rsp - parent_start.as_u64();
-        let end_size = STACK_SIZE as u64 - offset;
+        log::info!("0x{:x}, 0x{:x}", parent_stack_start.as_u64(), child_stack_start.as_u64());
 
+        // copy
         unsafe {
-            // copy from offset till the end to the new stack:
-            let parent_ptr = parent_start.get_ptr::<u8>().add(offset as usize);
-            let child_ptr = child_start.get_mut_ptr::<u8>().add(offset as usize);
-            ptr::copy_nonoverlapping(parent_ptr, child_ptr, end_size as usize);
+            let parent_ptr = parent_stack_start.get_ptr::<u8>();
+            let child_ptr = child_stack_start.get_mut_ptr::<u8>();
+
+            // copy
+            ptr::copy_nonoverlapping(parent_ptr, child_ptr, STACK_SIZE as usize);
         }
+
 
         // late unmap the kernel region
         KernelVirtualMemoryManager::pt()
-            .unmap_page(Page::from_address(child_start))
+            .unmap_page(Page::from_address(child_stack_start))
             .expect("Failed to unmap mapped page.");
 
-        Ok(child_start)
+        Ok(child_stack_start)
     }
 }
 
@@ -585,6 +586,7 @@ pub fn create_cloned_layout(
     };
 
     CodeMapper::share_pages(parent, &mut proc_data, parent_vmm, child_vmm);
+    ProcessFDPool::clone(parent, &mut proc_data);
     proc_data
 }
 

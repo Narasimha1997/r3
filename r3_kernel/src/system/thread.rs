@@ -159,7 +159,7 @@ impl Thread {
     pub fn new_from_parent(
         name: String,
         pid: PID,
-        state: ContextType,
+        state: &ContextType,
     ) -> Result<Self, ThreadError> {
         let mut proc_lock = PROCESS_POOL.lock();
 
@@ -184,7 +184,7 @@ impl Thread {
         Ok(Thread {
             is_user: true,
             parent_pid: pid,
-            context: Box::new(state),
+            context: Box::new(state.clone()),
             name,
             thread_id: tid,
             state: ThreadState::Waiting,

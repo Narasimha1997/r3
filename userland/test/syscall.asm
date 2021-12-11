@@ -8,6 +8,12 @@ t_usec: dq 0
 global _start
 section .text
 _start:
+mov rax, 11
+int 0x80
+mov rax, 11
+int 0x80
+mov rax, 11
+int 0x80
 LOOP_START:
   mov rax, 1
   mov rdi, 1

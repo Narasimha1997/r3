@@ -16,6 +16,12 @@ use crate::system::thread::THREAD_POOL;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
+#[derive(Debug, Clone)]
+pub enum SchedAction {
+    NoAction,
+    CreateChildFork(PID),
+}
+
 /// The trait can be implemented by any schedulable entity.
 pub trait Sched {
     /// Should return an empty instance of scheduler.
@@ -44,7 +50,6 @@ pub trait Sched {
     /// this function should return the current thread ID
     /// that called this function, or that was scheduled.
     fn current_tid(&self) -> Option<ThreadID>;
-    
     /// gets the current pid of thread's process
     fn current_pid(&self) -> Option<PID>;
 

@@ -48,16 +48,10 @@ pub type UserAddress = VirtualAddress;
 
 #[no_mangle]
 pub extern "sysv64" fn syscall_handler(
-    _frame: &mut InterruptStackFrame,
+    frame: &mut InterruptStackFrame,
     regs: &mut SyscallRegsState,
 ) {
-    // dispatch handler with arguments collected:
-    let sys_no = regs.rax as usize;
-    let arg0 = regs.rdi as usize;
-    let arg1 = regs.rsi as usize;
-    let arg2 = regs.rdx as usize;
-
-    let result = dispatch_syscall(sys_no, arg0, arg1, arg2);
+    let result = dispatch_syscall(&regs, &frame);
 
     regs.rax = result as u64;
 

@@ -1,10 +1,12 @@
-use alloc::vec::Vec;
+extern crate alloc;
 
 use crate::alloc::boxed::Box;
 use crate::cpu::state::CPURegistersState;
 use crate::system::process::PID;
 use crate::system::tasking::{handle_exit, Sched};
 use crate::system::thread::{ContextType, Thread, ThreadID};
+
+use alloc::vec::Vec;
 
 #[derive(Debug, Clone)]
 pub struct SleepingThread {

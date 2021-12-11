@@ -8,6 +8,9 @@ use crate::mm::VirtualAddress;
 use crate::system::abi;
 use crate::system::filesystem::POSIXOpenFlags;
 
+use crate::cpu::interrupts::InterruptStackFrame;
+use crate::cpu::state::SyscallRegsState;
+
 const SYSCALL_NO_READ: usize = 0;
 const SYSCALL_NO_WRITE: usize = 1;
 const SYSCALL_NO_OPEN: usize = 2;
@@ -15,6 +18,7 @@ const SYSCALL_NO_CLOSE: usize = 3;
 const SYSCALL_NO_LSEEK: usize = 8;
 const SYSCALL_NO_PID: usize = 9;
 const SYSCALL_NO_PPID: usize = 10;
+const SYSCALL_NO_FORK: usize = 11;
 const SYSCALL_NO_BRK: usize = 12;
 const SYSCALL_NO_SBRK: usize = 13;
 const SYSCALL_NO_IOCTL: usize = 16;
@@ -25,7 +29,13 @@ const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
-pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) -> isize {
+pub fn dispatch_syscall(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> isize {
+    // get basic arguments:
+    let sys_no = regs.rax as usize;
+    let arg0 = regs.rdi as usize;
+    let arg1 = regs.rsi as usize;
+    let arg2 = regs.rdx as usize;
+
     let syscall_result = match sys_no {
         SYSCALL_NO_GETTIME => {
             // is the pointer null?
@@ -94,6 +104,7 @@ pub fn dispatch_syscall(sys_no: usize, arg0: usize, arg1: usize, arg2: usize) ->
         SYSCALL_NO_PID => sched::sys_pid(),
         SYSCALL_NO_PPID => sched::sys_ppid(),
         SYSCALL_NO_TID => sched::sys_tid(),
+        SYSCALL_NO_FORK => sched::sys_fork(&regs, &frame),
         _ => Err(abi::Errno::ENOSYS),
     };
 
