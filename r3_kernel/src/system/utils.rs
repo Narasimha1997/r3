@@ -208,8 +208,6 @@ impl ProcessStackManager {
         let parent_stack_start = child.stack_space_start;
         let child_stack_start = child_stk.unwrap();
 
-        log::info!("0x{:x}, 0x{:x}", parent_stack_start.as_u64(), child_stack_start.as_u64());
-
         // copy
         unsafe {
             let parent_ptr = parent_stack_start.get_ptr::<u8>();

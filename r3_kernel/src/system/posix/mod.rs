@@ -36,6 +36,14 @@ pub fn dispatch_syscall(regs: &SyscallRegsState, frame: &InterruptStackFrame) ->
     let arg1 = regs.rsi as usize;
     let arg2 = regs.rdx as usize;
 
+    log::debug!(
+        "SYSCALL: sys_no={}, arg0=0x{:x}, arg1=0x{:x}, arg2=0x{:x}",
+        sys_no,
+        arg0,
+        arg1,
+        arg2
+    );
+
     let syscall_result = match sys_no {
         SYSCALL_NO_GETTIME => {
             // is the pointer null?

@@ -56,7 +56,6 @@ pub fn sys_tid() -> Result<isize, abi::Errno> {
 pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<isize, abi::Errno> {
     let parent_pid = SCHEDULER.lock().current_pid().unwrap();
 
-    log::info!("called fork!");
     // spawn a new process, which is the child
     let child = Process::create_from_parent(&parent_pid);
     let child_pid = child.pid.clone();
@@ -89,7 +88,7 @@ pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<
 
     // create a thread from this state:
     let thread = Thread::new_from_parent(
-        format!("th_fork"),
+        format!("th_{}_{}", parent_pid.as_u64(), child_pid.as_u64()),
         child_pid.clone(),
         &ContextType::SavedContext(state),
     )

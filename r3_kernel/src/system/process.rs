@@ -102,7 +102,7 @@ impl Process {
 
         Process {
             pid,
-            ppid: PID(0), // as of now
+            ppid: parent.pid.clone(), // as of now
             state: ProcessState::NoThreads,
             cr3: frame_addr.as_u64(),
             threads: Vec::new(),
