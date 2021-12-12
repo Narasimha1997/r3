@@ -284,23 +284,10 @@ impl Thread {
     }
 
     #[inline]
-    pub fn reset_state(&mut self, entry_point: VirtualAddress) {
-        let pid = self.parent_pid;
-        let proc_lock = PROCESS_POOL.lock();
-
-        let proc_ref = proc_lock.get_mut_ref(&pid).unwrap();
-
+    pub fn reset_stack(&mut self) -> VirtualAddress {
         // reset the stack:
         utils::ProcessStackManager::reset_stack(self.stack_start);
-
-        // initial state:
-        let init_state = InitialStateContainer {
-            cr3_base: self.cr3,
-            rip_address: entry_point,
-            stack_end: VirtualAddress::from_u64(self.stack_start.as_u64() + STACK_SIZE as u64),
-        };
-
-        self.state = ContextType::InitContext(init_state);
+        VirtualAddress::from_u64(self.stack_start.as_u64() + STACK_SIZE as u64)
     }
 
     #[inline]

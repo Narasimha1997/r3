@@ -6,6 +6,7 @@ typedef int64_t i64;
 #define SYSCALL_WRITE 1
 #define SYSCALL_PID 9
 #define SYSCALL_FORK 11
+#define SYSCALL_EXECVP 59
 
 i64 syscall_write(u64 rdi, u64 rsi, u64 rdx)
 {
@@ -32,12 +33,20 @@ int syscall_fork()
     return x;
 }
 
+int sys_execvp(u64 rdi) {
+    u64 x;
+    asm volatile(
+        "int $0x80"
+        : "=a"(x)
+        : "0"(SYSCALL_EXECVP), "D"(rdi)
+        : "rcx", "r11", "memory"
+    );
+
+    return x;
+}
+
 void _start()
 {
-    const char* buffer = "Hello, parent\n";
-    // fork:
-    syscall_fork();
-    while (1) {
-       syscall_write(1, (u64)buffer, 15);
-    }
+    const char* buffer = "/sbin/syscall";
+    sys_execvp((u64)buffer);
 }

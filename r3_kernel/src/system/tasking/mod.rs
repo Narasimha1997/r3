@@ -10,6 +10,7 @@ use crate::system::process::PID;
 use crate::system::tasking::srbs::SimpleRoundRobinSchduler;
 use crate::system::thread::{Thread, ThreadID};
 use crate::system::timer::SystemTimer;
+use crate::mm::VirtualAddress;
 
 use crate::system::thread::THREAD_POOL;
 
@@ -58,6 +59,9 @@ pub trait Sched {
 
     /// suspend current thread to sleep for x ticks
     fn sleep_current_thread(&mut self, n_ticks: usize);
+
+    /// reset current thread
+    fn reset_current_thread_stack(&mut self) -> VirtualAddress;
 }
 
 lazy_static! {

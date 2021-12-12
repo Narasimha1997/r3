@@ -2,6 +2,7 @@ extern crate alloc;
 
 use crate::alloc::boxed::Box;
 use crate::cpu::state::CPURegistersState;
+use crate::mm::VirtualAddress;
 use crate::system::process::PID;
 use crate::system::tasking::{handle_exit, Sched};
 use crate::system::thread::{ContextType, Thread, ThreadID};
@@ -182,5 +183,14 @@ impl Sched for SimpleRoundRobinSchduler {
 
         self.suspend_next = true;
         self.suspend_next_ticks = n_ticks;
+    }
+
+    fn reset_current_thread_stack(&mut self) -> VirtualAddress {
+        if let Some(thread_idx) = self.thread_index {
+            let thread_ref: &mut Thread = self.thread_list.get_mut(thread_idx).unwrap();
+            return thread_ref.reset_stack();
+        }
+
+        VirtualAddress::from_u64(0)
     }
 }

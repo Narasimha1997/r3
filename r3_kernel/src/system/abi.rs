@@ -52,7 +52,7 @@ pub extern "sysv64" fn syscall_handler(
     regs: &mut SyscallRegsState,
 ) {
 
-    let result = dispatch_syscall(&regs, &frame);
+    let result = dispatch_syscall(regs, frame);
 
     regs.rax = result as u64;
     LAPICUtils::eoi();
@@ -63,7 +63,7 @@ pub fn copy_cstring(source: VirtualAddress, max_len: usize) -> Result<String, Er
     let mut buffer = vec![0; max_len];
 
     // copy until null terminated
-    let c_ptr = source.get_ptr::<u8>();
+    let mut c_ptr = source.get_ptr::<u8>();
     let mut iter = 0;
 
     // good old C
@@ -71,10 +71,10 @@ pub fn copy_cstring(source: VirtualAddress, max_len: usize) -> Result<String, Er
         while *c_ptr != b'\0' {
             buffer[iter] = *c_ptr;
             iter = iter + 1;
-
             if iter >= 512 {
                 return Err(Errno::ENAMETOOLONG);
             }
+            c_ptr = c_ptr.add(1);
         }
     }
 

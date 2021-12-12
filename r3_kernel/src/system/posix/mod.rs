@@ -25,11 +25,12 @@ const SYSCALL_NO_IOCTL: usize = 16;
 const SYSCALL_NO_YIELD: usize = 42;
 const SYSCALL_NO_TID: usize = 43;
 const SYSCALL_NO_SLEEP: usize = 46;
+const SYSCALL_NO_EXECVP: usize = 59;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
-pub fn dispatch_syscall(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> isize {
+pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackFrame) -> isize {
     // get basic arguments:
     let sys_no = regs.rax as usize;
     let arg0 = regs.rdi as usize;
@@ -113,6 +114,19 @@ pub fn dispatch_syscall(regs: &SyscallRegsState, frame: &InterruptStackFrame) ->
         SYSCALL_NO_PPID => sched::sys_ppid(),
         SYSCALL_NO_TID => sched::sys_tid(),
         SYSCALL_NO_FORK => sched::sys_fork(&regs, &frame),
+        SYSCALL_NO_EXECVP => {
+            if arg0 == 0 {
+                panic!("Got null pointer - syscall: {} sys_open", SYSCALL_NO_OPEN);
+            }
+
+            let path_res = abi::copy_cstring(VirtualAddress::from_u64(arg0 as u64), 512);
+            let execvp_res = match path_res {
+                Ok(path) => sched::sys_execvp(&path, frame),
+                Err(err_code) => Err(err_code),
+            };
+
+            execvp_res
+        }
         _ => Err(abi::Errno::ENOSYS),
     };
 

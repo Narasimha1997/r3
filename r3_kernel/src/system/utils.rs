@@ -243,7 +243,7 @@ impl ProcessStackManager {
     pub fn reset_stack(stack_start: VirtualAddress) {
         // get ptr:
         unsafe {
-            let stack_ptr = stack_start.stack_space_start.get_mut_ptr::<u8>();
+            let stack_ptr = stack_start.get_mut_ptr::<u8>();
             ptr::write_bytes(stack_ptr, 0, MemorySizes::OneMib as usize * 2);
         }
     }
@@ -545,24 +545,23 @@ impl CodeMapper {
     }
 
     #[inline]
-    pub fn unmap_code(proc_data: &mut ProcessData, vmm: VirtualMemoryManager) {
+    pub fn unmap_code(proc_data: &mut ProcessData, vmm: &mut VirtualMemoryManager) {
         if proc_data.code_ref > 0 {
             // this is a shared codebase
             let l4_index =
                 VirtualAddress::from_u64(USER_CODE_ADDRESS).get_level_index(PageTableLevel::Level4);
             // reset this entry
-            let child_pt: &mut PageTable =
-                unsafe { &mut *child_vmm.l4_virtual_address.get_mut_ptr() };
-            child_pt.entries[l4_index.as_usize()] = 0;
+            let child_pt: &mut PageTable = unsafe { &mut *vmm.l4_virtual_address.get_mut_ptr() };
+            child_pt.entries[l4_index.as_usize()].unmap_entry();
             proc_data.code_pages = 0;
         } else {
             // unmap
             let start = VirtualAddress::from_u64(USER_CODE_ADDRESS);
             for idx in 0..proc_data.code_pages {
-                let page = Page::from_address(VirtualAddress::from_u64(
+                let _page = Page::from_address(VirtualAddress::from_u64(
                     start.as_u64() + (idx as u64 * MemorySizes::OneKiB as u64 * 4),
                 ));
-                vmm.unmap_page(page).expect("Failed to unmap code-pages");
+                // vmm.unmap_page(page).expect("Failed to unmap code-pages");
             }
             proc_data.code_pages = 0;
             proc_data.code_ref = 0;
@@ -663,10 +662,16 @@ pub fn create_cloned_layout(
 }
 
 /// reset the process layout to new layout.
-pub fn reset_layout(path: &str, layout: &mut ProcessData, vmm: &mut VirtualMemoryManager) {
+pub fn reset_layout(
+    path: &str,
+    layout: &mut ProcessData,
+    vmm: &mut VirtualMemoryManager,
+) -> VirtualAddress {
     // remove file-descriptors:
     layout.file_descriptors.clear();
     layout.fd_index = 0;
+
+    create_default_descriptors(layout);
 
     // reset the heap:
     ProcessHeapAllocator::reset(layout, vmm);
@@ -676,6 +681,8 @@ pub fn reset_layout(path: &str, layout: &mut ProcessData, vmm: &mut VirtualMemor
 
     // allocate the new code:
     CodeMapper::load_elf(layout, vmm, path).expect("Failed to load user-code");
+
+    layout.code_entry
 }
 
 pub fn create_process_layout(path: &str, vmm: &mut VirtualMemoryManager) -> ProcessData {

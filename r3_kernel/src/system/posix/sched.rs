@@ -101,3 +101,16 @@ pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<
     // tell the scheduler to run our new process next, by creating a new thread.
     Ok(child_pid.as_u64() as isize)
 }
+
+pub fn sys_execvp(path: &str, ist: &mut InterruptStackFrame) -> Result<isize, abi::Errno> {
+    let pid = SCHEDULER.lock().current_pid().unwrap();
+    let code_start = PROCESS_POOL.lock().reset_process(&pid, path);
+    // reset the thread's internal stack to point to the start from end
+    let stack_addr = SCHEDULER.lock().reset_current_thread_stack();
+
+    // set the interrupt stack frame registers
+    ist.stack_pointer = stack_addr.as_u64();
+    ist.instruction_pointer = code_start.as_u64();
+
+    Ok(0)
+}

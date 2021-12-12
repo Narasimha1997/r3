@@ -4,10 +4,11 @@ extern crate spin;
 
 use crate::cpu::mmu;
 use crate::mm::paging::{KernelVirtualMemoryManager, VirtualMemoryManager};
-use crate::mm::PhysicalAddress;
+use crate::mm::{PhysicalAddress, VirtualAddress};
 use crate::system::thread::ThreadID;
 use crate::system::utils::{
-    create_cloned_layout, create_default_descriptors, create_process_layout, ProcessData,
+    create_cloned_layout, create_default_descriptors, create_process_layout, reset_layout,
+    ProcessData,
 };
 
 use lazy_static::lazy_static;
@@ -289,6 +290,18 @@ impl ProcessPoolManager {
         }
 
         self.pool_map.insert(pid, process);
+    }
+
+    #[inline]
+    pub fn reset_process(&mut self, pid: &PID, path: &str) -> VirtualAddress {
+        let process_mut: &mut Process = self.pool_map.get_mut(&pid.as_u64()).unwrap();
+
+        // reset the internal layout:
+        reset_layout(
+            path,
+            &mut process_mut.proc_data.as_mut().unwrap(),
+            &mut process_mut.pt_root.as_mut().unwrap(),
+        )
     }
 }
 
