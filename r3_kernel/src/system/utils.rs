@@ -39,7 +39,7 @@ pub const PROCESS_STACKS_SIZE: u64 = 16 * MemorySizes::OneGiB as u64;
 /// Size of stack for each thread
 pub const THREAD_STACK_SIZE: u64 = 2 * MemorySizes::OneMib as u64;
 
-pub const USER_TEMP_STACK_MAPPING: u64 =  0x700000000000;
+pub const USER_TEMP_STACK_MAPPING: u64 = 0x700000000000;
 
 /// use huge pages to map heap
 pub const USE_HUGEPAGE_HEAP: bool = true;
@@ -156,7 +156,8 @@ impl ProcessStackManager {
                 )
                 .expect("Failed to map kernel page");
         } else {
-            KernelVirtualMemoryManager::pt()
+            let (current_vmm, _) = KernelVirtualMemoryManager::current_vmm();
+            current_vmm
                 .map_huge_page(
                     Page::from_address(VirtualAddress::from_u64(USER_TEMP_STACK_MAPPING)),
                     alloc_result.unwrap(),
@@ -230,9 +231,10 @@ impl ProcessStackManager {
         }
 
         // late unmap the kernel region
-        KernelVirtualMemoryManager::pt()
-            .unmap_page(Page::from_address(child_temp_start))
-            .expect("Failed to unmap mapped page.");
+        let (current_vmm, _) = KernelVirtualMemoryManager::current_vmm();
+        current_vmm.unmap_page(Page::from_address(child_temp_start)).expect(
+            "Failed to unmap child stack."
+        );
 
         Ok(parent_stack_start)
     }

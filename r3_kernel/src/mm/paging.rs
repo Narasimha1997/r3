@@ -328,7 +328,6 @@ impl VirtualMemoryManager {
         if entry.is_mapped() {
             let pt: &mut PageTable =
                 unsafe { &mut *self.get_level_address(entry.addr().as_u64()).get_mut_ptr() };
-            
             entry.set_flags(PageEntryFlags::user_flags());
 
             return Some(pt);
@@ -438,7 +437,6 @@ impl VirtualMemoryManager {
         if !l1_entry.is_mapped() {
             return None;
         }
-        
         Frame::from_aligned_address(l1_entry.addr()).ok()
     }
 
@@ -835,6 +833,24 @@ impl KernelVirtualMemoryManager {
                 l4_offset_addr: k_vmm.l4_virtual_address,
             },
             frame.addr(),
+        )
+    }
+
+    pub fn current_vmm() -> (VirtualMemoryManager, mm::PhysicalAddress) {
+        let k_vmm = Self::pt();
+        let phy_addr = mmu::get_page_table_address();
+        let pt_vaddr = mm::VirtualAddress::from_u64(k_vmm.phy_offset + phy_addr.as_u64());
+
+        (
+            VirtualMemoryManager {
+                n_tables: 1,
+                l4_virtual_address: pt_vaddr,
+                l4_phy_addr: phy_addr,
+                phy_offset: k_vmm.phy_offset,
+                offset_base_addr: k_vmm.l4_phy_addr,
+                l4_offset_addr: k_vmm.l4_virtual_address,
+            },
+            phy_addr,
         )
     }
 }

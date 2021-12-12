@@ -14,12 +14,9 @@ ret
 
 section .text
 _start:
-mov rax, 11
-int 0x80
-mov rax, 11
-int 0x80
-mov rax, 11
-int 0x80
+call _fork
+call _fork
+call _fork
 LOOP_START:
   mov rax, 1
   mov rdi, 1

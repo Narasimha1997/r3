@@ -34,8 +34,10 @@ int syscall_fork()
 
 void _start()
 {
-    // const char* buffer = "Hello, parent\n";
+    const char* buffer = "Hello, parent\n";
     // fork:
     syscall_fork();
-    while (1);
+    while (1) {
+       syscall_write(1, (u64)buffer, 15);
+    }
 }
