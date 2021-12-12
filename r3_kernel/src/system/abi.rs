@@ -51,10 +51,10 @@ pub extern "sysv64" fn syscall_handler(
     frame: &mut InterruptStackFrame,
     regs: &mut SyscallRegsState,
 ) {
+
     let result = dispatch_syscall(&regs, &frame);
 
     regs.rax = result as u64;
-
     LAPICUtils::eoi();
 }
 

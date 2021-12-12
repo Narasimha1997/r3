@@ -6,6 +6,12 @@ t_sec: dq 4
 t_usec: dq 0
 
 global _start
+
+_fork:
+mov rax, 11
+int 0x80
+ret
+
 section .text
 _start:
 mov rax, 11

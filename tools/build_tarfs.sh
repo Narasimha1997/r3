@@ -1,7 +1,10 @@
 #!/bin/bash
 
 proj_root=$(pwd)
+rm -r storage/tarfs
+rm storage/tarfs.tar
 mkdir -p storage/tarfs
+
 # compile test assembly
 pushd userland/test
     # compile assembly code
@@ -10,7 +13,7 @@ pushd userland/test
     rm $proj_root/storage/tarfs/syscall.o
 
     # compile C code
-    gcc -m64 write.c -o $proj_root/storage/tarfs/write -nostdlib -ffreestanding
+    gcc -m64 write.c -o $proj_root/storage/tarfs/write -nostdlib -ffreestanding -fomit-frame-pointer
 popd
 
 # build tarfs

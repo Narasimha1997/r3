@@ -39,6 +39,8 @@ pub const PROCESS_STACKS_SIZE: u64 = 16 * MemorySizes::OneGiB as u64;
 /// Size of stack for each thread
 pub const THREAD_STACK_SIZE: u64 = 2 * MemorySizes::OneMib as u64;
 
+pub const USER_TEMP_STACK_MAPPING: u64 =  0x700000000000;
+
 /// use huge pages to map heap
 pub const USE_HUGEPAGE_HEAP: bool = true;
 
@@ -145,13 +147,23 @@ impl ProcessStackManager {
         );
 
         // also map a kernel page
-        KernelVirtualMemoryManager::pt()
-            .map_huge_page(
-                page,
-                alloc_result.unwrap(),
-                PageEntryFlags::user_hugepage_flags(),
-            )
-            .expect("Failed to map kernel page");
+        if unmap_k {
+            KernelVirtualMemoryManager::pt()
+                .map_huge_page(
+                    page,
+                    alloc_result.unwrap(),
+                    PageEntryFlags::user_hugepage_flags(),
+                )
+                .expect("Failed to map kernel page");
+        } else {
+            KernelVirtualMemoryManager::pt()
+                .map_huge_page(
+                    Page::from_address(VirtualAddress::from_u64(USER_TEMP_STACK_MAPPING)),
+                    alloc_result.unwrap(),
+                    PageEntryFlags::user_hugepage_flags(),
+                )
+                .expect("Failed to map kernel page");
+        }
 
         if map_result.is_err() {
             log::error!(
@@ -162,10 +174,10 @@ impl ProcessStackManager {
         }
 
         let vaddr = page.addr();
-        Self::zero(vaddr);
 
         // unmap it now
         if unmap_k {
+            Self::zero(vaddr);
             KernelVirtualMemoryManager::pt()
                 .unmap_page(page)
                 .expect("Failed to unmap mapped page.");
@@ -206,24 +218,23 @@ impl ProcessStackManager {
         }
 
         let parent_stack_start = child.stack_space_start;
-        let child_stack_start = child_stk.unwrap();
+        let child_temp_start = VirtualAddress::from_u64(USER_TEMP_STACK_MAPPING);
 
         // copy
         unsafe {
             let parent_ptr = parent_stack_start.get_ptr::<u8>();
-            let child_ptr = child_stack_start.get_mut_ptr::<u8>();
+            let child_ptr = child_temp_start.get_mut_ptr::<u8>();
 
             // copy
             ptr::copy_nonoverlapping(parent_ptr, child_ptr, STACK_SIZE as usize);
         }
 
-
         // late unmap the kernel region
         KernelVirtualMemoryManager::pt()
-            .unmap_page(Page::from_address(child_stack_start))
+            .unmap_page(Page::from_address(child_temp_start))
             .expect("Failed to unmap mapped page.");
 
-        Ok(child_stack_start)
+        Ok(parent_stack_start)
     }
 }
 
