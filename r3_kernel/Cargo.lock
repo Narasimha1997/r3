@@ -74,6 +74,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pc-keyboard"
+version = "0.5.1"
+
+[[package]]
 name = "r3_kernel"
 version = "0.0.1"
 dependencies = [
@@ -84,6 +88,7 @@ dependencies = [
  "linked_list_allocator",
  "log",
  "object",
+ "pc-keyboard",
  "spin",
 ]
 

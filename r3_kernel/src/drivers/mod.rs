@@ -6,6 +6,7 @@ use alloc::boxed::Box;
 
 pub mod disk;
 pub mod display;
+pub mod keyboard;
 pub mod pci;
 pub mod uart;
 

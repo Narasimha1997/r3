@@ -10,5 +10,11 @@
 
 [submodule "third_party/crates/object"]
         path = third_party/crates/object
-        url = https://github.com/gimli-rs/object
+        url = https://github.com/gimli-rs/object.git
         branch = master
+
+[submodule "third_party/crates/pc-keyboard"]
+	path = third_party/crates/pc-keyboard
+	url = https://github.com/rust-embedded-community/pc-keyboard.git
+        branch = master
+

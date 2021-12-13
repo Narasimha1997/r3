@@ -5,6 +5,8 @@ use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
+use crate::drivers::keyboard;
+
 
 #[allow(unused_imports)]
 // unused because this is called from assembly
@@ -23,6 +25,9 @@ const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
 /// ATA interrupt line - SECONDARY slave:
 const ATA_SECONDARY_INTERRUPT_LINE: usize = 0x0F;
 
+/// Keyboard controller interrupt line:
+const KEYBOARD_INTERRUPT_LINE: usize = 0x01;
+
 use exceptions::IDT;
 use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFrame};
 use pic::CHAINED_PIC;
@@ -34,6 +39,11 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
     CHAINED_PIC
         .lock()
         .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
+}
+
+extern "x86-interrupt" fn kbd_irq1_handler(_stk: InterruptStackFrame) {
+    keyboard::PC_KEYBOARD.lock().read_key();
+    LAPICUtils::eoi();
 }
 
 extern "x86-interrupt" fn ata_irq14_handler(_stk: InterruptStackFrame) {
@@ -79,14 +89,22 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 }
 
 pub fn setup_hw_interrupts() {
-    let irq0_handle = prepare_default_handle(pit_irq0_handler);
-    IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0_handle;
 
+    // PIT legacy timer
+    let irq0x00_handle = prepare_default_handle(pit_irq0_handler);
+    IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0x00_handle;
+
+    // ATA 14 primary
     let irq0x0e_handle = prepare_default_handle(ata_irq14_handler);
     IDT.lock().interrupts[ATA_PRIMARY_INTERRIUPT_LINE] = irq0x0e_handle;
 
+    // ATA 15 secondary
     let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
     IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
+
+    // system keyboard
+    let irq0x01_handle = prepare_default_handle(kbd_irq1_handler);
+    IDT.lock().interrupts[KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
 }
 
 pub fn setup_post_apic_interrupts() {
