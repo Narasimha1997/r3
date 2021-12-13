@@ -12,7 +12,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890ea8790067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890eaa890067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2052221200
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=1827486000
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7fa3223, edx=0xf8bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
@@ -35,10 +35,10 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221737201,
+    instruction_pointer: 18446603336221737665,
     code_segment: 8,
-    cpu_flags: 130,
-    stack_pointer: 18446673708188692136,
+    cpu_flags: 134,
+    stack_pointer: 18446673708188692104,
     stack_segment: 0,
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
@@ -50,13 +50,13 @@ r3_kernel::mm        INFO  Enabling kernel paging...
 r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000570000
 r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000570000
 r3_kernel::mm        INFO  Running simple paging test....
-r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febd8
+r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febb8
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
 r3_kernel::mm        INFO  Enabling kernel heap...
 r3_kernel::mm::heap  DEBUG n_heap_pages=2560.
 r3_kernel::mm::heap  DEBUG Mapping kernel virtual memory for heap at 0xffffa00000000000
-r3_kernel::mm::paging DEBUG Created new page table at phy=0xa00000 virt=0xffffc000c01fe388
-r3_kernel::mm::paging DEBUG Created new page table at phy=0xa01000 virt=0xffffc000c01fe538
+r3_kernel::mm::paging DEBUG Created new page table at phy=0xa00000 virt=0xffffc000c01fe368
+r3_kernel::mm::paging DEBUG Created new page table at phy=0xa01000 virt=0xffffc000c01fe518
 r3_kernel::mm::heap  INFO  Allocated 10485760bytes at 0xffffa00000000000
 r3_kernel::mm::heap  DEBUG Testing heap by allocating a vector: 
 r3_kernel::mm::heap  INFO  Allocated info!
@@ -90,7 +90,7 @@ r3_kernel::drivers   WARN  No driver found to handle the device 4663:32902
 r3_kernel::drivers   WARN  No driver found to handle the device 28672:32902
 r3_kernel::drivers   INFO  Found driver for device 28688:32902.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=1564672bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=1565184bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=10240bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
@@ -108,7 +108,7 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1600000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1601000 virt=0xffffc000c01fdfa8
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x570000, rip=0xffff800000020440,
+            thread_id=0, page_table=0x570000, rip=0xffff8000000205c0,
             stack_end=0xffffb00000200000
 r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x0, size=988
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1604000 virt=0xffffc000c01fd4b8
@@ -132,25 +132,25 @@ r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=59, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
 r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x400000, size=237
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a05000 virt=0xffff8000000e8f88
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a06000 virt=0xffff8000000e8f88
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a05000 virt=0xffff8000000e9198
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a06000 virt=0xffff8000000e9198
 r3_kernel::system::utils DEBUG /sbin/syscall allocation section=Ok(None) at=0x6000f0, size=38
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a08000 virt=0xffff8000000e8f88
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a08000 virt=0xffff8000000e9198
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e00000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e01000 virt=0xffff8000000e8fd8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e02000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e03000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e00000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e01000 virt=0xffff8000000e91e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e02000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e03000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 2 for process test:2
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2200000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2201000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2200000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2201000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 3 for process test:3
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(3) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2600000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2601000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2600000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2601000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 4 for process test:4
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(4) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
@@ -158,15 +158,15 @@ Hello, World!
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
 r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a00000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a01000 virt=0xffff8000000e8fd8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a02000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a03000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a00000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a01000 virt=0xffff8000000e91e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a02000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2a03000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 5 for process test:5
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(5) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e00000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e01000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e00000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x2e01000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 6 for process test:6
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(6) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
@@ -174,10 +174,10 @@ Hello, World!
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
 r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3200000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3201000 virt=0xffff8000000e8fd8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3202000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3203000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3200000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3201000 virt=0xffff8000000e91e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3202000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3203000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 7 for process test:7
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(7) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
@@ -189,10 +189,10 @@ Hello, World!
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
 r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x335, arg1=0x7ffc00200000, arg2=0x335
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3600000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3601000 virt=0xffff8000000e8fd8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3602000 virt=0xffff8000000e8e28
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x3603000 virt=0xffff8000000e8fd8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3600000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3601000 virt=0xffff8000000e91e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3602000 virt=0xffff8000000e9038
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x3603000 virt=0xffff8000000e91e8
 r3_kernel::system::process DEBUG Adding thread 8 for process test:8
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(8) to the thread queue.
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
@@ -221,6 +221,295 @@ r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got H
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got e
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got l
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got l
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got o
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got W
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got o
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got r
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got l
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel            INFO  Got d
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ,
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got H
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got o
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got w
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got  
+r3_kernel            INFO  Got a
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got r
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got e
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got  
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got F
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got u
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got c
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got k
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got  
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got f
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got f
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel            INFO  Got ?
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
@@ -344,3 +633,1284 @@ r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_3
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_4
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_2_6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_3_7
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread th_5_8
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x6000f0, arg2=0xe
+Hello, World!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x6000fe, arg1=0x6000f0, arg2=0xe
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::logging   ERROR panicked at 'called `Option::unwrap()` on a `None` value', src/drivers/keyboard.rs:59:55

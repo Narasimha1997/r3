@@ -5,6 +5,7 @@ use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
+use crate::cpu::io;
 use crate::drivers::keyboard;
 
 
@@ -42,8 +43,12 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn kbd_irq1_handler(_stk: InterruptStackFrame) {
+
     keyboard::PC_KEYBOARD.lock().read_key();
-    LAPICUtils::eoi();
+
+    CHAINED_PIC
+        .lock()
+        .send_eoi((HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE) as u8)
 }
 
 extern "x86-interrupt" fn ata_irq14_handler(_stk: InterruptStackFrame) {
@@ -101,13 +106,12 @@ pub fn setup_hw_interrupts() {
     // ATA 15 secondary
     let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
     IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
-
-    // system keyboard
-    let irq0x01_handle = prepare_default_handle(kbd_irq1_handler);
-    IDT.lock().interrupts[KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
 }
 
 pub fn setup_post_apic_interrupts() {
     let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt);
     IDT.lock().naked_0 = irq0x30_handle;
+
+    let irq0x01_handle = prepare_default_handle(kbd_irq1_handler);
+    IDT.lock().interrupts[KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
 }
