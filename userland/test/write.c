@@ -3,6 +3,10 @@
 typedef uint64_t u64;
 typedef int64_t i64;
 
+static char buffer[4096];
+static const char *welcome = "Welcome to ECHO program, I will echo whatever you say noob!.\n";
+static const char *bullets = ">>>";
+
 i64 syscall(u64 rax, u64 rdi, u64 rsi, u64 rdx) {
     i64 ret_val;
     asm volatile(
@@ -14,9 +18,6 @@ i64 syscall(u64 rax, u64 rdi, u64 rsi, u64 rdx) {
 }
 
 void _start() {
-    char buffer[4096];
-    const char *welcome = "Welcome to ECHO program, I will echo whatever you say noob!.\n";
-    const char *bullets = ">>>";
     i64 read_length = 0, iter = 0;
     syscall(1, 1, (u64)welcome, 62);
     while (1) {

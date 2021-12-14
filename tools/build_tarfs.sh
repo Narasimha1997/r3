@@ -13,7 +13,8 @@ pushd userland/test
     rm $proj_root/storage/tarfs/syscall.o
 
     # compile C code
-    gcc -m64 write.c -o $proj_root/storage/tarfs/write -nostdlib -ffreestanding -fomit-frame-pointer
+    gcc -m64 write.c -o $proj_root/storage/tarfs/write -nostdlib -ffreestanding -fomit-frame-pointer \
+        -T ../configs/c_linker.ld
 popd
 
 # build tarfs
