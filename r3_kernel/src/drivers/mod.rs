@@ -8,14 +8,18 @@ pub mod disk;
 pub mod display;
 pub mod keyboard;
 pub mod pci;
-pub mod uart;
 pub mod tty;
+pub mod uart;
 
 /// registers all the devices to DevFS
 pub fn register_buultin_devices() {
     // mount uart:
     register_device("serial", 1, 0, Box::new(uart::UartIODriver::empty()))
-        .expect("Failed to register devices to devfs");
+        .expect("Failed to register UART to devfs");
+
+    register_device("tty", 1, 1, Box::new(tty::TTYDriver::empty()))
+        .expect("Failed to register TTY to devfs");
+
     log::info!("Registered devfs devices - uart");
 }
 

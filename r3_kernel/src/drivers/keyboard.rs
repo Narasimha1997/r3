@@ -57,6 +57,11 @@ impl PCKeyboardController {
 
         let handler = self.on_key.unwrap();
         if let Ok(partial_keycode_opt) = self.layout.add_byte(raw_keybyte) {
+
+            if partial_keycode_opt.is_none() {
+                return;
+            }
+
             let partial_keycode = partial_keycode_opt.unwrap();
             if let Some(key_event) = self.layout.process_keyevent(partial_keycode) {
                 // is this a raw control key or a utf character key

@@ -86,12 +86,24 @@ impl FramebufferText {
             };
 
             if framebuffer::Framebuffer::index_in_bounds(&fb, &index) {
+                // clear this region first:
                 if j >= 1 {
                     let idx = j - 1;
                     let char_font = LINUX_BOOT_FONT[ch as usize][i];
                     if get_bit_for_char(char_font, idx) != 0 {
                         // draw the pixel on framebuffer:
                         framebuffer::Framebuffer::set_pixel(fb, color, index);
+                    } else {
+                        framebuffer::Framebuffer::set_pixel(
+                            fb,
+                            framebuffer::Pixel {
+                                r: 0,
+                                g: 0,
+                                b: 0,
+                                channel: 0,
+                            },
+                            index,
+                        );
                     }
                 }
 

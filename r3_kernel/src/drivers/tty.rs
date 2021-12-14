@@ -1,4 +1,5 @@
 extern crate alloc;
+extern crate log;
 extern crate spin;
 
 use crate::cpu;
@@ -45,6 +46,11 @@ impl InputQueue {
     pub fn pop(&mut self) -> Option<char> {
         self.keybuf.pop_front()
     }
+
+    #[inline]
+    pub fn drain(&mut self) {
+        self.keybuf.clear();
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -60,7 +66,7 @@ pub struct BlockingSystemTerminal {
 }
 
 impl BlockingSystemTerminal {
-    pub fn new() -> Self {
+    pub fn clear(&mut self) {
         let mut fb = Framebuffer::get_buffer_lock().as_ref().unwrap().lock();
         // clear off the framebuffer
         Framebuffer::fill(
@@ -73,6 +79,13 @@ impl BlockingSystemTerminal {
             },
         );
 
+        self.lines.row_line = 0;
+        self.lines.col_line = 0;
+    }
+
+    pub fn new() -> Self {
+        let fb = Framebuffer::get_buffer_lock().as_ref().unwrap().lock();
+        // clear off the framebuffer
         BlockingSystemTerminal {
             lines: FramebufferLines {
                 row_line: 0,
@@ -126,15 +139,17 @@ impl BlockingSystemTerminal {
                         END_OF_TEXT | END_OF_TRANSFER | ESCAPE => 2,
                         _ => 1,
                     };
-                    let mut fb_lock = Framebuffer::get_buffer_lock().as_ref().unwrap().lock();
+                    let mut fb = Framebuffer::get_buffer_lock().as_ref().unwrap().lock();
                     for _ in 0..n_times {
                         FramebufferText::print_backspace(
-                            &mut fb_lock,
+                            &mut fb,
                             &mut self.lines,
                             self.max_cols,
                             self.color,
                         );
                     }
+
+                    FramebufferText::print_string(&mut fb, &format!("_"), self.color, &self.lines);
                 }
             }
         } else {
@@ -153,6 +168,8 @@ impl BlockingSystemTerminal {
                     FramebufferText::print_string(&mut fb, &to_write, self.color, &self.lines);
 
                 self.lines = new_lines;
+
+                FramebufferText::print_string(&mut fb, &format!("_"), self.color, &self.lines);
             }
         }
     }
@@ -244,6 +261,12 @@ pub fn register_consumer() {
 
 pub struct TTYDriver;
 
+impl TTYDriver {
+    pub fn empty() -> Self {
+        TTYDriver {}
+    }
+}
+
 impl DevOps for TTYDriver {
     fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
         let mut tty_lock = SYSTEM_TTY.lock();
@@ -306,3 +329,13 @@ impl DevOps for TTYDriver {
 // TODO: Find a best wat to mitigate this
 unsafe impl Send for TTYDriver {}
 unsafe impl Sync for TTYDriver {}
+
+pub fn initialize() {
+    // touch the tty device:
+    SYSTEM_TTY.lock().clear();
+    STDIN_QUEUE.lock().drain();
+    // set this as default keyboard consumer:
+    register_consumer();
+
+    log::debug!("Initialized system terminal.");
+}

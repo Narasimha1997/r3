@@ -24,10 +24,6 @@ use bootloader::BootInfo;
 
 use alloc::format;
 
-fn key_handle(ch: char) {
-    log::info!("Got {}", ch);
-}
-
 fn init_basic_setup(boot_info: &'static BootInfo) {
     BootProtocol::create(boot_info);
 
@@ -46,8 +42,6 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
 
     // init PCI device list.
     drivers::pci::detect_devices();
-    drivers::keyboard::PC_KEYBOARD.lock().set_handler(key_handle);
-
     acpi::init();
 
     log::info!("Initial stage booted properly.");
@@ -108,6 +102,9 @@ fn init_functionalities() {
 
     // start the idle thread that just keeps the scheduler filled.
     start_idle_kthread();
+
+    // initialize the terminal
+    drivers::tty::initialize();
 
     // start ticking
     system::timer::SystemTimer::start_ticks();
