@@ -5,7 +5,6 @@ use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
-use crate::cpu::io;
 use crate::drivers::keyboard;
 
 

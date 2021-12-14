@@ -2,6 +2,7 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
+use crate::cpu::{enable_interrupts, disable_interrupts};
 use crate::system::abi;
 use crate::mm::Alignment;
 use spin::Mutex;
@@ -157,4 +158,17 @@ impl PosixTimeval {
         let ns = mills * 1000000;
         (Alignment::align_up(ns, SYSTEM_TICK_DURATION) / SYSTEM_TICK_DURATION) as usize
     }
+}
+
+/// this will disable timer ticks and interrupts
+pub fn pause_events() {
+    TSCTimerShot::reset_current_shot();
+    disable_interrupts();
+}
+
+/// this will enable timer ticks and interrupts
+pub fn resume_events() {
+    TSCTimerShot::reset_current_shot();
+    TSCTimerShot::create_shot_after_ns(SYSTEM_TICK_DURATION);
+    enable_interrupts();
 }
