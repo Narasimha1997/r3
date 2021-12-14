@@ -11,7 +11,7 @@ use crate::drivers::keyboard::PC_KEYBOARD;
 use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
 use crate::system::filesystem::{FSError, SeekType};
 
-use alloc::{collections::VecDeque, format, string::String};
+use alloc::{format, string::String, vec::Vec};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -27,29 +27,47 @@ lazy_static! {
 }
 
 pub struct InputQueue {
-    keybuf: VecDeque<char>,
+    keybuf: Vec<u8>,
 }
 
 impl InputQueue {
     pub fn empty() -> Self {
-        InputQueue {
-            keybuf: VecDeque::new(),
-        }
+        InputQueue { keybuf: Vec::new() }
     }
 
     #[inline]
     pub fn push(&mut self, key: char) {
-        self.keybuf.push_back(key);
+        self.keybuf.push(key as u8);
     }
 
     #[inline]
-    pub fn pop(&mut self) -> Option<char> {
-        self.keybuf.pop_front()
+    pub fn pop_first(&mut self) -> Option<char> {
+        if self.keybuf.is_empty() {
+            return None;
+        } else {
+            return Some(self.keybuf.remove(0) as char);
+        }
+    }
+
+    #[inline]
+    pub fn pop_last(&mut self) -> Option<char> {
+        self.keybuf.pop().map(|byte| byte as char)
     }
 
     #[inline]
     pub fn drain(&mut self) {
         self.keybuf.clear();
+    }
+
+    #[inline]
+    pub fn has_end(&self, ch: char) -> bool {
+        if let Some(last) = self.keybuf.last() {
+            if *last == ch as u8 {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -132,7 +150,7 @@ impl BlockingSystemTerminal {
         // 1. backspace
         if key == BACKSPACE && self.parse {
             // this is a backspace
-            if let Some(last_char) = input_queue.pop() {
+            if let Some(last_char) = input_queue.pop_last() {
                 // how many times do we pop?
                 if self.echo_input {
                     let n_times = match last_char {
@@ -214,11 +232,14 @@ impl BlockingSystemTerminal {
 
 #[inline]
 pub fn polling_pop() -> char {
+    cpu::enable_interrupts();
+
     loop {
-        // wait for interrupt
         cpu::halt();
         cpu::disable_interrupts();
-        let read_char = STDIN_QUEUE.lock().pop();
+
+        let read_char = STDIN_QUEUE.lock().pop_first();
+
         cpu::enable_interrupts();
 
         if read_char.is_some() {
@@ -228,26 +249,27 @@ pub fn polling_pop() -> char {
 }
 
 pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
-    let mut n_wrote = 0;
-    let mut is_end = false;
+    cpu::enable_interrupts();
+
     loop {
-        // wait for interrupt
-        if n_wrote == buffer.len() || is_end {
-            return n_wrote;
-        }
         cpu::halt();
         cpu::disable_interrupts();
-        let read_char = STDIN_QUEUE.lock().pop();
-        if let Some(ch) = read_char {
-            if ch == till {
-                // got new line
-                is_end = true;
-            } else {
-                buffer[n_wrote] = ch as u8;
-                n_wrote += 1;
-            }
-        }
+
+        let mut stdin = STDIN_QUEUE.lock();
+        let read_size = if !stdin.keybuf.is_empty() && stdin.has_end(till) {
+            stdin.keybuf.truncate(buffer.len() - 1);
+            let keybuf_length = stdin.keybuf.len();
+            buffer[0..keybuf_length].copy_from_slice(&stdin.keybuf);
+            stdin.drain();
+            keybuf_length
+        } else {
+            0
+        };
+
         cpu::enable_interrupts();
+        if read_size != 0 {
+            return read_size;
+        }
     }
 }
 

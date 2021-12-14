@@ -52,10 +52,9 @@ pub extern "sysv64" fn syscall_handler(
     regs: &mut SyscallRegsState,
 ) {
 
-    let result = dispatch_syscall(regs, frame);
-
-    regs.rax = result as u64;
     LAPICUtils::eoi();
+    let result = dispatch_syscall(regs, frame);
+    regs.rax = result as u64;
 }
 
 /// copies a c-like string to rust String on kernel heap.

@@ -621,8 +621,8 @@ impl ProcessFDPool {
 pub fn create_default_descriptors(proc_data: &mut ProcessData) {
     let dev_fd = FILESYSTEM
         .lock()
-        .open("/dev/serial", 0)
-        .expect("/dev/serial not found on this platform, cannot create process stdout.");
+        .open("/dev/tty", 0)
+        .expect("/dev/tty not found on this platform, cannot create process stdout.");
 
     let stdin = dev_fd.clone();
     let stdout = dev_fd.clone();
