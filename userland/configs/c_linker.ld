@@ -6,4 +6,5 @@ SECTIONS
     .text : ALIGN(4k) { *(.text) }
     .data : ALIGN(4k) { *(.data) }
     .bss : ALIGN(4k) { *(.bss) }
+    .rodata : ALIGN(4k) { *(.rodata) }
 }
