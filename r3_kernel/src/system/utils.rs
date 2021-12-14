@@ -558,10 +558,10 @@ impl CodeMapper {
             // unmap
             let start = VirtualAddress::from_u64(USER_CODE_ADDRESS);
             for idx in 0..proc_data.code_pages {
-                let _page = Page::from_address(VirtualAddress::from_u64(
+                let page = Page::from_address(VirtualAddress::from_u64(
                     start.as_u64() + (idx as u64 * MemorySizes::OneKiB as u64 * 4),
                 ));
-                // vmm.unmap_page(page).expect("Failed to unmap code-pages");
+                vmm.unmap_page(page).expect("Failed to unmap code-pages");
             }
             proc_data.code_pages = 0;
             proc_data.code_ref = 0;

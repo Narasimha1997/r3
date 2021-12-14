@@ -12,7 +12,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=800 height=600 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890eb1a90067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890eb2490067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2807515600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2798148800
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x95baa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
@@ -35,7 +35,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221602385,
+    instruction_pointer: 18446603336221602417,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -91,7 +91,7 @@ r3_kernel::drivers   WARN  No driver found to handle the device 28672:32902
 r3_kernel::drivers   INFO  Found driver for device 28688:32902.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=1573888bytes
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=30720bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=40960bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
 r3_kernel::drivers   WARN  No driver found to handle the device 28947:32902
@@ -108,25 +108,22 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1600000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1601000 virt=0xffffc000c01fdf78
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x572000, rip=0xffff80000002a090,
+            thread_id=0, page_table=0x572000, rip=0xffff80000002a0b0,
             stack_end=0xffffb00000200000
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x3ff000, size=736
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x400000, size=276
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1604000 virt=0xffffc000c01fd6a8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1605000 virt=0xffffc000c01fd4f8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1606000 virt=0xffffc000c01fd4f8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1607000 virt=0xffffc000c01fd6a8
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x400000, size=544
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1609000 virt=0xffffc000c01fd6a8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x160a000 virt=0xffffc000c01fd6a8
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x401000, size=4096
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x402000, size=376
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x401000, size=425
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x402000, size=4136
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a00000 virt=0xffffc000c01fdd48
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a01000 virt=0xffffc000c01fdef8
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a02000 virt=0xffffc000c01fdd48
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a03000 virt=0xffffc000c01fdef8
 r3_kernel::system::process DEBUG Adding thread 1 for process test:1
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x1602000, rip=0x400039,
+            thread_id=1, page_table=0x1602000, rip=0x40118a,
             stack_end=0x7ffc00200000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
@@ -134,42 +131,18 @@ r3_kernel            INFO  Started system idle thread in background.
 r3_kernel::drivers::tty DEBUG Initialized system terminal.
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x402000, arg2=0x3e
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40203e, arg2=0x6
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x401000, arg2=0x1000
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x401000, arg2=0x1
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40203e, arg2=0x6
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x401000, arg2=0x1000
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x12
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x10
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x10
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0xf
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40001e, arg2=0x2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=59, arg0=0x400012, arg1=0x40001e, arg2=0x400012
+r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x400000, size=204
+r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x401000, size=256
+r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x402000, size=8192
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x3e
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
@@ -212,11 +185,89 @@ r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0xd
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x401000, arg2=0x10
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40203e, arg2=0x6
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x401000, arg2=0x1000
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
