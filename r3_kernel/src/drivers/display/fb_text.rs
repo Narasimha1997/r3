@@ -1,15 +1,18 @@
+extern crate alloc;
 extern crate log;
 extern crate spin;
 
 use crate::drivers::display::font::{get_bit_for_char, FONT_HEIGHT, FONT_WIDTH, LINUX_BOOT_FONT};
 use crate::drivers::display::framebuffer;
 
+use alloc::string::ToString;
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::{Mutex, MutexGuard};
 
 const SCROLL_LINES: usize = 10;
 
+#[derive(Debug, Clone)]
 pub struct FramebufferLines {
     pub row_line: usize,
     pub col_line: usize,
@@ -38,6 +41,27 @@ impl FramebufferText {
 
         let to_clear_slice = framebuffer::FramebufferMemory::get_slice_from(total_bytes - offset);
         framebuffer::Framebuffer::fill_region(to_clear_slice.unwrap(), black, fb.bytes_per_pixel);
+    }
+
+    #[inline]
+    pub fn print_backspace(
+        fb: &mut MutexGuard<framebuffer::FramebufferMemory>,
+        lines: &mut FramebufferLines,
+        max_cols: usize,
+        color: framebuffer::Pixel,
+    ) {
+        // set row and col lines:
+        if lines.col_line == 0 && lines.row_line == 0 {
+            return;
+        } else if lines.col_line == 0 && lines.row_line != 0 {
+            lines.col_line = max_cols - 1;
+            lines.row_line -= 1;
+        } else if lines.col_line != 0 {
+            lines.col_line -= 1;
+        }
+
+        // print the ' ' char:
+        FramebufferText::print_string(fb, &' '.to_string(), color, &lines);
     }
 
     pub fn print_ascii_char(

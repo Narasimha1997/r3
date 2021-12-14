@@ -1,5 +1,6 @@
 extern crate pc_keyboard;
 extern crate spin;
+extern crate alloc;
 
 use crate::cpu::io::Port;
 
