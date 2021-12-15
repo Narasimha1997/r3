@@ -92,7 +92,7 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     let thread_opt = SCHEDULER.lock().lease_next_thread();
     if thread_opt.is_some() {
         let thread = thread_opt.unwrap();
-        log::debug!("Scheduling thread {}, state: {:?}", thread.name, thread.context);
+        log::debug!("Scheduling thread {}", thread.name);
         SystemTimer::next_shot();
         thread.load_state();
     } else {

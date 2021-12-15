@@ -250,11 +250,12 @@ pub fn polling_pop() -> char {
 }
 
 pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
+
+    // if disabled, enable interrupts to make sure we don't halt infinitely!
     cpu::enable_interrupts();
 
     loop {
         cpu::halt();
-        cpu::disable_interrupts();
 
         let mut stdin = STDIN_QUEUE.lock();
         let read_size = if !stdin.keybuf.is_empty() && stdin.has_end(till) {
@@ -266,8 +267,6 @@ pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
         } else {
             0
         };
-
-        cpu::enable_interrupts();
 
         if read_size != 0 {
             return read_size;
