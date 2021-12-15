@@ -2,7 +2,9 @@ extern crate alloc;
 extern crate log;
 extern crate spin;
 
-use crate::cpu::{mmu, segments, state::bootstrap_kernel_thread, state::CPURegistersState};
+use crate::cpu::{
+    mmu, segments, state::bootstrap_kernel_thread, state::CPURegistersState, syscall,
+};
 use crate::mm::{stack::STACK_ALLOCATOR, stack::STACK_SIZE, PhysicalAddress, VirtualAddress};
 use crate::system::process::{PID, PROCESS_POOL};
 use crate::system::tasking::{Sched, SCHEDULER};
@@ -88,6 +90,7 @@ pub struct Thread {
     pub stack_start: VirtualAddress,
     pub is_user: bool,
     pub cr3: u64,
+    pub syscall_stack_start: Option<VirtualAddress>,
 }
 
 impl Thread {
@@ -118,6 +121,14 @@ impl Thread {
             true,
         )
         .expect("Failed to allocate stack for user thread.");
+
+        let syscall_stack_start = utils::ProcessStackManager::allocate_syscall_stack(
+            &mut proc_data,
+            parent_proc.pt_root.as_mut().unwrap().as_mut(),
+            0,
+        )
+        .expect("Failed to allocate syscall stack");
+
         // get the entrypoint:
         let entrypoint = proc_data.code_entry;
 
@@ -153,6 +164,7 @@ impl Thread {
             sched_count: 0,
             stack_start: stack_start,
             cr3: parent_proc.cr3,
+            syscall_stack_start: Some(syscall_stack_start),
         })
     }
 
@@ -178,6 +190,13 @@ impl Thread {
         )
         .expect("Failed to allocate stack for new thread.");
 
+        let syscall_stack_start = utils::ProcessStackManager::allocate_syscall_stack(
+            &mut child.proc_data.as_mut().unwrap(),
+            &mut child.pt_root.as_mut().unwrap(),
+            0,
+        )
+        .expect("Failed to allocate syscall stack");
+
         let tid = new_tid();
         child.add_thread(tid.clone());
 
@@ -191,6 +210,7 @@ impl Thread {
             sched_count: 0,
             stack_start: stack_start,
             cr3: child.cr3,
+            syscall_stack_start: Some(syscall_stack_start),
         })
     }
 
@@ -272,6 +292,7 @@ impl Thread {
             sched_count: 0,
             stack_start: stack,
             cr3: parent_cr3,
+            syscall_stack_start: None,
         })
     }
 
@@ -301,6 +322,16 @@ impl Thread {
                     (segments::get_kernel_cs().0, segments::get_kernel_ds().0)
                 };
 
+                if self.syscall_stack_start.is_some() {
+                    // load this custom stack:
+                    let stack_end = self.syscall_stack_start.unwrap().as_u64()
+                        + utils::THREAD_SYSCALL_STACK_SIZE;
+                    // set this stack
+                    syscall::set_syscall_stack(stack_end);
+                } else {
+                    syscall::set_default_syscall_stack();
+                }
+
                 mmu::set_page_table_address(PhysicalAddress::from_u64(ctx.cr3_base));
 
                 mmu::reload_flush();
@@ -314,6 +345,15 @@ impl Thread {
             }
             ContextType::SavedContext(ctx) => {
                 // load page tables:
+                if self.syscall_stack_start.is_some() {
+                    // load this custom stack:
+                    let stack_end = self.syscall_stack_start.unwrap().as_u64()
+                        + utils::THREAD_SYSCALL_STACK_SIZE;
+                    // set this stack
+                    syscall::set_syscall_stack(stack_end);
+                } else {
+                    syscall::set_default_syscall_stack();
+                }
                 mmu::set_page_table_address(PhysicalAddress::from_u64(self.cr3));
                 CPURegistersState::load_state(&ctx)
             }

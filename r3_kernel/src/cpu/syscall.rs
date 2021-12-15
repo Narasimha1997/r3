@@ -1,5 +1,7 @@
 use crate::cpu::exceptions::IDT;
+use crate::cpu::interrupt_stacks::load_default_syscall_stack;
 use crate::cpu::interrupts::{prepare_syscall_interrupt, InterruptStackFrame};
+use crate::cpu::segments::KERNEL_TSS;
 
 #[allow(unused_imports)]
 // called by assembly
@@ -56,6 +58,14 @@ pub extern "sysv64" fn x80_handle(_stk: &mut InterruptStackFrame) {
 }
 
 pub fn setup_syscall_interrupt() {
-    let irq0x80_handle = prepare_syscall_interrupt(x80_handle);
+    let irq0x80_handle = prepare_syscall_interrupt(x80_handle, 1);
     IDT.lock().interrupts_1[79] = irq0x80_handle;
+}
+
+pub fn set_syscall_stack(addr: u64) {
+    KERNEL_TSS.lock().set_syscall_stack(addr);
+}
+
+pub fn set_default_syscall_stack() {
+    load_default_syscall_stack();
 }

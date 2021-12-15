@@ -1,5 +1,6 @@
 extern crate log;
 use crate::cpu::segments::TaskStateSegment;
+use crate::cpu::segments::KERNEL_TSS;
 
 const STACK_SIZE: usize = 4096 * 16;
 
@@ -33,5 +34,12 @@ pub fn init_system_stacks(tss: &mut TaskStateSegment) {
 
         // set the LAPIC timer stack
         tss.set_interrupt_stack(3, (&LAPIC_TIMER_INTERRPUT_STACK as *const _) as u64);
+    }
+}
+
+pub fn load_default_syscall_stack() {
+    unsafe {
+        let mut tss = KERNEL_TSS.lock();
+        tss.set_syscall_stack((&DEFAULT_SYSCALL_STACK as *const _) as u64);
     }
 }

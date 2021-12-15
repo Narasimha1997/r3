@@ -1,8 +1,10 @@
 extern crate bit_field;
+extern crate spin;
 
 use bit_field::BitField;
 use core::mem;
 use lazy_static::lazy_static;
+use spin::Mutex;
 
 use crate::cpu::interrupt_stacks::init_system_stacks;
 
@@ -214,9 +216,9 @@ struct TaskStateDescriptor {
 }
 
 impl TaskStateDescriptor {
-    pub fn new(tss: &'static TaskStateSegment) -> Self {
+    pub fn new(tss: &'static Mutex<TaskStateSegment>) -> Self {
         let mut low: u64 = SEGMENT_PRESENT;
-        let tss_addr = (tss as *const _) as u64;
+        let tss_addr = (&*tss.lock() as *const _) as u64;
 
         low.set_bits(16..40, tss_addr.get_bits(0..24));
         low.set_bits(56..64, tss_addr.get_bits(24..32));
@@ -364,7 +366,7 @@ pub fn create_tss_for_bp() -> TaskStateSegment {
 }
 
 lazy_static! {
-    static ref KERNEL_TSS: TaskStateSegment = create_tss_for_bp();
+    pub static ref KERNEL_TSS: Mutex<TaskStateSegment> = Mutex::new(create_tss_for_bp());
 }
 
 // create GDT for the base processor:

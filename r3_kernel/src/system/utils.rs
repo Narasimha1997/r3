@@ -39,6 +39,13 @@ pub const PROCESS_STACKS_SIZE: u64 = 16 * MemorySizes::OneGiB as u64;
 /// Size of stack for each thread
 pub const THREAD_STACK_SIZE: u64 = 2 * MemorySizes::OneMib as u64;
 
+/// Thread syscall stack size
+pub const THREAD_SYSCALL_STACK_SIZE: u64 = 64 * MemorySizes::OneKiB as u64;
+
+/// Stack Space offset - The syscall stack is at address stack_end + 64KiB offset of that thread
+/// remeber we left 2MiB virtual memory hole between stacks of threads.
+pub const STACK_SPACE_OFFSET: u64 = 64 * MemorySizes::OneKiB as u64;
+
 pub const USER_TEMP_STACK_MAPPING: u64 = 0x700000000000;
 
 /// use huge pages to map heap
@@ -108,6 +115,43 @@ impl ProcessStackManager {
         for element in slice.iter_mut() {
             *element = 0;
         }
+    }
+
+    #[inline]
+    pub fn get_stack_addr(proc_data: &mut ProcessData, index: u64) -> VirtualAddress {
+        VirtualAddress::from_u64(
+            proc_data.stack_space_start.as_u64()
+                + (index * THREAD_STACK_SIZE * 2)
+                + THREAD_STACK_SIZE
+                + STACK_SPACE_OFFSET,
+        )
+    }
+
+    #[inline]
+    pub fn allocate_syscall_stack(
+        proc_data: &mut ProcessData,
+        vmm: &mut VirtualMemoryManager,
+        stack_index: u64,
+    ) -> Result<VirtualAddress, ProcessError> {
+        if stack_index > proc_data.n_stacks {
+            return Err(ProcessError::StackOOB);
+        }
+
+        let syscall_stack_addr = Self::get_stack_addr(proc_data, stack_index);
+        let n_pages = THREAD_SYSCALL_STACK_SIZE / (4 * MemorySizes::OneKiB as u64);
+
+        // allocate memory:
+        for idx in 0..n_pages {
+            let frame = PhysicalMemoryManager::alloc().expect("Physical Memory OOM");
+            let page = Page::from_address(VirtualAddress::from_u64(
+                syscall_stack_addr.as_u64() + (idx as u64 * 4 * MemorySizes::OneKiB as u64),
+            ));
+
+            vmm.map_page(page, frame, PageEntryFlags::user_flags())
+                .expect("Failed to map syscall stack space");
+        }
+
+        Ok(syscall_stack_addr)
     }
 
     #[inline]
