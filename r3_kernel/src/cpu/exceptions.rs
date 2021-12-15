@@ -59,12 +59,12 @@ extern "x86-interrupt" fn page_fault(stk: InterruptStackFrame, err: PageFaultExc
 
 pub fn prepare_idt() -> InterruptDescriptorTable {
     let mut idt = InterruptDescriptorTable::empty();
-    idt.divide_error = prepare_default_handle(divide_by_zero);
-    idt.invalid_opcode = prepare_default_handle(invalid_opcode);
-    idt.breakpoint = prepare_default_handle(breakpoint);
+    idt.divide_error = prepare_default_handle(divide_by_zero, 0);
+    idt.invalid_opcode = prepare_default_handle(invalid_opcode, 0);
+    idt.breakpoint = prepare_default_handle(breakpoint, 0);
     idt.double_fault = prepare_no_ret_error_code_handle(double_fault);
     idt.page_fault = prepare_page_fault_handler(page_fault);
-    idt.overflow = prepare_default_handle(overflow);
+    idt.overflow = prepare_default_handle(overflow, 0);
     idt.general_protection_fault = prepare_error_code_handle(gpf);
 
     idt.double_fault.set_stack_index(0);

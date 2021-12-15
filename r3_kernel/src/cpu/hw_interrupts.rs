@@ -94,22 +94,22 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 pub fn setup_hw_interrupts() {
 
     // PIT legacy timer
-    let irq0x00_handle = prepare_default_handle(pit_irq0_handler);
+    let irq0x00_handle = prepare_default_handle(pit_irq0_handler, 0);
     IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0x00_handle;
 
     // ATA 14 primary
-    let irq0x0e_handle = prepare_default_handle(ata_irq14_handler);
+    let irq0x0e_handle = prepare_default_handle(ata_irq14_handler, 0);
     IDT.lock().interrupts[ATA_PRIMARY_INTERRIUPT_LINE] = irq0x0e_handle;
 
     // ATA 15 secondary
-    let irq0x0f_handle = prepare_default_handle(ata_irq15_handler);
+    let irq0x0f_handle = prepare_default_handle(ata_irq15_handler, 0);
     IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
 }
 
 pub fn setup_post_apic_interrupts() {
-    let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt);
+    let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt, 3);
     IDT.lock().naked_0 = irq0x30_handle;
 
-    let irq0x01_handle = prepare_default_handle(kbd_irq1_handler);
+    let irq0x01_handle = prepare_default_handle(kbd_irq1_handler, 2);
     IDT.lock().interrupts[KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
 }

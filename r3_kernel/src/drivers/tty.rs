@@ -250,7 +250,6 @@ pub fn polling_pop() -> char {
 }
 
 pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
-
     // if disabled, enable interrupts to make sure we don't halt infinitely!
     cpu::enable_interrupts();
 
@@ -292,7 +291,7 @@ impl TTYDriver {
 
 impl DevOps for TTYDriver {
     fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
-        timer::pause_events();
+        // timer::pause_events();
         let mut tty_lock = SYSTEM_TTY.lock();
         // update the fd to current row, col
         fd.offset = tty_lock.to_offset() as u32;
@@ -300,7 +299,7 @@ impl DevOps for TTYDriver {
         tty_lock.write(&buffer);
         // update the file-descriptor
         fd.offset = tty_lock.to_offset() as u32;
-        timer::resume_events();
+        // timer::resume_events();
         Ok(buffer.len())
     }
 
