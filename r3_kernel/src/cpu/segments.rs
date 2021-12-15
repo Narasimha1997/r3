@@ -4,6 +4,8 @@ use bit_field::BitField;
 use core::mem;
 use lazy_static::lazy_static;
 
+use crate::cpu::interrupt_stacks::init_system_stacks;
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 #[repr(u8)]
 pub enum PrivilegeLevel {
@@ -187,6 +189,23 @@ impl TaskStateSegment {
             iomap_base: 0,
         }
     }
+
+    pub fn set_interrupt_stack(&mut self, stack_index: usize, stack_end_addr: u64) {
+        if stack_index < 7 {
+            self.interrupt_stack_table[stack_index] = stack_end_addr;
+        }
+    }
+
+    pub fn set_privilege_stack(&mut self, stack_index: usize, stack_end_addr: u64) {
+        if stack_index < 3 {
+            self.privilege_stack_table[stack_index] = stack_end_addr;
+        }
+    }
+
+    pub fn set_syscall_stack(&mut self, stack_end_addr: u64) {
+        // syscalls use stack index 1
+        self.interrupt_stack_table[1] = stack_end_addr;
+    }
 }
 
 struct TaskStateDescriptor {
@@ -338,22 +357,9 @@ pub struct GDTContainer {
     kernel_tss_selector: SegmentSelector,
 }
 
-const STACK_SIZE: usize = 4096 * 8;
-static mut INTERRUPT_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
-static mut PRIVILEGE_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
-
 pub fn create_tss_for_bp() -> TaskStateSegment {
     let mut tss = TaskStateSegment::empty();
-    tss.interrupt_stack_table[0] = {
-        let k_stack_start = (unsafe { &INTERRUPT_STACK } as *const _) as u64;
-        k_stack_start + STACK_SIZE as u64
-    };
-
-    tss.privilege_stack_table[0] = {
-        let k_stack_start = (unsafe { &PRIVILEGE_STACK } as *const _) as u64;
-        k_stack_start + STACK_SIZE as u64
-    };
-
+    init_system_stacks(&mut tss);
     tss
 }
 

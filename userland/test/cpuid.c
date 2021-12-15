@@ -4,6 +4,8 @@ typedef int64_t i64;
 
 static const char *brand_string_heading = "Brand string is: ";
 static const char* term = "/sbin/write";
+static const char* parent = "parent\n";
+static const char* child = "child\n";
 static int a[10];
 
 void syscall_write(u64 rdi, u64 rsi, u64 rdx)
@@ -112,10 +114,12 @@ void _start()
     u64 parent_pid = syscall_pid();
     u64 child_pid = syscall_fork();
     if (syscall_pid() == parent_pid) {
+        syscall_write(1, (u64)parent, 8);
         get_cpu_id();
-    } else {
+        while (1) {}
+    } else if (syscall_pid() == child_pid) {
+        syscall_write(1, (u64)child, 8);
         syscall_execv((u64)term);
+        while (1) {}
     }
-
-    while (1) {}
 }

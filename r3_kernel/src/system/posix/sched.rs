@@ -30,6 +30,7 @@ pub fn sys_sleep_us(timeval_addr: VirtualAddress) -> Result<isize, abi::Errno> {
 
     // yield
     schedule_yield();
+    log::debug!("Returned from sleep!");
     Ok(0)
 }
 

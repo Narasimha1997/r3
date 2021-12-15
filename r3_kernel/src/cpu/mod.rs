@@ -4,6 +4,7 @@ pub mod cpuid;
 pub mod exceptions;
 pub mod hw_interrupts;
 pub mod interrupts;
+pub mod interrupt_stacks;
 pub mod io;
 pub mod mmu;
 pub mod pic;

@@ -37,8 +37,6 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
 
     let mut binary_buffer: Vec<u8> = Vec::new();
 
-    let mut iter = 0;
-
     loop {
         let read_res = FILESYSTEM.lock().read(&mut fd, &mut temp_buffer);
         if read_res.is_err() {
@@ -52,9 +50,6 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
         if n_read < 512 {
             break;
         }
-
-        log::debug!("Loading {}", iter);
-        iter +=1;
 
         let seek_result = FILESYSTEM.lock().seek(&mut fd, 512, SeekType::SEEK_CUR);
         if seek_result.is_err() {

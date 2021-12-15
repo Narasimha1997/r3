@@ -251,7 +251,7 @@ pub fn polling_pop() -> char {
 
 pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
     cpu::enable_interrupts();
-    timer::resume_events();
+
     loop {
         cpu::halt();
         cpu::disable_interrupts();
@@ -268,7 +268,7 @@ pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
         };
 
         cpu::enable_interrupts();
-        timer::resume_events();
+
         if read_size != 0 {
             return read_size;
         }
@@ -306,7 +306,7 @@ impl DevOps for TTYDriver {
     }
 
     fn read(&self, _fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
-        // timer::pause_events();
+        timer::pause_events();
         let read_size = if buffer.len() <= 4 {
             // read a single character
             let ch = polling_pop();
@@ -318,7 +318,7 @@ impl DevOps for TTYDriver {
             read_until
         };
 
-        // timer::resume_events();
+        timer::resume_events();
         Ok(read_size)
     }
 

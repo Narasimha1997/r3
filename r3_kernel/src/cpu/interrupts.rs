@@ -275,5 +275,6 @@ pub fn prepare_syscall_interrupt(
     let mut idt_entry = InterruptDescriptorEntry::empty();
     idt_entry.set_handler(handle_addr);
     idt_entry.set_privilege_level(segments::PrivilegeLevel::Ring3);
+    idt_entry.set_stack_index(1);
     return idt_entry;
 }
