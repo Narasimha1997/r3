@@ -2,7 +2,6 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
-use crate::cpu::{enable_interrupts, disable_interrupts};
 use crate::system::abi;
 use crate::mm::Alignment;
 use spin::Mutex;
@@ -77,6 +76,16 @@ impl SystemTimer {
     pub fn next_shot() {
         TSCTimerShot::reset_current_shot();
         TSCTimerShot::create_shot_after_ns(SYSTEM_TICK_DURATION);
+    }
+
+    #[inline]
+    pub fn enable_shot() {
+        TSCTimerShot::create_shot_from_ns(SYSTEM_TICK_DURATION);
+    }
+
+    #[inline]
+    pub fn disable_shots() {
+        TSCTimerShot::reset_current_shot();
     }
 
     /// This function will be called after every timer show
@@ -163,12 +172,10 @@ impl PosixTimeval {
 /// this will disable timer ticks and interrupts
 pub fn pause_events() {
     TSCTimerShot::reset_current_shot();
-    disable_interrupts();
 }
 
 /// this will enable timer ticks and interrupts
 pub fn resume_events() {
     TSCTimerShot::reset_current_shot();
     TSCTimerShot::create_shot_after_ns(SYSTEM_TICK_DURATION);
-    enable_interrupts();
 }

@@ -14,9 +14,9 @@ pushd userland/test
 
     # compile C code
     gcc -m64 write.c -o $proj_root/storage/tarfs/write -nostdlib -ffreestanding -fomit-frame-pointer \
-        -T ../configs/c_linker.ld -static
+        -T ../configs/c_linker.ld -s -nostartfiles -z max-page-size=0x1000 -static
     gcc -m64 cpuid.c -o $proj_root/storage/tarfs/cpuid -nostdlib -ffreestanding -fomit-frame-pointer \
-        -T ../configs/c_linker.ld -static
+        -T ../configs/c_linker.ld -s -nostartfiles -z max-page-size=0x1000 -static
 popd
 
 # build tarfs

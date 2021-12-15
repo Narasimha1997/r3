@@ -7,6 +7,7 @@ use crate::drivers::display::fb_text::{FramebufferLines, FramebufferText};
 use crate::drivers::display::font::{FONT_HEIGHT, FONT_WIDTH};
 use crate::drivers::display::framebuffer::{Framebuffer, Pixel};
 use crate::drivers::keyboard::PC_KEYBOARD;
+use crate::system::timer;
 
 use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
 use crate::system::filesystem::{FSError, SeekType};
@@ -250,7 +251,7 @@ pub fn polling_pop() -> char {
 
 pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
     cpu::enable_interrupts();
-
+    timer::resume_events();
     loop {
         cpu::halt();
         cpu::disable_interrupts();
@@ -267,6 +268,7 @@ pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
         };
 
         cpu::enable_interrupts();
+        timer::resume_events();
         if read_size != 0 {
             return read_size;
         }
@@ -291,6 +293,7 @@ impl TTYDriver {
 
 impl DevOps for TTYDriver {
     fn write(&self, fd: &mut DevFSDescriptor, buffer: &[u8]) -> Result<usize, FSError> {
+        timer::pause_events();
         let mut tty_lock = SYSTEM_TTY.lock();
         // update the fd to current row, col
         fd.offset = tty_lock.to_offset() as u32;
@@ -298,20 +301,25 @@ impl DevOps for TTYDriver {
         tty_lock.write(&buffer);
         // update the file-descriptor
         fd.offset = tty_lock.to_offset() as u32;
+        timer::resume_events();
         Ok(buffer.len())
     }
 
     fn read(&self, _fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
-        if buffer.len() <= 4 {
+        // timer::pause_events();
+        let read_size = if buffer.len() <= 4 {
             // read a single character
             let ch = polling_pop();
             buffer[0] = ch as u8;
-            return Ok(1);
+            1
         } else {
             // read until the end
             let read_until = polling_read_till('\n', buffer);
-            Ok(read_until)
-        }
+            read_until
+        };
+
+        // timer::resume_events();
+        Ok(read_size)
     }
 
     fn seek(&self, fd: &mut DevFSDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError> {

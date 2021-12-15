@@ -16,6 +16,28 @@ void syscall_write(u64 rdi, u64 rsi, u64 rdx)
         : "rcx", "r11", "memory");
 }
 
+u64 syscall_fork()
+{
+    i64 ret_val;
+    asm volatile(
+        "int $0x80"
+        : "=a"(ret_val)
+        : "0"(11)
+        : "rcx", "r11", "memory");
+    return ret_val;
+}
+
+u64 syscall_pid()
+{
+    i64 ret_val;
+    asm volatile(
+        "int $0x80"
+        : "=a"(ret_val)
+        : "0"(9)
+        : "rcx", "r11", "memory");
+    return ret_val;
+}
+
 void syscall_execv(u64 rdi)
 {
     i64 ret_val;
@@ -87,7 +109,13 @@ void get_cpu_id()
 
 void _start()
 {
-    // syscall_fork();
-    get_cpu_id();
-    syscall_execv((u64)term);
+    u64 parent_pid = syscall_pid();
+    u64 child_pid = syscall_fork();
+    if (syscall_pid() == parent_pid) {
+        get_cpu_id();
+    } else {
+        syscall_execv((u64)term);
+    }
+
+    while (1) {}
 }

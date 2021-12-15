@@ -8,6 +8,7 @@ use crate::system::tasking::schedule_yield;
 use crate::system::tasking::{Sched, SCHEDULER};
 use crate::system::thread::{ContextType, Thread};
 use crate::system::timer::PosixTimeval;
+use crate::system::timer::{pause_events, resume_events};
 
 use crate::cpu::interrupts::InterruptStackFrame;
 use crate::cpu::state::{CPURegistersState, SyscallRegsState};
@@ -54,6 +55,10 @@ pub fn sys_tid() -> Result<isize, abi::Errno> {
 }
 
 pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<isize, abi::Errno> {
+
+    // disable interrupts
+    pause_events();
+
     let parent_pid = SCHEDULER.lock().current_pid().unwrap();
 
     // spawn a new process, which is the child
@@ -93,16 +98,17 @@ pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<
         &ContextType::SavedContext(state),
     )
     .expect("Failed to create child thread");
+    resume_events();
 
     // add this thread to the queue:
     SCHEDULER.lock().add_new_thread(thread);
-
     // from here, the process will be the child
     // tell the scheduler to run our new process next, by creating a new thread.
     Ok(child_pid.as_u64() as isize)
 }
 
 pub fn sys_execvp(path: &str, ist: &mut InterruptStackFrame) -> Result<isize, abi::Errno> {
+    pause_events();
     let pid = SCHEDULER.lock().current_pid().unwrap();
     let code_start = PROCESS_POOL.lock().reset_process(&pid, path);
     // reset the thread's internal stack to point to the start from end
@@ -111,6 +117,6 @@ pub fn sys_execvp(path: &str, ist: &mut InterruptStackFrame) -> Result<isize, ab
     // set the interrupt stack frame registers
     ist.stack_pointer = stack_addr.as_u64();
     ist.instruction_pointer = code_start.as_u64();
-
+    resume_events();
     Ok(0)
 }
