@@ -3,9 +3,9 @@ typedef uint64_t u64;
 typedef int64_t i64;
 
 static const char *brand_string_heading = "Brand string is: ";
-static const char* term = "/sbin/write";
-static const char* parent = "parent\n";
-static const char* child = "child\n";
+static const char *term = "/sbin/write";
+static const char *parent = "parent\n";
+static const char *child = "child\n";
 static int a[10];
 
 void syscall_write(u64 rdi, u64 rsi, u64 rdx)
@@ -50,6 +50,17 @@ void syscall_execv(u64 rdi)
         : "rcx", "r11", "memory");
 }
 
+i64 syscall_exit(u64 rdi)
+{
+    i64 ret_val;
+    asm volatile(
+        "int $0x80"
+        : "=a"(ret_val)
+        : "0"(4), "D"(rdi)
+        : "rcx", "r11", "memory");
+    return ret_val;
+}
+
 u64 find_length(char *string)
 {
     char *temp_ptr = string;
@@ -91,8 +102,8 @@ void brand_string(int eaxValues)
             : "=r"(a[2]));
     __asm__("mov %%edx, %0\n\t"
             : "=r"(a[3]));
-    
-    u64 length = find_length((char*)&a[0]);
+
+    u64 length = find_length((char *)&a[0]);
     printf((char *)&a[0], length);
 }
 
@@ -111,15 +122,6 @@ void get_cpu_id()
 
 void _start()
 {
-    u64 parent_pid = syscall_pid();
-    u64 child_pid = syscall_fork();
-    if (syscall_pid() == parent_pid) {
-        syscall_write(1, (u64)parent, 8);
-        get_cpu_id();
-        while (1) {}
-    } else if (syscall_pid() == child_pid) {
-        syscall_write(1, (u64)child, 8);
-        syscall_execv((u64)term);
-        while (1) {}
-    }
+    get_cpu_id();
+    syscall_exit(0);
 }

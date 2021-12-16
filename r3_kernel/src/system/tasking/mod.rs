@@ -67,7 +67,7 @@ pub trait Sched {
     fn current_pid(&self) -> Option<PID>;
 
     /// check how many threads can be woken up from wait queue.
-    fn check_sleep_wakeup(&mut self);
+    fn check_wakeup(&mut self, wakeup_mode: ThreadWakeupType);
 
     /// suspend current thread to sleep for x ticks
     fn suspend_thread(&mut self, suspend_type: ThreadSuspendType);
@@ -99,7 +99,9 @@ pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
     SCHEDULER.lock().save_current_ctx(state_repr);
 
     // if any thread needs to wake up, wake them up.
-    SCHEDULER.lock().check_sleep_wakeup();
+    SCHEDULER
+        .lock()
+        .check_wakeup(ThreadWakeupType::FromSleep(1));
 
     let thread_opt = SCHEDULER.lock().lease_next_thread();
     if thread_opt.is_some() {

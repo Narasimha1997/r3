@@ -7,6 +7,7 @@ pub mod uname;
 use crate::mm::VirtualAddress;
 use crate::system::abi;
 use crate::system::filesystem::POSIXOpenFlags;
+use crate::system::process::PID;
 
 use crate::cpu::interrupts::InterruptStackFrame;
 use crate::cpu::state::SyscallRegsState;
@@ -26,6 +27,7 @@ const SYSCALL_NO_IOCTL: usize = 16;
 const SYSCALL_NO_YIELD: usize = 42;
 const SYSCALL_NO_TID: usize = 43;
 const SYSCALL_NO_SLEEP: usize = 46;
+const SYSCALL_NO_WAIT: usize = 47;
 const SYSCALL_NO_EXECVP: usize = 59;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
@@ -112,6 +114,7 @@ pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackF
             }
             sched::sys_sleep_us(VirtualAddress::from_u64(arg0 as u64))
         }
+        SYSCALL_NO_WAIT => sched::sys_wait(PID::new(arg0 as u64)),
         SYSCALL_NO_PID => sched::sys_pid(),
         SYSCALL_NO_PPID => sched::sys_ppid(),
         SYSCALL_NO_TID => sched::sys_tid(),

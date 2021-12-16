@@ -5,13 +5,14 @@ use crate::mm::VirtualAddress;
 use crate::system::abi;
 use crate::system::process::{Process, PROCESS_POOL};
 use crate::system::tasking::schedule_yield;
-use crate::system::tasking::{Sched, ThreadSuspendType, SCHEDULER};
+use crate::system::tasking::{Sched, ThreadSuspendType, ThreadWakeupType, SCHEDULER};
 use crate::system::thread::{ContextType, Thread};
 use crate::system::timer::PosixTimeval;
 use crate::system::timer::{pause_events, resume_events};
 
 use crate::cpu::interrupts::InterruptStackFrame;
 use crate::cpu::state::{CPURegistersState, SyscallRegsState};
+use crate::system::process::PID;
 
 use alloc::format;
 
@@ -125,22 +126,33 @@ pub fn sys_execvp(path: &str, ist: &mut InterruptStackFrame) -> Result<isize, ab
 
 pub fn sys_exit(code: i64) -> Result<isize, abi::Errno> {
     pause_events();
-
     let pid = SCHEDULER.lock().current_pid().unwrap();
 
-    // remove the thread
     SCHEDULER.lock().exit(code);
-
-    // remove the process
     PROCESS_POOL
         .lock()
         .remove_process(&pid, code)
         .expect("Failed to remove process");
+    // wakeup waiting threads
+    SCHEDULER
+        .lock()
+        .check_wakeup(ThreadWakeupType::FromWait(pid));
 
-    // yield the scheduler
     resume_events();
     schedule_yield();
 
     // you should never come here!
     Ok(1 as isize)
+}
+
+pub fn sys_wait(pid: PID) -> Result<isize, abi::Errno> {
+    // suspend the current thread
+    SCHEDULER
+        .lock()
+        .suspend_thread(ThreadSuspendType::SuspendWait(pid));
+    // yield the scheduler until next time
+    schedule_yield();
+
+    // you will come here once the thread is back in the run queue
+    Ok(0 as isize)
 }

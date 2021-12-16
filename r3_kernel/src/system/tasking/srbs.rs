@@ -228,9 +228,11 @@ impl Sched for SimpleRoundRobinSchduler {
         Some(thread.as_ref().unwrap().parent_pid.clone())
     }
 
-    fn check_sleep_wakeup(&mut self) {
-        self.wait_queue
-            .dispatch_wakeup(ThreadWakeupType::FromSleep(1), &mut self.thread_list);
+    fn check_wakeup(&mut self, wakeup_mode: ThreadWakeupType) {
+        self.wait_queue.dispatch_wakeup(
+            wakeup_mode,
+            &mut self.thread_list
+        );
     }
 
     fn suspend_thread(&mut self, suspend_type: ThreadSuspendType) {

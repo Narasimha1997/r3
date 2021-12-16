@@ -68,7 +68,7 @@ fn start_idle_kthread() {
         return;
     }
 
-    let pid = system::process::new(format!("test"), true, "/sbin/cpuid");
+    let pid = system::process::new(format!("test"), true, "/sbin/write");
     let thread_result = system::thread::new_main_thread(&pid, format!("main"));
     if thread_result.is_err() {
         log::error!("Failed to run system idle thread, threading not working!!!");

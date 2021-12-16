@@ -1,11 +1,11 @@
 extern crate alloc;
 extern crate bitflags;
 
+pub mod detect;
 pub mod devfs;
 pub mod paths;
 pub mod ustar;
 pub mod vfs;
-pub mod detect;
 
 use bitflags::bitflags;
 
@@ -33,7 +33,24 @@ pub enum SeekType {
     SEEK_END = 2,
 }
 
-pub struct FileMode(u32);
+#[derive(Default)]
+#[repr(C, packed)]
+pub struct FStatInfo {
+    pub st_dev: usize,
+    pub inode_no: usize,
+    pub n_link: usize,
+    pub mode: usize,
+    pub uid: u32,
+    pub gid: u32,
+    pub pad0: u32,
+    pub rdev: usize,
+    pub file_size: isize,
+    pub block_size: isize,
+    pub blocks: isize,
+    pub atime: isize,
+    pub mtime: isize,
+    pub ctime: isize,
+}
 
 #[derive(Debug, Clone)]
 pub enum MountInfo {
@@ -89,10 +106,19 @@ pub trait FDOps {
     fn write(&self, _fd: &mut FileDescriptor, _buffer: &[u8]) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
-    fn ioctl(&self, _fd: &mut FileDescriptor, _command: usize, _arg: usize) -> Result<usize, FSError> {
+    fn ioctl(
+        &self,
+        _fd: &mut FileDescriptor,
+        _command: usize,
+        _arg: usize,
+    ) -> Result<usize, FSError> {
         Err(FSError::NotYetImplemented)
     }
     fn seek(&self, _fd: &mut FileDescriptor, _offset: u32, _st: SeekType) -> Result<u32, FSError> {
         Err(FSError::NotYetImplemented)
+    }
+
+    fn fstat(&self, _fd: &mut FileDescriptor) -> Result<FStatInfo, FSError> {
+        Ok(FStatInfo::default())
     }
 }
