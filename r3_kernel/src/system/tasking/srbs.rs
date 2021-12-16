@@ -4,7 +4,7 @@ use crate::alloc::boxed::Box;
 use crate::cpu::state::CPURegistersState;
 use crate::mm::VirtualAddress;
 use crate::system::process::PID;
-use crate::system::tasking::{handle_exit, Sched};
+use crate::system::tasking::Sched;
 use crate::system::thread::{ContextType, Thread, ThreadID};
 
 use alloc::vec::Vec;
@@ -116,7 +116,7 @@ impl Sched for SimpleRoundRobinSchduler {
             // remove the thread from the queue
             // get the thread ID
             let thread_ref = self.thread_list.get_mut(thread_index).unwrap();
-            handle_exit(thread_ref);
+            thread_ref.exit();
             log::debug!(
                 "Thread {} exited with code={}",
                 thread_ref.thread_id.as_u64(),

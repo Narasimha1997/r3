@@ -223,6 +223,23 @@ impl Process {
             _ => {}
         }
     }
+
+    #[inline]
+    pub fn exit(&mut self, _code: usize) {
+        log::debug!("Exiting process {}", self.pid.as_u64());
+        // TODO: unmap all the memory, because as of now
+        // physical memory is not freed.
+        if !self.is_usermode() {
+            return;
+        }
+
+        reset_layout(
+            "",
+            &mut self.proc_data.as_mut().unwrap(),
+            &mut self.pt_root.as_mut().unwrap(),
+            false,
+        );
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -301,6 +318,7 @@ impl ProcessPoolManager {
             path,
             &mut process_mut.proc_data.as_mut().unwrap(),
             &mut process_mut.pt_root.as_mut().unwrap(),
+            true,
         )
     }
 }

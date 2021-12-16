@@ -11,6 +11,7 @@ use crate::system::tasking::{Sched, SCHEDULER};
 
 use crate::system::utils;
 
+use core::mem;
 use alloc::{boxed::Box, string::String};
 use core::sync::atomic::{AtomicU64, Ordering};
 
@@ -356,6 +357,13 @@ impl Thread {
                 CPURegistersState::load_state(&ctx)
             }
         }
+    }
+
+    #[inline]
+    pub fn exit(&mut self) {
+        // TODO: Unmap the memory
+        // As of now, the entry is removed from the scheduler
+        mem::drop(&self.context);
     }
 }
 

@@ -4,7 +4,9 @@ extern crate object;
 use alloc::vec::Vec;
 
 use crate::mm::stack::STACK_SIZE;
-use crate::system::filesystem::{vfs::FILESYSTEM, FSOps, FileDescriptor};
+use crate::system::filesystem::vfs::FILESYSTEM;
+use crate::system::filesystem::FSOps;
+use crate::system::filesystem::FileDescriptor;
 use crate::system::loader;
 
 use core::{mem, ptr};
@@ -653,12 +655,26 @@ impl ProcessFDPool {
     pub fn remove(proc_data: &mut ProcessData, fd_index: usize) -> Result<(), ProcessError> {
         for idx in 0..proc_data.file_descriptors.len() {
             if proc_data.file_descriptors[idx].index == fd_index {
+                let _ = FILESYSTEM
+                    .lock()
+                    .close(&mut proc_data.file_descriptors.get_mut(idx).unwrap().fd);
                 proc_data.file_descriptors.remove(idx);
                 return Ok(());
             }
         }
 
         Err(ProcessError::InvalidFD)
+    }
+
+    #[inline]
+    pub fn remove_all(proc_data: &mut ProcessData) {
+        for idx in 0..proc_data.file_descriptors.len() {
+            let _ = FILESYSTEM
+                .lock()
+                .close(&mut proc_data.file_descriptors.get_mut(idx).unwrap().fd);
+        }
+
+        proc_data.file_descriptors.clear();
     }
 }
 
@@ -710,22 +726,24 @@ pub fn reset_layout(
     path: &str,
     layout: &mut ProcessData,
     vmm: &mut VirtualMemoryManager,
+    map_new: bool,
 ) -> VirtualAddress {
     // remove file-descriptors:
     layout.file_descriptors.clear();
     layout.fd_index = 0;
 
-    create_default_descriptors(layout);
-
+    ProcessFDPool::remove_all(layout);
+    if map_new {
+        create_default_descriptors(layout);
+    }
     // reset the heap:
     ProcessHeapAllocator::reset(layout, vmm);
-
     // reset the code:
     CodeMapper::unmap_code(layout, vmm);
-
     // allocate the new code:
-    CodeMapper::load_elf(layout, vmm, path).expect("Failed to load user-code");
-
+    if map_new {
+        CodeMapper::load_elf(layout, vmm, path).expect("Failed to load user-code");
+    }
     layout.code_entry
 }
 
