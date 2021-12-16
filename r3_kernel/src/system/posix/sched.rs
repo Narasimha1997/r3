@@ -5,7 +5,7 @@ use crate::mm::VirtualAddress;
 use crate::system::abi;
 use crate::system::process::{Process, PROCESS_POOL};
 use crate::system::tasking::schedule_yield;
-use crate::system::tasking::{Sched, SCHEDULER};
+use crate::system::tasking::{Sched, ThreadSuspendType, SCHEDULER};
 use crate::system::thread::{ContextType, Thread};
 use crate::system::timer::PosixTimeval;
 use crate::system::timer::{pause_events, resume_events};
@@ -26,7 +26,9 @@ pub fn sys_sleep_us(timeval_addr: VirtualAddress) -> Result<isize, abi::Errno> {
     let ticks = timeval_buffer.to_ticks();
 
     // sleep this thread for {ticks given
-    SCHEDULER.lock().sleep_current_thread(ticks);
+    SCHEDULER
+        .lock()
+        .suspend_thread(ThreadSuspendType::SuspendSleep(ticks));
 
     // yield
     schedule_yield();

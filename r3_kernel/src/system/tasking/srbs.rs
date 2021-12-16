@@ -4,7 +4,7 @@ use crate::alloc::boxed::Box;
 use crate::cpu::state::CPURegistersState;
 use crate::mm::VirtualAddress;
 use crate::system::process::PID;
-use crate::system::tasking::Sched;
+use crate::system::tasking::{Sched, ThreadSuspendType, ThreadWakeupType};
 use crate::system::thread::{ContextType, Thread, ThreadID};
 
 use alloc::vec::Vec;
@@ -16,9 +16,16 @@ pub struct SleepingThread {
 }
 
 #[derive(Debug, Clone)]
+pub struct WaitingThread {
+    pub pid: PID,
+    pub thread: Thread,
+}
+
+#[derive(Debug, Clone)]
 pub struct WaitQueue {
     /// contains a list of threads that are waiting
     pub sleep_threads: Vec<SleepingThread>,
+    pub waiting_threads: Vec<WaitingThread>,
 }
 
 impl WaitQueue {
@@ -26,6 +33,7 @@ impl WaitQueue {
     pub fn empty() -> Self {
         WaitQueue {
             sleep_threads: Vec::new(),
+            waiting_threads: Vec::new(),
         }
     }
 
@@ -38,7 +46,42 @@ impl WaitQueue {
     }
 
     #[inline]
-    pub fn wake_sleeping_threads(&mut self, run_queue: &mut Vec<Thread>) {
+    pub fn put_wait(&mut self, thread: Thread, pid: PID) {
+        self.waiting_threads.push(WaitingThread { pid, thread });
+    }
+
+    #[inline]
+    pub fn dispatch_suspend(&mut self, thread: Thread, suspend_type: ThreadSuspendType) {
+        match suspend_type {
+            ThreadSuspendType::SuspendWait(pid) => {
+                self.put_wait(thread, pid);
+            }
+            ThreadSuspendType::SuspendSleep(ticks) => {
+                self.put_sleep(thread, ticks);
+            }
+            ThreadSuspendType::Nothing => {}
+        }
+    }
+
+    #[inline]
+    pub fn wake_waiting_threads(&mut self, pid: PID, run_queue: &mut Vec<Thread>) {
+        self.waiting_threads = self
+            .waiting_threads
+            .drain_filter(|entry| {
+                let should_retain = if entry.pid.as_u64() == pid.as_u64() {
+                    run_queue.push(entry.thread.clone());
+                    false
+                } else {
+                    true
+                };
+
+                should_retain
+            })
+            .collect();
+    }
+
+    #[inline]
+    pub fn wake_sleeping_threads(&mut self, ticks: usize, run_queue: &mut Vec<Thread>) {
         // decrement the tick of each of thread
         // if ticks = 0 after decrementing, remove those threads and put them
         // into the run queue, this algorithm can be improved too much.
@@ -51,12 +94,25 @@ impl WaitQueue {
                     run_queue.push(entry.thread.clone());
                     false
                 } else {
-                    entry.till_ticks = entry.till_ticks - 1;
+                    entry.till_ticks = entry.till_ticks - ticks;
                     true
                 };
                 should_retain
             })
             .collect();
+    }
+
+    #[inline]
+    pub fn dispatch_wakeup(&mut self, wakeup_mode: ThreadWakeupType, run_queue: &mut Vec<Thread>) {
+        match wakeup_mode {
+            ThreadWakeupType::FromSleep(ticks) => {
+                self.wake_sleeping_threads(ticks, run_queue);
+            }
+            ThreadWakeupType::FromWait(pid) => {
+                self.wake_waiting_threads(pid, run_queue);
+            }
+            ThreadWakeupType::Nothing => {}
+        }
     }
 }
 
@@ -71,7 +127,7 @@ pub struct SimpleRoundRobinSchduler {
     pub thread_index: Option<usize>,
     pub wait_queue: WaitQueue,
     pub suspend_next: bool,
-    pub suspend_next_ticks: usize,
+    pub suspend_type: ThreadSuspendType,
 }
 
 impl Sched for SimpleRoundRobinSchduler {
@@ -81,7 +137,7 @@ impl Sched for SimpleRoundRobinSchduler {
             thread_index: None,
             wait_queue: WaitQueue::empty(),
             suspend_next: false,
-            suspend_next_ticks: 0,
+            suspend_type: ThreadSuspendType::Nothing,
         }
     }
 
@@ -102,10 +158,11 @@ impl Sched for SimpleRoundRobinSchduler {
             // suspend this thread
             let thread_idx = self.thread_index.unwrap();
             let thread = self.thread_list.remove(thread_idx);
-            self.wait_queue.put_sleep(thread, self.suspend_next_ticks);
+            self.wait_queue
+                .dispatch_suspend(thread, self.suspend_type.clone());
             self.thread_index = None;
             self.suspend_next = false;
-            self.suspend_next_ticks = 0;
+            self.suspend_type = ThreadSuspendType::Nothing;
         }
     }
 
@@ -171,18 +228,19 @@ impl Sched for SimpleRoundRobinSchduler {
         Some(thread.as_ref().unwrap().parent_pid.clone())
     }
 
-    fn check_wakeup(&mut self) {
-        self.wait_queue.wake_sleeping_threads(&mut self.thread_list);
+    fn check_sleep_wakeup(&mut self) {
+        self.wait_queue
+            .dispatch_wakeup(ThreadWakeupType::FromSleep(1), &mut self.thread_list);
     }
 
-    fn sleep_current_thread(&mut self, n_ticks: usize) {
-        if self.thread_index.is_none() || n_ticks == 0 {
+    fn suspend_thread(&mut self, suspend_type: ThreadSuspendType) {
+        if self.thread_index.is_none() {
             // no threads running currently
             return;
         }
 
         self.suspend_next = true;
-        self.suspend_next_ticks = n_ticks;
+        self.suspend_type = suspend_type;
     }
 
     fn reset_current_thread_stack(&mut self) -> VirtualAddress {
