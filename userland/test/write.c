@@ -35,15 +35,26 @@ i64 syscall_sleep(u64 rdi)
     return ret_val;   
 }
 
+i64 syscall_exit(u64 rdi)
+{
+    i64 ret_val;
+    asm volatile(
+        "int $0x80"
+        : "=a"(ret_val)
+        : "0"(4), "D"(rdi)
+        : "rcx", "r11", "memory");
+    return ret_val;   
+}
+
 void _start()
 {
-    i64 read_length = 0, iter = 0;
+    i64 read_length = 0, iter = 0, n_times = 0;
     timeval_t sleep_time;
     sleep_time.seconds = 1;
     sleep_time.microseconds = 0;
 
     syscall(1, 1, (u64)welcome, 62);
-    while (1)
+    for (n_times = 0; n_times < 4; n_times++)
     {
         syscall(1, 1, (u64)bullets, 6);
         read_length = syscall(0, 0, (u64)buffer, 4096);
@@ -54,4 +65,6 @@ void _start()
             buffer[iter] = 0;
         }
     }
+
+    syscall_exit(0);
 }

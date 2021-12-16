@@ -15,6 +15,7 @@ const SYSCALL_NO_READ: usize = 0;
 const SYSCALL_NO_WRITE: usize = 1;
 const SYSCALL_NO_OPEN: usize = 2;
 const SYSCALL_NO_CLOSE: usize = 3;
+const SYSCALL_NO_EXIT: usize = 4;
 const SYSCALL_NO_LSEEK: usize = 8;
 const SYSCALL_NO_PID: usize = 9;
 const SYSCALL_NO_PPID: usize = 10;
@@ -90,6 +91,7 @@ pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackF
         }
         SYSCALL_NO_LSEEK => io::sys_lseek(arg0, arg1 as u32, arg2 as u8),
         SYSCALL_NO_CLOSE => io::sys_close(arg0),
+        SYSCALL_NO_EXIT => sched::sys_exit(arg0 as i64),
         SYSCALL_NO_UNAME => {
             if arg0 == 0 {
                 panic!("Got null pointer - syscall: {} sys_uname", SYSCALL_NO_UNAME);
