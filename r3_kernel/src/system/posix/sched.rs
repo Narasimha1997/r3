@@ -56,7 +56,6 @@ pub fn sys_tid() -> Result<isize, abi::Errno> {
 }
 
 pub fn sys_fork(regs: &SyscallRegsState, frame: &InterruptStackFrame) -> Result<isize, abi::Errno> {
-
     // disable interrupts
     pause_events();
 
@@ -120,4 +119,26 @@ pub fn sys_execvp(path: &str, ist: &mut InterruptStackFrame) -> Result<isize, ab
     ist.instruction_pointer = code_start.as_u64();
     resume_events();
     Ok(0)
+}
+
+pub fn sys_exit(code: i64) -> Result<isize, abi::Errno> {
+    pause_events();
+
+    let pid = SCHEDULER.lock().current_pid().unwrap();
+
+    // remove the thread
+    SCHEDULER.lock().exit(code);
+
+    // remove the process
+    PROCESS_POOL
+        .lock()
+        .remove_process(&pid, code)
+        .expect("Failed to remove process");
+
+    // yield the scheduler
+    resume_events();
+    schedule_yield();
+
+    // you should never come here!
+    Ok(1 as isize)
 }

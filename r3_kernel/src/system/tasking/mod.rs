@@ -44,7 +44,7 @@ pub trait Sched {
     /// This function is called by the currently running this, calling
     /// this function will automatically make the thread non-schedulable
     /// and it's entry will be removed from everywhere. Including the process
-    fn exit(&mut self, code: u64);
+    fn exit(&mut self, code: i64);
 
     /// this function should return the current thread ID
     /// that called this function, or that was scheduled.
@@ -108,9 +108,4 @@ pub fn schedule_yield() {
 
 pub fn handle_exit(thread: &mut Thread) {
     thread.free_stack();
-}
-
-// calls the exit with a code
-pub fn exit(code: u64) {
-    SCHEDULER.lock().exit(code);
 }

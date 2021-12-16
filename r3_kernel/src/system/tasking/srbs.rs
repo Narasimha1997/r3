@@ -109,7 +109,7 @@ impl Sched for SimpleRoundRobinSchduler {
         }
     }
 
-    fn exit(&mut self, code: u64) {
+    fn exit(&mut self, code: i64) {
         // initiate exit operation:
         // 1. get the thread index
         if let Some(thread_index) = self.thread_index {

@@ -14,6 +14,7 @@ use crate::system::utils::{
 use lazy_static::lazy_static;
 
 use alloc::{boxed::Box, collections::BTreeMap, string::String, vec::Vec};
+use core::mem;
 use core::sync::atomic::{AtomicU64, Ordering};
 use spin::Mutex;
 
@@ -225,7 +226,7 @@ impl Process {
     }
 
     #[inline]
-    pub fn exit(&mut self, _code: usize) {
+    pub fn exit(&mut self, _code: i64) {
         log::debug!("Exiting process {}", self.pid.as_u64());
         // TODO: unmap all the memory, because as of now
         // physical memory is not freed.
@@ -282,13 +283,21 @@ impl ProcessPoolManager {
     }
 
     #[inline]
-    pub fn remove_process(&mut self, pid: &PID) -> Result<(), ProcessError> {
+    pub fn remove_process(&mut self, pid: &PID, code: i64) -> Result<(), ProcessError> {
         let res = self.pool_map.remove(&pid.as_u64());
         if res.is_none() {
             return Err(ProcessError::UnknwonPID);
         }
 
-        if res.unwrap().is_usermode() {
+        // remove the process:
+        let mut proc = res.unwrap();
+        proc.exit(code);
+
+        let is_usermode = proc.is_usermode();
+        // drop the process
+        mem::drop(proc);
+
+        if is_usermode {
             self.user_proc_count -= 1;
         } else {
             self.kernel_proc_count -= 1;
