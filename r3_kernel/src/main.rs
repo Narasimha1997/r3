@@ -75,8 +75,6 @@ fn start_idle_kthread() {
         return;
     }
     // run this thread
-    system::thread::run_thread(&thread_result.unwrap());
-    system::thread::run_thread(&k_thread_result.unwrap());
     log::info!("Started system idle thread in background.")
 }
 

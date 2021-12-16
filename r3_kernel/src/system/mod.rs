@@ -12,7 +12,6 @@ use tasking::Sched;
 
 pub fn init_tasking() {
     process::setup_process_pool();
-    thread::setup_thread_pool();
     tasking::setup_scheduler();
 }
 

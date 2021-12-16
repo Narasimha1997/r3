@@ -12,8 +12,6 @@ use crate::system::thread::{Thread, ThreadID};
 use crate::system::timer::SystemTimer;
 use crate::mm::VirtualAddress;
 
-use crate::system::thread::THREAD_POOL;
-
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -110,11 +108,6 @@ pub fn schedule_yield() {
 
 pub fn handle_exit(thread: &mut Thread) {
     thread.free_stack();
-
-    THREAD_POOL
-        .lock()
-        .remove_thread(&thread.thread_id)
-        .expect("Incosistent scheduler state, failed to remove thread.");
 }
 
 // calls the exit with a code

@@ -30,5 +30,5 @@ boot-info-address = 0x0000_C000_7000_0000
 framebuffer-address = 0x0000_C000_8000_0000
 kernel-stack-address = 0x0000_C000_C000_0000
 kernel-stack-size = 2097152
-minimum-framebuffer-width = 800
+minimum-framebuffer-width = 600
 minimum-framebuffer-height = 600

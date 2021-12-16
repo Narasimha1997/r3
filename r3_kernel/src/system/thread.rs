@@ -11,10 +11,8 @@ use crate::system::tasking::{Sched, SCHEDULER};
 
 use crate::system::utils;
 
-use alloc::{boxed::Box, collections::BTreeMap, string::String};
+use alloc::{boxed::Box, string::String};
 use core::sync::atomic::{AtomicU64, Ordering};
-use lazy_static::lazy_static;
-use spin::Mutex;
 
 pub type ThreadFn = fn();
 
@@ -361,74 +359,6 @@ impl Thread {
     }
 }
 
-/// ThreadPool: Stores all the thread irrespective of their states
-/// this structure serves as a book-keeper for threads.
-pub struct ThreadPool {
-    /// Number of threads currently under book-keeping.
-    pub n_threads: usize,
-    /// Number of threads currently
-    pub pool_map: BTreeMap<u64, Thread>,
-}
-
-impl ThreadPool {
-    pub fn new() -> Self {
-        ThreadPool {
-            n_threads: 0,
-            pool_map: BTreeMap::new(),
-        }
-    }
-
-    #[inline]
-    pub fn add_thread(&mut self, thread: Thread) {
-        let thread_id = thread.thread_id.as_u64();
-        self.pool_map.insert(thread_id, thread);
-        self.n_threads += 1;
-    }
-
-    #[inline]
-    pub fn has_thread(&mut self, tid: &ThreadID) -> bool {
-        self.pool_map.contains_key(&tid.as_u64())
-    }
-
-    #[inline]
-    pub fn remove_thread(&mut self, tid: &ThreadID) -> Result<(), ThreadError> {
-        let res = self.pool_map.remove(&tid.as_u64());
-        if res.is_none() {
-            return Err(ThreadError::UnknownThreadID);
-        }
-
-        self.n_threads -= 1;
-        Ok(())
-    }
-
-    #[inline]
-    pub fn get_ref(&self, tid: &ThreadID) -> Option<&Thread> {
-        self.pool_map.get(&tid.as_u64())
-    }
-
-    #[inline]
-    pub fn get_mut_ref(&mut self, tid: &ThreadID) -> Option<&mut Thread> {
-        self.pool_map.get_mut(&tid.as_u64())
-    }
-
-    pub fn debug_dump_tids(&self) {
-        for (tid, th) in &self.pool_map {
-            log::debug!("{}:{}", th.name, tid);
-        }
-    }
-}
-
-lazy_static! {
-    pub static ref THREAD_POOL: Mutex<ThreadPool> = Mutex::new(ThreadPool::new());
-}
-
-pub fn setup_thread_pool() {
-    log::info!(
-        "Thread pool setup successfull, n_threads={}",
-        &THREAD_POOL.lock().n_threads
-    );
-}
-
 pub fn new_from_function(
     pid: &PID,
     name: String,
@@ -440,10 +370,9 @@ pub fn new_from_function(
     }
 
     let thread = th_res.unwrap();
-    let tid = thread.thread_id;
-
-    THREAD_POOL.lock().add_thread(thread);
-    Ok(tid)
+    
+    SCHEDULER.lock().add_new_thread(thread.clone());
+    Ok(thread.thread_id)
 }
 
 pub fn new_main_thread(pid: &PID, name: String) -> Result<ThreadID, ThreadError> {
@@ -454,17 +383,6 @@ pub fn new_main_thread(pid: &PID, name: String) -> Result<ThreadID, ThreadError>
     let thread = th_res.unwrap();
     let tid = thread.thread_id;
 
-    THREAD_POOL.lock().add_thread(thread);
+    SCHEDULER.lock().add_new_thread(thread.clone());
     Ok(tid)
-}
-
-pub fn run_thread(tid: &ThreadID) {
-    let mut pool_lock = THREAD_POOL.lock();
-    let thread_obj = pool_lock.get_mut_ref(tid);
-
-    if thread_obj.is_none() {
-        panic!("Invalid thread tid={}", tid.as_u64());
-    }
-
-    SCHEDULER.lock().add_new_thread(thread_obj.unwrap().clone());
 }
