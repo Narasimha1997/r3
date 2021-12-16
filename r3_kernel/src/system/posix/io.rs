@@ -74,6 +74,9 @@ pub fn sys_read(
         return Err(abi::Errno::EIO);
     }
 
+    // seek to length:
+    // TODO: as of now, only 512 bytes can be seeked at a time.
+
     // return the number of bytes read
     return Ok(read_res.unwrap() as isize);
 }
@@ -179,6 +182,46 @@ pub fn sys_lseek(fd_index: usize, offset: u32, whence: u8) -> Result<isize, abi:
     }
 
     Ok(seek_res.unwrap() as isize)
+}
+
+pub fn sys_fstat(fd_index: usize, stat_buf: VirtualAddress) -> Result<isize, abi::Errno> {
+    let pid = system::current_pid();
+    if pid.is_none() {
+        log::error!("PID is null.");
+        return Err(abi::Errno::EINVAL);
+    }
+
+    // call close on the file-system and remove the fd
+    let mut proc_pool = PROCESS_POOL.lock();
+    let proc_ref: &mut Process = proc_pool.get_mut_ref(&pid.unwrap()).unwrap();
+
+    let proc_data = proc_ref.proc_data.as_mut().unwrap();
+    let fdref_opt = ProcessFDPool::get_mut(proc_data, fd_index);
+
+    if fdref_opt.is_none() {
+        return Err(abi::Errno::EBADF);
+    }
+
+    let mut fd = fdref_opt.unwrap().fd.clone();
+    let stat_result = FILESYSTEM.lock().fstat(&mut fd);
+
+    if stat_result.is_err() {
+        return Err(abi::Errno::ENOENT);
+    }
+
+    // copy the status buffer to this location:
+    abi::copy_to_buffer(fd, stat_buf);
+    Ok(0 as isize)
+}
+
+pub fn sys_lstat(path: &str, stat_buf: VirtualAddress) -> Result<isize, abi::Errno> {
+    let open_res = sys_open(&path, POSIXOpenFlags::from_bits_truncate(0));
+    if open_res.is_err() {
+        return open_res;
+    }
+
+    let fd_index = open_res.unwrap();
+    sys_fstat(fd_index as usize, stat_buf)
 }
 
 pub fn sys_ioctl(fd_index: usize, command: usize, arg: usize) -> Result<isize, abi::Errno> {

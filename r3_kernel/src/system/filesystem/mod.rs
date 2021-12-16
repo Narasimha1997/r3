@@ -8,6 +8,7 @@ pub mod ustar;
 pub mod vfs;
 
 use bitflags::bitflags;
+use core::fmt;
 
 bitflags! {
     pub struct POSIXOpenFlags: u32 {
@@ -50,6 +51,12 @@ pub struct FStatInfo {
     pub atime: isize,
     pub mtime: isize,
     pub ctime: isize,
+}
+
+impl fmt::Debug for FStatInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("FStatInfo").finish()
+    }
 }
 
 #[derive(Debug, Clone)]

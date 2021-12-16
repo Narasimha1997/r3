@@ -5,12 +5,13 @@ use crate::acpi::lapic::LAPICUtils;
 
 use crate::cpu::interrupts::InterruptStackFrame;
 use crate::cpu::state::SyscallRegsState;
+use crate::system::utils::{USER_VIRT_END, USER_VIRT_START};
 
 use crate::mm::VirtualAddress;
 
 use crate::system::posix::dispatch_syscall;
 use alloc::{string::String, vec};
-use core::{ptr, str};
+use core::{mem, ptr, str};
 
 // C numerical types
 pub type CInt16 = i16;
@@ -32,6 +33,7 @@ pub type CClockID = CInt;
 #[derive(Debug, Clone)]
 #[repr(i32)]
 pub enum Errno {
+    ENOENT = 2,
     EIO = 5,
     EBADF = 9,
     ENOMEM = 12,
@@ -51,7 +53,6 @@ pub extern "sysv64" fn syscall_handler(
     frame: &mut InterruptStackFrame,
     regs: &mut SyscallRegsState,
 ) {
-
     LAPICUtils::eoi();
     let result = dispatch_syscall(regs, frame);
     regs.rax = result as u64;
@@ -100,4 +101,25 @@ pub fn copy_pad_buffer(src: &[u8], dest: *mut u8, size: usize) -> Result<(), Err
     }
 
     Ok(())
+}
+
+/// copy the struct to given location pointed by virtual address
+pub fn copy_to_buffer<T>(src: T, dst: VirtualAddress) {
+    let buf_size = mem::size_of::<T>();
+
+    unsafe {
+        let src_ptr: *const u8 = VirtualAddress::from_ptr(&src).get_ptr();
+        let dst_ptr = dst.get_mut_ptr::<u8>();
+
+        ptr::copy_nonoverlapping(src_ptr, dst_ptr, buf_size);
+    }
+}
+
+#[inline]
+pub fn is_in_userspace(addr: u64) -> bool {
+    if addr >= USER_VIRT_START && addr <= USER_VIRT_END {
+        return true;
+    }
+
+    false
 }
