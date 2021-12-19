@@ -5,7 +5,7 @@ typedef int64_t i64;
 
 static char buffer[4096];
 static const char *welcome = "Welcome to ECHO program, I will echo whatever you say noob!.\n";
-static const char *bullets = ">>>";
+static const char *bullets = ">>> ";
 static const char *cpuid_term = "/sbin/cpuid";
 
 typedef struct
@@ -89,6 +89,16 @@ void syscall_wait(u64 rdi)
         : "rcx", "r11", "memory");
 }
 
+void syscall_reboot()
+{
+    i64 ret_val;
+    asm volatile(
+        "int $0x80"
+        : "=a"(ret_val)
+        : "0"(49)
+        : "rcx", "r11", "memory");
+}
+
 void exec_cpuid()
 {
     u64 child = syscall_fork();
@@ -96,7 +106,9 @@ void exec_cpuid()
     if (syscall_pid() == child)
     {
         syscall_execv((u64)cpuid_term);
-    } else {
+    }
+    else
+    {
         syscall_wait(child);
     }
 }
@@ -111,7 +123,7 @@ void _start()
     syscall(1, 1, (u64)welcome, 62);
     for (n_times = 0; n_times < 4; n_times++)
     {
-        syscall(1, 1, (u64)bullets, 6);
+        syscall(1, 1, (u64)bullets, 5);
         read_length = syscall(0, 0, (u64)buffer, 4096);
         syscall_sleep((u64)(&sleep_time));
         exec_cpuid();
@@ -122,5 +134,5 @@ void _start()
         }
     }
 
-    syscall_exit(0);
+    syscall_reboot();
 }

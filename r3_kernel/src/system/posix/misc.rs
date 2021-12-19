@@ -1,5 +1,6 @@
 use crate::mm::VirtualAddress;
 use crate::system::abi;
+use crate::acpi::power;
 
 // these strings are null terminated to make sure they are processed
 // properly by usespace C libraries which uses null terminated strings.
@@ -22,4 +23,20 @@ pub fn sys_uname(buffer_addr: VirtualAddress) -> Result<isize, abi::Errno> {
 
         Ok(0)
     }
+}
+
+pub fn sys_shutdown() -> Result<isize, abi::Errno> {
+    // Byee!
+    power::shutdown();
+
+    // this code will never see transistors in CPU
+    Ok(0 as isize)
+}
+
+pub fn sys_reboot() -> Result<isize, abi::Errno> {
+    // try reboot, or else shutdown.
+    power::reboot();
+
+    // this code will never see transistors in CPU
+    Ok(0 as isize)
 }

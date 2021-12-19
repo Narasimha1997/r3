@@ -1,8 +1,8 @@
 pub mod gettime;
 pub mod io;
+pub mod misc;
 pub mod mm;
 pub mod sched;
-pub mod uname;
 
 use crate::mm::VirtualAddress;
 use crate::system::abi;
@@ -30,6 +30,8 @@ const SYSCALL_NO_YIELD: usize = 42;
 const SYSCALL_NO_TID: usize = 43;
 const SYSCALL_NO_SLEEP: usize = 46;
 const SYSCALL_NO_WAIT: usize = 47;
+const SYSCALL_NO_SHUTDOWN: usize = 48;
+const SYSCALL_NO_REBOOT: usize = 49;
 const SYSCALL_NO_EXECVP: usize = 59;
 const SYSCALL_NO_UNAME: usize = 63;
 const SYSCALL_NO_GETTIME: usize = 228;
@@ -126,7 +128,7 @@ pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackF
             let res = if !abi::is_in_userspace(arg0 as u64) {
                 Err(abi::Errno::EFAULT)
             } else {
-                uname::sys_uname(VirtualAddress::from_u64(arg0 as u64))
+                misc::sys_uname(VirtualAddress::from_u64(arg0 as u64))
             };
 
             res
@@ -149,6 +151,8 @@ pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackF
         SYSCALL_NO_PPID => sched::sys_ppid(),
         SYSCALL_NO_TID => sched::sys_tid(),
         SYSCALL_NO_FORK => sched::sys_fork(&regs, &frame),
+        SYSCALL_NO_SHUTDOWN => misc::sys_shutdown(),
+        SYSCALL_NO_REBOOT => misc::sys_reboot(),
         SYSCALL_NO_EXECVP => {
             let res = if !abi::is_in_userspace(arg0 as u64) {
                 Err(abi::Errno::EFAULT)

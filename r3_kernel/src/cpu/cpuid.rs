@@ -32,6 +32,9 @@ bitflags! {
         const XSAVE        = 1 << 26;
         const OSXSAVE      = 1 << 27;
         const AVX          = 1 << 28;
+        const F16C         = 1 << 29;
+        const RDRND        = 1 << 30;
+        const HYPERVISOR   = 1 << 31;
     }
 }
 
@@ -157,7 +160,7 @@ fn probe_cpu_features() -> CPUFeatures {
 }
 
 lazy_static! {
-    static ref CPU_FEATURES: CPUFeatures = probe_cpu_features();
+    pub static ref CPU_FEATURES: CPUFeatures = probe_cpu_features();
 }
 
 pub fn has_feature(flag: FlagsECX) -> bool {
