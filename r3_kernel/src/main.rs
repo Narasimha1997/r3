@@ -29,6 +29,7 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
 
     drivers::display::init();
     logging::init();
+    // read_addr();
 
     log::info!("Hello, kernel world!");
     BootProtocol::print_boot_info();
@@ -43,6 +44,8 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     // init PCI device list.
     drivers::pci::detect_devices();
     acpi::init();
+
+    // read_addr();
 
     log::info!("Initial stage booted properly.");
 }
@@ -80,9 +83,10 @@ fn start_idle_kthread() {
 
 fn init_functionalities() {
     acpi::setup_smp_prerequisites();
+    log::info!("Enabled APIC interrupts.");
     cpu::hw_interrupts::setup_post_apic_interrupts();
+    log::info!("Created handlers.");
     cpu::syscall::setup_syscall_interrupt();
-
     // init file-system
     system::init_fs();
     // register core system devices that usaually

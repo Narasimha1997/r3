@@ -5,7 +5,7 @@ extern crate spin;
 use crate::boot_proto::BootProtocol;
 use crate::mm;
 use crate::mm::paging::{PageSize, PagingError};
-use bootloader::boot_info::MemoryRegionKind;
+use bootloader::boot_info::{MemoryRegionKind, MemoryRegions};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -158,6 +158,52 @@ pub struct LinearFrameAllocator {
 }
 
 impl LinearFrameAllocator {
+    #[inline]
+    fn create_combined_regions(
+        boot_regions: &MemoryRegions,
+        os_regions: &mut [MemoryRegion],
+    ) -> usize {
+        let mut current_start: u64 = 0;
+        let mut current_end: u64 = 0;
+        let mut n_regions = 0;
+
+        for idx in 0..boot_regions.len() {
+            let region = &boot_regions[idx];
+            // ignore the region below 4K
+            if region.end <= 4096 {
+                continue;
+            }
+
+            if region.kind == MemoryRegionKind::Usable {
+                if current_start == 0 && current_end == 0 {
+                    current_start = region.start;
+                    current_end = region.end;
+                }
+                if current_end == region.start {
+                    // linear
+                    current_end = region.end;
+                } else {
+                    // non-linear
+                    let memory_region = MemoryRegion::new(current_start, current_end);
+                    log::info!(
+                        "Found memory region of size: {} bytes. start=0x{:x}, end=0x{:x}",
+                        current_end - current_start,
+                        current_start,
+                        current_end
+                    );
+                    os_regions[n_regions] = memory_region;
+                    n_regions += 1;
+
+                    // re-init start and end
+                    current_start = region.start;
+                    current_end = region.end;
+                }
+            }
+        }
+
+        n_regions
+    }
+
     pub fn init() -> Self {
         let memory_map_opt = BootProtocol::get_memory_regions();
         if memory_map_opt.is_none() {
@@ -166,25 +212,14 @@ impl LinearFrameAllocator {
 
         let memory_map = memory_map_opt.unwrap();
         // iterate over the memory map and prepare regions:
-        let mut index = 0;
         let mut memory_regions = [MemoryRegion::empty(); MAX_FREE_REGIONS];
 
-        for region in memory_map.iter() {
-            if region.kind == MemoryRegionKind::Usable {
-                log::debug!(
-                    "Found memory region start=0x{:x}, end=0x{:x} as usable.",
-                    region.start,
-                    region.end
-                );
-                memory_regions[index] = MemoryRegion::new(region.start, region.end);
-                index = index + 1;
-            }
-        }
+        let n_regions = Self::create_combined_regions(memory_map, &mut memory_regions);
 
-        log::info!("Found {} memory regions as usable.", index + 1);
+        log::info!("Found {} memory regions as usable.", n_regions);
         LinearFrameAllocator {
             memory_regions,
-            regions: index,
+            regions: n_regions,
         }
     }
 }

@@ -106,7 +106,7 @@ impl AcpiRootTableKind {
         // check if the table has 2.0 version support.
         if is_extended_rsdp(&rsdp_struct) {
             // supports version 2.0
-            let ext_bytes_slice: &[u8; 64] = unsafe { &*rsdp_addr.get_ptr() };
+            let ext_bytes_slice: &[u8; 36] = unsafe { &*rsdp_addr.get_ptr() };
             let ext_rsdp_struct: &RSDPDescriptor2x = unsafe { &*rsdp_addr.get_ptr() };
 
             // verify extended checksum:
@@ -145,12 +145,21 @@ pub fn init_acpi() -> Option<Acpi> {
         }
     };
 
+    log::info!("acpi_2x support={}", supports_2x);
+
     let head_v_addr = p_to_v(head_addr);
     let root_header: &SDTHeader = unsafe { &*head_v_addr.get_ptr() };
     unsafe {
-        if str::from_utf8_unchecked(&root_header.signature) != "RSDT" {
-            log::error!("Invalid root table header, expected RSDT.");
-            return None;
+        if !supports_2x {
+            if str::from_utf8_unchecked(&root_header.signature) != "RSDT" {
+                log::error!("Invalid root table header, expected RSDT.");
+                return None;
+            }
+        } else {
+            if str::from_utf8_unchecked(&root_header.signature) != "XSDT" {
+                log::error!("Invalid root table header, expected XSDT.");
+                return None;
+            }
         }
     }
 
@@ -202,6 +211,17 @@ impl Acpi {
         }
     }
 
+    pub fn list_tables(&self) {
+        unsafe {
+            log::info!("Following are the ACPI tables: ");
+            for idx in 0..self.n_entries {
+                let sdt_header: &SDTHeader = &*self.tables[idx].get_ptr();
+                let st = str::from_utf8_unchecked(&sdt_header.signature);
+                log::info!("{} {}", idx + 1, st);
+            }
+        }
+    }
+
     pub fn get_table(&self, signature: &str) -> Option<VirtualAddress> {
         for idx in 0..self.n_entries {
             if self.has_signature(idx, signature) {
@@ -226,5 +246,7 @@ pub fn setup_acpi() {
             acpi.n_entries,
             acpi.supports_2x
         );
+
+        acpi.list_tables();
     }
 }
