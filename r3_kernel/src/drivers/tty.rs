@@ -11,6 +11,7 @@ use crate::system::timer;
 
 use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
 use crate::system::filesystem::{FSError, SeekType};
+use crate::system::tasking::wait_until_return;
 
 use alloc::{format, string::String, vec::Vec};
 use lazy_static::lazy_static;
@@ -273,6 +274,30 @@ pub fn polling_read_till(till: char, buffer: &mut [u8]) -> usize {
     }
 }
 
+pub fn blocked_read_till(till: char, buffer: &mut [u8]) -> Result<usize, FSError> {
+    cpu::enable_interrupts();
+    let ret_val = wait_until_return(|| {
+        let mut stdin = STDIN_QUEUE.lock();
+        let read_size = if !stdin.keybuf.is_empty() && stdin.has_end(till) {
+            stdin.keybuf.truncate(buffer.len() - 1);
+            let keybuf_length = stdin.keybuf.len();
+            buffer[0..keybuf_length].copy_from_slice(&stdin.keybuf);
+            stdin.drain();
+            keybuf_length
+        } else {
+            0
+        };
+
+        if read_size != 0 {
+            return Ok(Some(read_size));
+        }
+
+        Ok(None)
+    });
+
+    ret_val
+}
+
 pub fn on_kbd_data(c: char) {
     SYSTEM_TTY.lock().process_key(c);
 }
@@ -304,20 +329,18 @@ impl DevOps for TTYDriver {
     }
 
     fn read(&self, _fd: &mut DevFSDescriptor, buffer: &mut [u8]) -> Result<usize, FSError> {
-        timer::pause_events();
-        let read_size = if buffer.len() <= 4 {
+        let read_result = if buffer.len() <= 4 {
             // read a single character
             let ch = polling_pop();
             buffer[0] = ch as u8;
-            1
+            Ok(1)
         } else {
             // read until the end
-            let read_until = polling_read_till('\n', buffer);
-            read_until
+            let blocked_read_result = blocked_read_till('\n', buffer);
+            blocked_read_result
         };
 
-        timer::resume_events();
-        Ok(read_size)
+        read_result
     }
 
     fn seek(&self, fd: &mut DevFSDescriptor, offset: u32, st: SeekType) -> Result<u32, FSError> {
