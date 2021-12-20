@@ -46,7 +46,6 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     acpi::init();
 
     // read_addr();
-
     log::info!("Initial stage booted properly.");
 }
 

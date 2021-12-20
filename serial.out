@@ -12,7 +12,7 @@ r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, k
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=640 height=480 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890de89a0067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890de8aa0067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,19 +23,19 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3111639600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3107716900
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
-r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x95baa223, edx=0x78bfbff, ebx=800
+r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x959aa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
 r3_kernel::cpu::cpuid DEBUG CPUID max_extended_level=80000008, ebx=756e6547.
-r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | CX16 | PDCM | PCIDE | SSE4_1 | SSE4_2 | X2APIC | POPCNT | TSCD | XSAVE | AVX | HYPERVISOR
+r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | CX16 | PDCM | PCIDE | SSE4_1 | SSE4_2 | POPCNT | TSCD | XSAVE | AVX | HYPERVISOR
 r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MSR | PAE | MCE | CX8 | APIC | SEP | MTRR | PGE | MCA | CMOV | PAT | PSE36 | CLF | MMX | FXSR | SSE | SSE2
 r3_kernel::cpu::cpuid INFO  Max standard level 0xd
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221609073,
+    instruction_pointer: 18446603336221609377,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -115,7 +115,7 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1600000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1601000 virt=0xffffc000c01fde88
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x572000, rip=0xffff80000002c630,
+            thread_id=0, page_table=0x572000, rip=0xffff80000002c760,
             stack_end=0xffffb00000200000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x400000, size=388
@@ -139,5 +139,48 @@ r3_kernel            INFO  Started system idle thread in background.
 r3_kernel::drivers::tty DEBUG Initialized system terminal.
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x3e
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x7ffc001fffd0, arg1=0x403000, arg2=0x7ffc001fffd0
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix::sched DEBUG Returned from sleep!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=11, arg0=0x7ffc001fffd0, arg1=0x403000, arg2=0x7ffc001fffd0
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e00000 virt=0x7ffc0021e608
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e01000 virt=0x7ffc0021e7b8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e02000 virt=0x7ffc0021e608
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e03000 virt=0x7ffc0021e7b8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e05000 virt=0x7ffc0021ec48
+r3_kernel::system::process DEBUG Adding thread 2 for process test:2
+r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(2) to the thread queue.
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=9, arg0=0x7ffc001fffd0, arg1=0x403000, arg2=0x7ffc001fffd0
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=47, arg0=0x2, arg1=0x403000, arg2=0x2
+r3_kernel::system::tasking DEBUG Scheduling thread th_1_2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=9, arg0=0x7ffc001fffd0, arg1=0x403000, arg2=0x7ffc001fffd0
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=59, arg0=0x400043, arg1=0x403000, arg2=0x400043
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x400000, size=348
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e16000 virt=0x7ffc0021e6e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e17000 virt=0x7ffc0021e6e8
+r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e18000 virt=0x7ffc0021e898
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x401000, size=499
+r3_kernel::system::utils DEBUG /sbin/cpuid allocation section=Ok(None) at=0x402000, size=4136
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x12
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x10
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x10
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0xf
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40002d, arg2=0x2
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=4, arg0=0x0, arg1=0x40002d, arg2=0x0
+r3_kernel::system::tasking::srbs DEBUG Thread 2 exited with code=0
+r3_kernel::system::process DEBUG Exiting process 2
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x2
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x5
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
