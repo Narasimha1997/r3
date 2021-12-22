@@ -3,9 +3,9 @@ extern crate log;
 use crate::boot_proto::BootProtocol;
 
 pub mod heap;
+pub mod io;
 pub mod paging;
 pub mod phy;
-pub mod io;
 pub mod stack;
 
 // some types related to memory management

@@ -277,7 +277,7 @@ pub fn prepare_error_code_handle(
 
 pub fn prepare_syscall_interrupt(
     func: Sysv64HandlerType,
-    stack_index: u16
+    stack_index: u16,
 ) -> InterruptDescriptorEntry<Sysv64HandlerType> {
     let handle_addr = func as u64;
     let mut idt_entry = InterruptDescriptorEntry::empty();

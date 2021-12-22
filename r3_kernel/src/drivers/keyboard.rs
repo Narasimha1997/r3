@@ -1,6 +1,6 @@
+extern crate alloc;
 extern crate pc_keyboard;
 extern crate spin;
-extern crate alloc;
 
 use crate::cpu::io::Port;
 
@@ -57,7 +57,6 @@ impl PCKeyboardController {
 
         let handler = self.on_key.unwrap();
         if let Ok(partial_keycode_opt) = self.layout.add_byte(raw_keybyte) {
-
             if partial_keycode_opt.is_none() {
                 return;
             }

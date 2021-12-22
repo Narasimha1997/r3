@@ -2,7 +2,7 @@ extern crate alloc;
 extern crate log;
 extern crate spin;
 
-use crate::system::filesystem::devfs::{DevFSDescriptor, DEV_FS, DevOps};
+use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps, DEV_FS};
 use crate::system::filesystem::ustar::mount_tarfs;
 
 use alloc::boxed::Box;

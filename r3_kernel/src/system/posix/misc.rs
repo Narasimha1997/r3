@@ -1,6 +1,6 @@
+use crate::acpi::power;
 use crate::mm::VirtualAddress;
 use crate::system::abi;
-use crate::acpi::power;
 
 // these strings are null terminated to make sure they are processed
 // properly by usespace C libraries which uses null terminated strings.

@@ -2,8 +2,8 @@ extern crate log;
 extern crate spin;
 
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
-use crate::system::abi;
 use crate::mm::Alignment;
+use crate::system::abi;
 use spin::Mutex;
 
 #[derive(Debug)]

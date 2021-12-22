@@ -1,11 +1,11 @@
 extern crate log;
 extern crate spin;
 
-use crate::cpu::rflags::RFlagsStruct;
 use crate::cpu;
+use crate::cpu::rflags::RFlagsStruct;
 use cpu::interrupts::{
-    prepare_default_handle, prepare_no_ret_error_code_handle, prepare_page_fault_handler,
-    prepare_error_code_handle
+    prepare_default_handle, prepare_error_code_handle, prepare_no_ret_error_code_handle,
+    prepare_page_fault_handler,
 };
 use cpu::interrupts::{InterruptDescriptorTable, InterruptStackFrame};
 use cpu::mmu::{read_cr2, PageFaultExceptionTypes};
@@ -31,14 +31,24 @@ extern "x86-interrupt" fn overflow(stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn gpf(stk: InterruptStackFrame, err: u64) {
-    log::error!("General protection fault {}\nException info: {:#?}", err, stk);
-    log::error!("GPF rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
+    log::error!(
+        "General protection fault {}\nException info: {:#?}",
+        err,
+        stk
+    );
+    log::error!(
+        "GPF rflags: {:?}\n",
+        RFlagsStruct::from_bits_truncate(stk.cpu_flags)
+    );
     cpu::halt_no_interrupts();
 }
 
 extern "x86-interrupt" fn double_fault(stk: InterruptStackFrame, err: u64) -> ! {
     log::error!("Double fault exception {}\nException info: {:#?}", err, stk);
-    log::error!("Double fault rflags: {:?}\n", RFlagsStruct::from_bits_truncate(stk.cpu_flags));
+    log::error!(
+        "Double fault rflags: {:?}\n",
+        RFlagsStruct::from_bits_truncate(stk.cpu_flags)
+    );
     cpu::halt_no_interrupts();
 }
 

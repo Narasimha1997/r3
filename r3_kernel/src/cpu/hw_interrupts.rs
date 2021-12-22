@@ -7,7 +7,6 @@ use crate::cpu::pic;
 use crate::cpu::pit;
 use crate::drivers::keyboard;
 
-
 #[allow(unused_imports)]
 // unused because this is called from assembly
 use crate::system::tasking::schedule_handle;
@@ -92,7 +91,6 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 }
 
 pub fn setup_hw_interrupts() {
-
     // PIT legacy timer
     let irq0x00_handle = prepare_default_handle(pit_irq0_handler, 0);
     IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0x00_handle;

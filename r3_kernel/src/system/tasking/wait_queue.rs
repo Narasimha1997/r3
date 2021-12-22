@@ -1,8 +1,8 @@
 extern crate alloc;
 
-use crate::system::thread::Thread;
 use crate::system::process::PID;
 use crate::system::tasking::{ThreadSuspendType, ThreadWakeupType};
+use crate::system::thread::Thread;
 
 use alloc::vec::Vec;
 
