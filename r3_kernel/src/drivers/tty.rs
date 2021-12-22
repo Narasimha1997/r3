@@ -7,7 +7,6 @@ use crate::drivers::display::fb_text::{FramebufferLines, FramebufferText};
 use crate::drivers::display::font::{FONT_HEIGHT, FONT_WIDTH};
 use crate::drivers::display::framebuffer::{Framebuffer, Pixel};
 use crate::drivers::keyboard::PC_KEYBOARD;
-use crate::system::timer;
 
 use crate::system::filesystem::devfs::{DevFSDescriptor, DevOps};
 use crate::system::filesystem::{FSError, SeekType};
@@ -112,9 +111,9 @@ impl BlockingSystemTerminal {
                 col_line: 0,
             },
             color: Pixel {
-                b: 0,
+                b: 255,
                 g: 255,
-                r: 0,
+                r: 255,
                 channel: 0,
             },
             echo_input: true,
