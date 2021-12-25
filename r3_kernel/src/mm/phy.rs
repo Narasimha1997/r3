@@ -5,16 +5,20 @@ extern crate spin;
 use crate::boot_proto::BootProtocol;
 use crate::mm;
 use crate::mm::paging::{PageSize, PagingError};
+use crate::mm::MemorySizes;
 use bootloader::boot_info::{MemoryRegionKind, MemoryRegions};
 
 use lazy_static::lazy_static;
-use spin::Mutex;
+use spin::{Mutex, MutexGuard};
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct Frame(mm::PhysicalAddress);
 
 const MAX_FREE_REGIONS: usize = 64;
+
+/// Following X bytes are allocated for DMA memory.
+const DMA_REGION_SIZE: usize = PageSize::Page2MiB as usize;
 
 impl Frame {
     pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {
@@ -284,5 +288,48 @@ impl PhysicalMemoryManager {
     pub fn free(_frame: Frame) {
         // Not implemented yet
         LINEAR_ALLOCATOR.lock().frame_dealloc(0);
+    }
+}
+
+/// Manages memory allocated for DMA purposes.
+/// The granularity of memory allocation is 8KiB frames.
+/// This memory cannot be freed once allocated
+/// The devices need to lock this memory area during init time
+/// by stating it's requirements.
+pub struct DMAMemoryManager {
+    pub max_frames: usize,
+    pub current_index: usize,
+    pub start_addr: mm::PhysicalAddress,
+}
+
+impl DMAMemoryManager {
+    pub fn empty() -> Self {
+        // is there a free region below 16MiB?
+        let mut alloc_lock: MutexGuard<LinearFrameAllocator> = LINEAR_ALLOCATOR.lock();
+        for region in alloc_lock.memory_regions.iter_mut() {
+            if region.start.as_u64() < 16 * MemorySizes::OneMib as u64 {
+                let dma_start = region.start;
+                let dma_end =
+                    mm::PhysicalAddress::from_u64(dma_start.as_u64() + DMA_REGION_SIZE as u64);
+                region.start = dma_end;
+                region.size = region.size - DMA_REGION_SIZE;
+                region.n_frames = (region.size) / (4 * MemorySizes::OneKiB as usize);
+
+                let aligned_start =
+                    mm::Alignment::align_up(dma_start.as_u64(), 8 * MemorySizes::OneKiB as u64);
+
+                let aligned_end =
+                    mm::Alignment::align_down(dma_end.as_u64(), 8 * MemorySizes::OneKiB as u64);
+                let max_frames = (aligned_end - aligned_start) / (8 * MemorySizes::OneKiB as u64);
+
+                return DMAMemoryManager {
+                    max_frames: max_frames as usize,
+                    current_index: 0,
+                    start_addr: mm::PhysicalAddress::from_u64(aligned_start),
+                };
+            }
+        }
+
+        panic!("DMA Region could not be found.")
     }
 }

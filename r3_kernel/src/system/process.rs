@@ -78,7 +78,7 @@ pub struct Process {
     /// root page table, if there are any
     pub pt_root: Option<Box<VirtualMemoryManager>>,
     /// process data, this will be null for kernel process
-    pub proc_data: Option<ProcessData>,
+    pub proc_data: Option<ProcessData>
 }
 
 impl Process {
