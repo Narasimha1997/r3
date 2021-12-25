@@ -19,6 +19,7 @@ const MAX_FREE_REGIONS: usize = 64;
 
 /// Following X bytes are allocated for DMA memory.
 const DMA_REGION_SIZE: usize = PageSize::Page2MiB as usize;
+const DMA_FRAME_SIZE: usize = MemorySizes::OneKiB as usize * 8;
 
 impl Frame {
     pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {
@@ -291,18 +292,46 @@ impl PhysicalMemoryManager {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct DMABuffer {
+    pub phy_addr: mm::PhysicalAddress,
+    pub virt_addr: mm::VirtualAddress,
+    pub size: usize,
+}
+
+impl DMABuffer {
+    #[inline]
+    pub fn new(phy_addr: mm::PhysicalAddress, size: usize) -> Self {
+        DMABuffer {
+            phy_addr,
+            virt_addr: mm::p_to_v(phy_addr),
+            size,
+        }
+    }
+
+    #[inline]
+    pub fn get_ptr<T>(&self) -> *const T {
+        self.virt_addr.as_u64() as *const T
+    }
+
+    #[inline]
+    pub fn get_mut_ptr<T>(&self) -> *mut T {
+        self.virt_addr.as_u64() as *mut T
+    }
+}
+
 /// Manages memory allocated for DMA purposes.
 /// The granularity of memory allocation is 8KiB frames.
 /// This memory cannot be freed once allocated
 /// The devices need to lock this memory area during init time
 /// by stating it's requirements.
-pub struct DMAMemoryManager {
+pub struct DMAAllocator {
     pub max_frames: usize,
     pub current_index: usize,
     pub start_addr: mm::PhysicalAddress,
 }
 
-impl DMAMemoryManager {
+impl DMAAllocator {
     pub fn empty() -> Self {
         // is there a free region below 16MiB?
         let mut alloc_lock: MutexGuard<LinearFrameAllocator> = LINEAR_ALLOCATOR.lock();
@@ -316,13 +345,13 @@ impl DMAMemoryManager {
                 region.n_frames = (region.size) / (4 * MemorySizes::OneKiB as usize);
 
                 let aligned_start =
-                    mm::Alignment::align_up(dma_start.as_u64(), 8 * MemorySizes::OneKiB as u64);
+                    mm::Alignment::align_up(dma_start.as_u64(), DMA_FRAME_SIZE as u64);
 
                 let aligned_end =
-                    mm::Alignment::align_down(dma_end.as_u64(), 8 * MemorySizes::OneKiB as u64);
-                let max_frames = (aligned_end - aligned_start) / (8 * MemorySizes::OneKiB as u64);
+                    mm::Alignment::align_down(dma_end.as_u64(), DMA_FRAME_SIZE as u64);
+                let max_frames = (aligned_end - aligned_start) / (DMA_FRAME_SIZE as u64);
 
-                return DMAMemoryManager {
+                return DMAAllocator {
                     max_frames: max_frames as usize,
                     current_index: 0,
                     start_addr: mm::PhysicalAddress::from_u64(aligned_start),
@@ -331,5 +360,34 @@ impl DMAMemoryManager {
         }
 
         panic!("DMA Region could not be found.")
+    }
+
+    #[inline]
+    pub fn alloc(&mut self, size: usize) -> Option<DMABuffer> {
+        let aligned_size = mm::Alignment::align_up(size as u64, DMA_FRAME_SIZE as u64) as usize;
+        let n_frames = aligned_size / DMA_FRAME_SIZE;
+
+        if self.current_index + n_frames > self.max_frames {
+            return None;
+        }
+
+        let start_addr = mm::PhysicalAddress::from_u64(
+            self.start_addr.as_u64() + (self.current_index * DMA_FRAME_SIZE) as u64,
+        );
+
+        self.current_index += n_frames;
+        Some(DMABuffer::new(start_addr, size))
+    }
+}
+
+lazy_static! {
+    pub static ref DMA_ALLOCATOR: Mutex<DMAAllocator> = Mutex::new(DMAAllocator::empty());
+}
+
+pub struct DMAMemoryManager;
+
+impl DMAMemoryManager {
+    pub fn alloc(size: usize) -> Option<DMABuffer> {
+        DMA_ALLOCATOR.lock().alloc(size)
     }
 }
