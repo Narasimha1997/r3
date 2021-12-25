@@ -18,7 +18,7 @@ pub struct Frame(mm::PhysicalAddress);
 const MAX_FREE_REGIONS: usize = 64;
 
 /// Following X bytes are allocated for DMA memory.
-const DMA_REGION_SIZE: usize = PageSize::Page2MiB as usize;
+const DMA_REGION_SIZE: usize = 2 * MemorySizes::OneMib as usize;
 const DMA_FRAME_SIZE: usize = MemorySizes::OneKiB as usize * 8;
 
 impl Frame {
@@ -266,14 +266,6 @@ lazy_static! {
         Mutex::new(LinearFrameAllocator::init());
 }
 
-/// a function that lazy initializes LIEAR_ALLOCATOR
-pub fn setup_physical_memory() {
-    log::info!(
-        "Set-up Linear memory allocator for Physical memory successfull, regions={}",
-        LINEAR_ALLOCATOR.lock().regions
-    );
-}
-
 pub struct PhysicalMemoryManager;
 
 impl PhysicalMemoryManager {
@@ -344,6 +336,12 @@ impl DMAAllocator {
                 region.size = region.size - DMA_REGION_SIZE;
                 region.n_frames = (region.size) / (4 * MemorySizes::OneKiB as usize);
 
+                log::debug!(
+                    "Moved the start address of memory region below 16MiB from 0x{:x} to 0x{:x}",
+                    dma_start.as_u64(),
+                    region.start.as_u64()
+                );
+
                 let aligned_start =
                     mm::Alignment::align_up(dma_start.as_u64(), DMA_FRAME_SIZE as u64);
 
@@ -390,4 +388,20 @@ impl DMAMemoryManager {
     pub fn alloc(size: usize) -> Option<DMABuffer> {
         DMA_ALLOCATOR.lock().alloc(size)
     }
+}
+
+/// a function that lazy initializes LIEAR_ALLOCATOR
+pub fn setup_physical_memory() {
+    log::info!(
+        "Set-up Linear memory allocator for Physical memory successfull, regions={}",
+        LINEAR_ALLOCATOR.lock().regions
+    );
+
+    let dma_lock = DMA_ALLOCATOR.lock();
+
+    log::info!(
+        "Set-up DMA Allocator for DMA memory manager successfull, start=0x{:x}, max_frames={}",
+        dma_lock.start_addr.as_u64(),
+        dma_lock.max_frames
+    );
 }
