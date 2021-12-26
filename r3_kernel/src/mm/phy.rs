@@ -19,7 +19,7 @@ const MAX_FREE_REGIONS: usize = 64;
 
 /// Following X bytes are allocated for DMA memory.
 const DMA_REGION_SIZE: usize = 2 * MemorySizes::OneMib as usize;
-const DMA_FRAME_SIZE: usize = MemorySizes::OneKiB as usize * 8;
+const DMA_FRAME_SIZE: usize = MemorySizes::OneKiB as usize * 4;
 
 impl Frame {
     pub fn from_aligned_address(addr: mm::PhysicalAddress) -> Result<Self, PagingError> {

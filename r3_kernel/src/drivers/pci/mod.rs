@@ -214,6 +214,13 @@ impl PCIDevice {
         let config_reg = PCIConfigRegister::new(self.bus, self.dev, self.func, offset);
         config_reg.write_config(value);
     }
+
+    pub fn set_bus_mastering(&self) {
+        let config_reg = PCIConfigRegister::new(self.bus, self.dev, self.func, 0x04);
+        let mut current_data = config_reg.read_config();
+        current_data.set_bit(2, true);
+        config_reg.write_config(current_data);
+    }
 }
 
 lazy_static! {
@@ -243,10 +250,17 @@ pub fn detect_devices() {
 pub fn search_device(vendor_id: u16, device_id: u16) -> Option<PCIDevice> {
     for &pci_dev in PCI_DEVICES.lock().iter() {
         if (pci_dev.vendor_id == vendor_id) && (pci_dev.device_id == device_id) {
-            log::debug!("found!");
             return Some(pci_dev);
         }
     }
 
     None
+}
+
+pub fn enable_bus_mastering_for_device(vendor_id: u16, device_id: u16) {
+    for pci_dev in PCI_DEVICES.lock().iter() {
+        if (pci_dev.vendor_id == vendor_id) && (pci_dev.device_id == device_id) {
+            pci_dev.set_bus_mastering();
+        }
+    }
 }

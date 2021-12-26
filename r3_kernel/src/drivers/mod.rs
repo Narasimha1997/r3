@@ -10,6 +10,7 @@ pub mod keyboard;
 pub mod pci;
 pub mod tty;
 pub mod uart;
+pub mod rtl8139;
 
 /// registers all the devices to DevFS
 pub fn register_buultin_devices() {
