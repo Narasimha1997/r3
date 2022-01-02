@@ -2,15 +2,15 @@ extern crate alloc;
 extern crate log;
 
 use crate::system::filesystem::devfs::register_device;
-use alloc::boxed::Box;
+use alloc::{boxed::Box, vec::Vec};
 
 pub mod disk;
 pub mod display;
 pub mod keyboard;
 pub mod pci;
+pub mod rtl8139;
 pub mod tty;
 pub mod uart;
-pub mod rtl8139;
 
 /// registers all the devices to DevFS
 pub fn register_buultin_devices() {
@@ -32,9 +32,13 @@ const RTL_NETWORK_INTERFACE: (u16, u16) = (0x8139, 0x10EC);
 /// uses vendor_id and device_id to determine which driver can
 /// serve this device.
 pub fn load_pci_drivers() {
+    let mut devices: Vec<(u16, u16)> = Vec::new();
     for &device in pci::PCI_DEVICES.lock().iter() {
-        let (device_id, vendor_id) = (device.device_id, device.vendor_id);
-        match (device_id, vendor_id) {
+        devices.push((device.device_id, device.vendor_id));
+    }
+
+    for (device_id, vendor_id) in devices.iter() {
+        match (*device_id, *vendor_id) {
             ATA_CONTROLLER => {
                 // load the ATA controller driver
                 log::info!("Found driver for device {:x}:{:x}.", device_id, vendor_id);
@@ -47,7 +51,7 @@ pub fn load_pci_drivers() {
             }
             _ => {
                 log::warn!(
-                    "No driver found to handle the device {}:{}",
+                    "No driver found to handle the device {:x}:{:x}",
                     device_id,
                     vendor_id
                 );

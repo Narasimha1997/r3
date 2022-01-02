@@ -168,7 +168,10 @@ impl Realtek8139Device {
             let rst_value = self.config.cmd.read_u8();
             if rst_value & RTLDeviceCommand::SoftReset as u8 != 0 {
                 wait(1);
+                continue;
             }
+
+            break;
         }
     }
 
@@ -179,6 +182,7 @@ impl Realtek8139Device {
 
         // get io base register offset
         let io_base = (pci_dev.bars[0] & 0xFFF0) as usize;
+        log::info!("Initialized RTL 8139 device driver, MAC address");
         Realtek8139Device {
             tx_line: DeviceTx::new(io_base),
             rx_line: DeviceRx::new(io_base),
@@ -196,7 +200,7 @@ impl Realtek8139Device {
         // 3. Enable both tx and rx modes
         self.send_command(
             &self.config.cmd,
-            RTLDeviceCommand::EnableTx as u8 | RTLDeviceCommand::EnableRx as u8
+            RTLDeviceCommand::EnableTx as u8 | RTLDeviceCommand::EnableRx as u8,
         );
 
         // read mac
@@ -206,9 +210,7 @@ impl Realtek8139Device {
 }
 
 lazy_static! {
-    pub static ref RTL_DEVICE: Mutex<Realtek8139Device> = Mutex::new(
-        Realtek8139Device::new()
-    );
+    pub static ref RTL_DEVICE: Mutex<Realtek8139Device> = Mutex::new(Realtek8139Device::new());
 }
 
 pub fn init() {

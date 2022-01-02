@@ -17,7 +17,7 @@ fi
 
 STORAGE_DISK=storage/tarfs.tar
 KERNEL_BIN_PATH="./kbin"
-QEMU_ARGS="-enable-kvm -cpu host,x2apic=off, -m 2G -M pc -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk"
+QEMU_ARGS="-enable-kvm -cpu host,x2apic=off, -m 2G -M pc -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk -nic model=rtl8139"
 
 if [[ "$1" == "--uefi" || "$2" == "--uefi" || "$3" == "--uefi" ]]; then
     KERNEL_BIN_PATH="$KERNEL_BIN_PATH/boot-uefi-r3_kernel.img"

@@ -5,14 +5,14 @@ r3_kernel::boot_proto INFO  Memory offset: 0xffffd00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 8273920, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 8273920, end: 2147352576, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 8282112, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 8282112, end: 2147352576, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 2147352576, end: 2147483648, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=640 height=480 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890e24520067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x890e35420067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=2800059900
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3102734700
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x959aa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
@@ -35,7 +35,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221619761,
+    instruction_pointer: 18446603336221621393,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -43,14 +43,14 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   INFO  Found memory region of size: 2139078656 bytes. start=0x7e4000, end=0x7ffe0000
+r3_kernel::mm::phy   INFO  Found memory region of size: 2139070464 bytes. start=0x7e6000, end=0x7ffe0000
 r3_kernel::mm::phy   INFO  Found 1 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
-r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x7e4000 to 0x9e4000
-r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x7e4000, max_frames=512
+r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x7e6000 to 0x9e6000
+r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x7e6000, max_frames=512
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000577000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000577000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000579000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000579000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febc0
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -77,7 +77,7 @@ r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=1, func=3
 r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=2, func=0
          vendor_id=1234, device_id=1111
 r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=3, func=0
-         vendor_id=8086, device_id=100e
+         vendor_id=10ec, device_id=8139
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  acpi_2x support=false
 r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=4, supports_acpi_2=false
@@ -96,17 +96,19 @@ r3_kernel            INFO  Created handlers.
 r3_kernel::system::filesystem::vfs INFO  VFS set-up successful, n_mountpoints=0
 r3_kernel::system::filesystem::devfs INFO  Mounted devfs at /dev/
 r3_kernel::drivers   INFO  Registered devfs devices - uart
-r3_kernel::drivers   WARN  No driver found to handle the device 4663:32902
-r3_kernel::drivers   WARN  No driver found to handle the device 28672:32902
-r3_kernel::drivers   INFO  Found driver for device 28688:32902.
+r3_kernel::drivers   WARN  No driver found to handle the device 1237:8086
+r3_kernel::drivers   WARN  No driver found to handle the device 7000:8086
+r3_kernel::drivers   INFO  Found driver for device 7010:8086.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=1594368bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=1602560bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=40960bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
-r3_kernel::drivers   WARN  No driver found to handle the device 28947:32902
-r3_kernel::drivers   WARN  No driver found to handle the device 4369:4660
-r3_kernel::drivers   WARN  No driver found to handle the device 4110:32902
+r3_kernel::drivers   WARN  No driver found to handle the device 7113:8086
+r3_kernel::drivers   WARN  No driver found to handle the device 1111:1234
+r3_kernel::drivers   INFO  Found driver for device 8139:10ec
+r3_kernel::drivers::rtl8139 INFO  Initialized RTL 8139 device driver, MAC address
+r3_kernel::drivers::rtl8139 INFO  Initialized RTL 8139 device driver, MAC address: [82, 84, 0, 18, 52, 86]
 r3_kernel::system::filesystem::detect WARN  No usuable filesystem detected on /dev/hda
 r3_kernel::system::filesystem::detect INFO  Detected TAR filesystem on device /dev/hdb
 r3_kernel::system::filesystem::ustar INFO  Mounted tarfs at /sbin
@@ -117,7 +119,7 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1800000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1801000 virt=0xffffc000c01fde88
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x577000, rip=0xffff80000002cc30,
+            thread_id=0, page_table=0x579000, rip=0xffff80000002cc70,
             stack_end=0xffffb00000200000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x400000, size=388
@@ -143,36 +145,6 @@ r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x3e
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x5
 r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
