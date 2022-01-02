@@ -26,6 +26,7 @@ pub fn register_buultin_devices() {
 
 /// The ATA controller device
 const ATA_CONTROLLER: (u16, u16) = (0x7010, 0x8086);
+const RTL_NETWORK_INTERFACE: (u16, u16) = (0x8139, 0x10EC);
 
 /// this method iterates over the available PCI devices,
 /// uses vendor_id and device_id to determine which driver can
@@ -36,9 +37,13 @@ pub fn load_pci_drivers() {
         match (device_id, vendor_id) {
             ATA_CONTROLLER => {
                 // load the ATA controller driver
-                log::info!("Found driver for device {}:{}.", device_id, vendor_id);
+                log::info!("Found driver for device {:x}:{:x}.", device_id, vendor_id);
                 disk::init();
                 disk::register_hdd_devices();
+            }
+            RTL_NETWORK_INTERFACE => {
+                log::info!("Found driver for device {:x}:{:x}", device_id, vendor_id);
+                rtl8139::init();
             }
             _ => {
                 log::warn!(
