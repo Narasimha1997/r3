@@ -24,6 +24,9 @@ const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
 /// ATA interrupt line - SECONDARY slave:
 const ATA_SECONDARY_INTERRUPT_LINE: usize = 0x0F;
 
+/// Timeshot interrupt line
+const TIMESHOT_INTERRUPT_LINE: usize = 0x10;
+
 /// Keyboard controller interrupt line:
 const KEYBOARD_INTERRUPT_LINE: usize = 0x01;
 
@@ -57,16 +60,7 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
 }
 
 #[naked]
-/// This function is called via Naked ABI: https://github.com/nox/rust-rfcs/blob/master/text/1201-naked-fns.md
-/// this ABI keeps all the registers unaffected, the state of the CPU is dumped into
-/// CPURegustersState type, this can be used by schedulers context switched.
-/// The warning 'unsupported_naked_functions' is allowed since
-/// get_state() calls assembly and is always inlined.
 extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
-    // as of now, this function saves the current state,
-    // saves the CPU states, performs some work and enables
-    // the next timer event, then loads the previously saved state
-    // so execution can continue normally.
     unsafe {
         asm!(
             "push r15;
@@ -106,7 +100,7 @@ pub fn setup_hw_interrupts() {
 
 pub fn setup_post_apic_interrupts() {
     let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt, 3);
-    IDT.lock().interrupts[0x30] = irq0x30_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + TIMESHOT_INTERRUPT_LINE] = irq0x30_handle;
 
     let irq0x01_handle = prepare_default_handle(kbd_irq1_handler, 2);
     IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;

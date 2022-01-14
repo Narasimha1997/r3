@@ -5,7 +5,6 @@ use crate::cpu::segments;
 
 use bit_field::BitField;
 use core::fmt;
-use core::marker::PhantomData;
 use core::mem;
 
 use segments::SegmentRegister;
