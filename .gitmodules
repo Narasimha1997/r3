@@ -18,3 +18,7 @@
 	url = https://github.com/rust-embedded-community/pc-keyboard.git
         branch = master
 
+[submodule "third_party/crates/rand"]
+        path = third_party/crates/rand
+        url = https://github.com/rust-random/rand.git
+        branch = master

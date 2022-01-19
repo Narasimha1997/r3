@@ -192,6 +192,14 @@ impl Realtek8139Device {
         }
     }
 
+    fn configure_receiver() {
+
+    }
+
+    fn configure_transmitter() {
+        
+    }
+
     pub fn prepare_interface(&mut self) {
         // 1. boot up
         self.send_command(&self.config.config_1, RTLDeviceCommand::HardPowerUp as u8);
@@ -205,6 +213,8 @@ impl Realtek8139Device {
 
         // read mac
         let mac = self.mac.get_mac();
+
+
         log::info!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
     }
 }
