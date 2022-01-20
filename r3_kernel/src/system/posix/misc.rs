@@ -1,6 +1,9 @@
 use crate::acpi::power;
+use crate::drivers::random;
 use crate::mm::VirtualAddress;
 use crate::system::abi;
+
+use core::ptr;
 
 // these strings are null terminated to make sure they are processed
 // properly by usespace C libraries which uses null terminated strings.
@@ -39,4 +42,18 @@ pub fn sys_reboot() -> Result<isize, abi::Errno> {
 
     // this code will never see transistors in CPU
     Ok(0 as isize)
+}
+
+pub fn sys_getrandom(
+    buffer_addr: VirtualAddress,
+    buffer_len: usize,
+    _flags: u8,
+) -> Result<isize, abi::Errno> {
+
+    let buffer_ptr = buffer_addr.get_mut_ptr::<u8>();
+    let buffer_slice = unsafe { &mut *ptr::slice_from_raw_parts_mut(buffer_ptr, buffer_len) };
+
+    random::SystemRandomDevice::empty().fill_bytes(buffer_slice);
+
+    Ok(buffer_len as isize)
 }
