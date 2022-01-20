@@ -12,8 +12,10 @@ log = "0.4.13"
 bit_field = "0.10.1"
 bitflags = "1.0.4"
 object = { version = "0.27.1", default-features = false, features = ["read"] }
-pc-keyboard={ path = "../third_party/crates/pc-keyboard"  }
-
+pc-keyboard={ path = "../third_party/crates/pc-keyboard" }
+rand = { default-features = false, version = "0.8.4" }
+rand_core = { default-features = false,  version = "0.6.3" }
+rand_xoshiro = "0.6.0"
 
 [package.metadata.bootimage]
 build-command = ["xbuild"]

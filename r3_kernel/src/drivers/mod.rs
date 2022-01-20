@@ -11,6 +11,7 @@ pub mod pci;
 pub mod rtl8139;
 pub mod tty;
 pub mod uart;
+pub mod random;
 
 /// registers all the devices to DevFS
 pub fn register_buultin_devices() {
@@ -20,6 +21,9 @@ pub fn register_buultin_devices() {
 
     register_device("tty", 1, 1, Box::new(tty::TTYDriver::empty()))
         .expect("Failed to register TTY to devfs");
+
+    register_device("rand", 1, 2, Box::new(random::RandomIODriver::empty()))
+        .expect("Failed to register Random generator to devfs");
 
     log::info!("Registered devfs devices - uart");
 }
