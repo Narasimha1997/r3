@@ -4,3 +4,4 @@ third_party/builds
 kbin
 storage
 .vscode
+serial.out
