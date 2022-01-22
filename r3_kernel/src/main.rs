@@ -69,14 +69,16 @@ fn start_idle_kthread() {
         return;
     }
 
+    // run this thread
+    log::info!("Started system idle thread in background.")
+
+    // start the echo client process
     let pid = system::process::new(format!("test"), true, "/sbin/write");
     let thread_result = system::thread::new_main_thread(&pid, format!("main"));
     if thread_result.is_err() {
-        log::error!("Failed to run system idle thread, threading not working!!!");
+        log::error!("Failed to run /sbin/write thread, threading not working!!!");
         return;
     }
-    // run this thread
-    log::info!("Started system idle thread in background.")
 }
 
 fn init_functionalities() {
