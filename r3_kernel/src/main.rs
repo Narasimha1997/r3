@@ -70,7 +70,7 @@ fn start_idle_kthread() {
     }
 
     // run this thread
-    log::info!("Started system idle thread in background.")
+    log::info!("Started system idle thread in background.");
 
     // start the echo client process
     let pid = system::process::new(format!("test"), true, "/sbin/write");
