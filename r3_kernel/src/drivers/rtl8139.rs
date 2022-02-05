@@ -8,11 +8,34 @@ use lazy_static::lazy_static;
 
 use spin::Mutex;
 
-const RTL_TX_BUFFER_SIZE: usize = 4096;
-const RTL_RX_BUFFER_SIZE: usize = 8129 + 16;
-const PHY_MTU_SIZE: usize = 1500;
 const RTL_VENDOR_ID: u16 = 0x10EC;
 const RTL_DEVICE_ID: u16 = 0x8139;
+
+// RTL packet type falgs
+const RTL_ENABLE_ALL_PACKETS: usize = 1 << 0;
+const RTL_ENABLE_MATCH_PACKETS: usize = 1 << 1;
+const RTL_ENABLE_MULTICAST: usize = 1 << 2;
+const RTL_ENABLE_BROADCAST: usize = 1 << 3;
+
+// RTL DMA flags
+const RTL_TX_DMA0: usize = 1 << 8;
+const RTL_TX_DMA1: usize = 1 << 9;
+const RTL_TX_DMA2: usize = 1 << 10;
+
+// RTL basic device flags
+const RTL_ROK: usize = 0x01;
+const RTL_WRAP_BUFFER: usize = 1 << 7;
+const RTL_INTERFRAME_TIME_GAP: usize = 1 << 24;
+const RTL_RX_BUFFER_PAD: usize = 16;
+const RTL_RX_BUFFER_LENGTH: usize = 0 << 11;
+const RTL_TX_BUFFER_SIZE: usize = 4096;
+const RTL_RX_BUFFER_SIZE: usize = 8145;
+const PHY_MTU_SIZE: usize = 1500;
+const RTL_N_TX_BUFFERS: usize = 4;
+
+// RTL interrupts flags
+const RTL_INTERRUPT_RECVOK: usize = 1 << 0;
+const RTL_INTERRUPT_TXOK: usize = 1 << 2;
 
 #[repr(u8)]
 pub enum RTLDeviceCommand {
@@ -20,6 +43,7 @@ pub enum RTLDeviceCommand {
     SoftReset = 1 << 4,
     EnableTx = 1 << 2,
     EnableRx = 1 << 3,
+    EmptyBuffer = 1 << 0,
 }
 
 struct DeviceTx {
@@ -90,28 +114,21 @@ impl DeviceRx {
 }
 
 struct DeviceBuffers {
-    tx_dma_8k: phy::DMABuffer,
-    tx_dma_16k: phy::DMABuffer,
-    tx_dma_32k: phy::DMABuffer,
-    tx_dma_64k: phy::DMABuffer,
+    tx_dma: [phy::DMABuffer; RTL_N_TX_BUFFERS],
     rx_dma: phy::DMABuffer,
 }
 
 impl DeviceBuffers {
     #[inline]
     pub fn new() -> Self {
-        DeviceBuffers {
-            tx_dma_8k: phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE)
-                .expect("Failed to allocate DMA buffer"),
-            tx_dma_16k: phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE)
-                .expect("Failed to allocate DMA buffer"),
-            tx_dma_32k: phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE)
-                .expect("Failed to allocate DMA buffer"),
-            tx_dma_64k: phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE)
-                .expect("Failed to allocate DMA buffer"),
-            rx_dma: phy::DMAMemoryManager::alloc(RTL_RX_BUFFER_SIZE + PHY_MTU_SIZE)
-                .expect("Failed to allocate DMA buffer"),
-        }
+        let rx_dma = phy::DMAMemoryManager::alloc(RTL_RX_BUFFER_SIZE + PHY_MTU_SIZE)
+            .expect("Failed to allocate DMA buffer");
+
+        let tx_dma: [phy::DMABuffer; RTL_N_TX_BUFFERS] = [(); RTL_N_TX_BUFFERS].map(|_| {
+            phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE).expect("Failed to allocate DMA buffer")
+        });
+
+        DeviceBuffers { rx_dma, tx_dma }
     }
 }
 
@@ -192,12 +209,39 @@ impl Realtek8139Device {
         }
     }
 
-    fn configure_receiver() {
-
+    #[inline]
+    fn configure_receiver(&self) {
+        let recv_buffer_addr = self.buffers.rx_dma.phy_addr.as_u64() as u32;
+        self.rx_line.addr.write_u32(recv_buffer_addr);
     }
 
-    fn configure_transmitter() {
-        
+    #[inline]
+    fn configure_transmitter(&self) {
+        for idx in 0..RTL_N_TX_BUFFERS {
+            let tx_buffer_addr = self.buffers.tx_dma[idx].phy_addr.as_u64() as u32;
+            self.tx_line.addr[idx].write_u32(tx_buffer_addr);
+        }
+    }
+
+    #[inline]
+    fn finalize_config(&self) {
+        // configure interrupts:
+        self.config
+            .imr
+            .write_u32((RTL_INTERRUPT_TXOK | RTL_INTERRUPT_RECVOK) as u32);
+        // setup operation modes of buffers
+        self.rx_line.config.write_u32(
+            (RTL_RX_BUFFER_LENGTH
+                | RTL_WRAP_BUFFER
+                | RTL_ENABLE_ALL_PACKETS
+                | RTL_ENABLE_MATCH_PACKETS
+                | RTL_ENABLE_MULTICAST
+                | RTL_ENABLE_BROADCAST) as u32,
+        );
+
+        self.tx_line
+            .config
+            .write_u32((RTL_INTERFRAME_TIME_GAP | RTL_TX_DMA0 | RTL_TX_DMA1 | RTL_TX_DMA2) as u32);
     }
 
     pub fn prepare_interface(&mut self) {
@@ -213,9 +257,12 @@ impl Realtek8139Device {
 
         // read mac
         let mac = self.mac.get_mac();
-
-
         log::info!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
+
+        log::debug!("configuring transmitter and receivers");
+        self.configure_transmitter();
+        self.configure_receiver();
+        self.finalize_config();
     }
 }
 

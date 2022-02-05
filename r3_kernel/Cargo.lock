@@ -19,6 +19,12 @@ name = "bootloader"
 version = "0.10.9"
 
 [[package]]
+name = "byteorder"
+version = "1.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -59,6 +65,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "managed"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c75de51135344a4f8ed3cfe2720dc27736f7711989703a0b43aadf3753c55577"
+
+[[package]]
 name = "memchr"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -92,6 +104,7 @@ dependencies = [
  "rand",
  "rand_core",
  "rand_xoshiro",
+ "smoltcp",
  "spin",
 ]
 
@@ -124,6 +137,17 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "smoltcp"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e4a069bef843d170df47e7c0a8bf8d037f217d9f5b325865acc3e466ffe40d3"
+dependencies = [
+ "bitflags",
+ "byteorder",
+ "managed",
+]
 
 [[package]]
 name = "spin"
