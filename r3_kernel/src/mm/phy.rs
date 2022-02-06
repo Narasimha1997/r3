@@ -310,6 +310,18 @@ impl DMABuffer {
     pub fn get_mut_ptr<T>(&self) -> *mut T {
         self.virt_addr.as_u64() as *mut T
     }
+
+    #[inline]
+    pub fn as_mut_slice<T>(&self) -> &'static mut [T] {
+        let mut_ptr = self.get_mut_ptr::<T>();
+        core::slice::from_raw_parts_mut(mut_ptr, self.size)
+    }
+
+    #[inline]
+    pub fn as_slice<T>(&self) -> &'static [T] {
+        let ptr = self.get_ptr::<T>();
+        core::slice::from_raw_parts(ptr, self.size)
+    }
 }
 
 /// Manages memory allocated for DMA purposes.

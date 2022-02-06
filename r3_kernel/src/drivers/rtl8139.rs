@@ -3,11 +3,7 @@ extern crate spin;
 use crate::cpu::io::{wait, Port};
 use crate::drivers::pci;
 use crate::mm::phy;
-
-// smoltcp
-extern crate smoltcp;
-
-use smoltcp::phy::Device;
+use crate::system::net::iface;
 
 use lazy_static::lazy_static;
 
@@ -271,11 +267,9 @@ impl Realtek8139Device {
     }
 }
 
-
-lazy_static! {
-    pub static ref RTL_DEVICE: Mutex<Realtek8139Device> = Mutex::new(Realtek8139Device::new());
-}
-
-pub fn init() {
-    RTL_DEVICE.lock().prepare_interface();
+impl iface::PhysicalNetworkDevice for Realtek8139Device {
+    fn get_current_tx_buffer(&mut self) -> &'static mut [u8] {
+        let tx_id = self.tx_line.tx_id;
+        let buff_ptr = self.buffers.tx_dma[tx_id].get_mut_ptr::<u8>();
+    }
 }

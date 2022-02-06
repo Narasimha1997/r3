@@ -45,9 +45,9 @@ impl RxToken for VirtualRx {
 }
 
 /// VirtualNetworkInterface plugs the physical device with smoltcp
-pub struct VirtualNetworkInterface {}
+pub struct VirtualNetworkDevice {}
 
-impl<'a> Device<'a> for VirtualNetworkInterface {
+impl<'a> Device<'a> for VirtualNetworkDevice {
     type TxToken = VirtualTx;
     type RxToken = VirtualRx;
 
@@ -71,14 +71,6 @@ pub trait NetworkInterrupt {
 }
 
 /// the core trait implemented by physical network device driver
-pub trait NetworkInterface {
-    // transmission control functions
-    fn transmit_pre();
-    fn transmit_post();
-    fn transmit();
-
-    // receive control functions
-    fn receive_pre();
-    fn receive_post();
-    fn receive();
+pub trait PhysicalNetworkDevice {
+    fn get_current_tx_buffer(&mut self) -> &'static mut [u8];
 }
