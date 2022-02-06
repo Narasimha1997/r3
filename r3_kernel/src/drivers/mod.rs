@@ -8,10 +8,10 @@ pub mod disk;
 pub mod display;
 pub mod keyboard;
 pub mod pci;
+pub mod random;
 pub mod rtl8139;
 pub mod tty;
 pub mod uart;
-pub mod random;
 
 /// registers all the devices to DevFS
 pub fn register_buultin_devices() {

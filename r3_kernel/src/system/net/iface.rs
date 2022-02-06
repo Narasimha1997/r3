@@ -1,5 +1,6 @@
 extern crate alloc;
 extern crate lazy_static;
+extern crate log;
 extern crate smoltcp;
 extern crate spin;
 
@@ -10,10 +11,15 @@ use smoltcp::phy::{DeviceCapabilities, RxToken, TxToken};
 use smoltcp::time::Instant;
 use smoltcp::Result as NetResult;
 
+use core::fmt;
+use core::sync::atomic::{AtomicU64, Ordering};
+
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use alloc::vec::Vec;
+const NET_DEFAULT_MTU: usize = 1500;
+
+use alloc::{boxed::Box, vec::Vec};
 
 /// Smoltcp token type for Transmission
 pub struct VirtualTx {}
@@ -44,8 +50,38 @@ impl RxToken for VirtualRx {
     }
 }
 
+/// stores the stats of the network interface
+pub struct VirtualNetworkDeviceStats {
+    pub n_tx_packets: AtomicU64,
+    pub n_tx_bytes: AtomicU64,
+    pub n_rx_packets: AtomicU64,
+    pub n_rx_bytes: AtomicU64,
+}
+
+type PhyNetDevType = dyn PhysicalNetworkDevice + Sync + Send;
+
 /// VirtualNetworkInterface plugs the physical device with smoltcp
-pub struct VirtualNetworkDevice {}
+pub struct VirtualNetworkDevice {
+    /// represents a physical network device
+    /// this can be optional, if `None`, the loopback interface
+    /// will be used with `127.0.0.1` address.
+    phy_driver: Option<Box<PhyNetDevType>>,
+    stats: VirtualNetworkDeviceStats,
+}
+
+impl VirtualNetworkDevice {
+    pub fn with_mut_phy_dev_ref<F, R>(&mut self, mut virtual_func: F) -> Result<R, PhyNetdevError>
+    where
+        F: FnMut(&mut PhyNetDevType) -> Result<R, PhyNetdevError>,
+    {
+        if self.phy_driver.is_none() {
+            return Err(PhyNetdevError::NoPhysicalDevice);
+        }
+
+        let dev_mut_ref = self.phy_driver.as_mut().unwrap().as_mut();
+        virtual_func(dev_mut_ref)
+    }
+}
 
 impl<'a> Device<'a> for VirtualNetworkDevice {
     type TxToken = VirtualTx;
@@ -60,24 +96,39 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     }
 
     fn capabilities(&self) -> DeviceCapabilities {
-        DeviceCapabilities::default()
-    }
-}
+        let mut caps = DeviceCapabilities::default();
 
-/// This trait is used by the device to ack the network interrupt
-pub trait NetworkInterrupt {
-    /// acknowledge interrupt
-    fn ack(&mut self);
+        caps.max_transmission_unit = if self.phy_driver.is_none() {
+            NET_DEFAULT_MTU
+        } else {
+            let mtu_res = self.phy_driver.as_ref().unwrap().get_mtu_size();
+            let dev_mtu = if mtu_res.is_ok() {
+                log::debug!(
+                    "MTU not provided by the device, using default mtu={}",
+                    NET_DEFAULT_MTU
+                );
+                mtu_res.unwrap()
+            } else {
+                NET_DEFAULT_MTU
+            };
+            dev_mtu
+        };
+
+        caps.max_burst_size = Some(1);
+
+        caps
+    }
 }
 
 #[derive(Debug, Clone)]
 pub enum PhyNetdevError {
-    InterfaceError = 0,
-    NoTxBuffer = 1,
-    NoInterruptLine = 2,
-    InterruptHandlingError = 3,
-    EmptyInterruptRecvBuffer = 4,
-    InvalidRecvHeader = 5,
+    NoPhysicalDevice,
+    NoTxBuffer,
+    NoInterruptLine,
+    NoMTU,
+    InterruptHandlingError,
+    EmptyInterruptRecvBuffer,
+    InvalidRecvHeader,
 }
 
 /// the core trait implemented by physical network device driver
@@ -94,10 +145,15 @@ pub trait PhysicalNetworkDevice {
 
     /// get device interrupt line no
     fn get_interrupt_no(&self) -> Result<usize, PhyNetdevError>;
+
+    /// get the device MTU size
+    fn get_mtu_size(&self) -> Result<usize, PhyNetdevError>;
 }
 
 /// the function will be called from the device's receiver function
-/// after it got the packet in it's DMA receive buffer.
+/// triggered by the network interrupt and there is a frame in DMA buffer.
 /// The parameter `buffer` contains the read-only slice view of the
 /// DMA buffer.
 pub fn handle_recv_packet(_buffer: &[u8]) {}
+
+pub fn setup_network_interface() {}

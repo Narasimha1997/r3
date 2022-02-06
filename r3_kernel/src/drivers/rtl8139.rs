@@ -5,10 +5,6 @@ use crate::drivers::pci;
 use crate::mm::phy;
 use crate::system::net::iface;
 
-use lazy_static::lazy_static;
-
-use spin::Mutex;
-
 /// increase the size factor by 1 to double the receive buffer size
 /// the base size is 8k
 const RTL_RX_SIZE_FACTOR: usize = 0;
@@ -39,7 +35,7 @@ const RTL_RX_BUFFER_LENGTH: usize = 0 << 11;
 const RTL_TX_BUFFER_SIZE: usize = 4096;
 
 const RTL_RX_BUFFER_SIZE: usize = ((8 * 1024) << RTL_RX_SIZE_FACTOR) + RTL_RX_BUFFER_PAD;
-const PHY_MTU_SIZE: usize = 1500;
+const RTL_PHY_MTU_SIZE: usize = 1500;
 const RTL_N_TX_BUFFERS: usize = 4;
 const RTL_RC_EMPTY_BUFFER: usize = 1 << 0;
 
@@ -134,7 +130,7 @@ struct DeviceBuffers {
 impl DeviceBuffers {
     #[inline]
     pub fn new() -> Self {
-        let rx_dma = phy::DMAMemoryManager::alloc(RTL_RX_BUFFER_SIZE + PHY_MTU_SIZE)
+        let rx_dma = phy::DMAMemoryManager::alloc(RTL_RX_BUFFER_SIZE + RTL_PHY_MTU_SIZE)
             .expect("Failed to allocate DMA buffer");
 
         let tx_dma: [phy::DMABuffer; RTL_N_TX_BUFFERS] = [(); RTL_N_TX_BUFFERS].map(|_| {
@@ -365,6 +361,10 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         Ok(0)
     }
 
+    fn get_mtu_size(&self) -> Result<usize, iface::PhyNetdevError> {
+        Ok(RTL_PHY_MTU_SIZE)
+    }
+
     fn handle_interrupt(&mut self) -> Result<(), iface::PhyNetdevError> {
         let interrupt_code = self.config.isr.read_u32() as usize;
         // Transmit OK signal, we have already handled it
@@ -391,3 +391,6 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         Ok(())
     }
 }
+
+unsafe impl Sync for RTLDeviceCommand {}
+unsafe impl Send for RTLDeviceCommand {}
