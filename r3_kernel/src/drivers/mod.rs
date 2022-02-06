@@ -4,6 +4,8 @@ extern crate log;
 use crate::system::filesystem::devfs::register_device;
 use alloc::{boxed::Box, vec::Vec};
 
+use crate::system::net::iface::PhyNetDevType;
+
 pub mod disk;
 pub mod display;
 pub mod keyboard;
@@ -62,4 +64,20 @@ pub fn load_pci_drivers() {
             }
         }
     }
+}
+
+pub fn get_network_device() -> Option<Box<PhyNetDevType>> {
+    // TODO: Extend this to more network
+    // check if there is a RTL driver:
+    let (device_id, vendor_id) = RTL_NETWORK_INTERFACE;
+    let rtl_driver_opt = pci::search_device(vendor_id, device_id);
+    if rtl_driver_opt.is_none() {
+        return None;
+    }
+
+    // we found the device: create the instance
+    let mut device = rtl8139::Realtek8139Device::new();
+    device.prepare_interface();
+
+    Some(Box::new(device))
 }

@@ -6,6 +6,7 @@ use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
 use crate::drivers::keyboard;
+use crate::system::net::iface::network_interrupt_handler;
 
 #[allow(unused_imports)]
 // unused because this is called from assembly
@@ -59,6 +60,11 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
     LAPICUtils::eoi();
 }
 
+extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
+    network_interrupt_handler();
+    LAPICUtils::eoi();
+}
+
 #[naked]
 extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
     unsafe {
@@ -104,4 +110,9 @@ pub fn setup_post_apic_interrupts() {
 
     let irq0x01_handle = prepare_default_handle(kbd_irq1_handler, 2);
     IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
+}
+
+pub fn register_network_interrupt(int_no: usize) {
+    let irq_handler = prepare_default_handle(net_interrupt_wrapper, 4);
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + int_no] = irq_handler;
 }

@@ -99,6 +99,9 @@ fn init_functionalities() {
     // mount necessary file-systems
     system::probe_filesystems();
 
+    // init networking
+    system::init_networking();
+
     // setup multi-tasking
     system::init_tasking();
 

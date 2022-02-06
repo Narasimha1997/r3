@@ -183,6 +183,7 @@ pub struct Realtek8139Device {
     buffers: DeviceBuffers,
     mac: DeviceMAC,
     config: DeviceConfig,
+    interrupt_line: usize,
 }
 
 impl Realtek8139Device {
@@ -219,6 +220,7 @@ impl Realtek8139Device {
             buffers: DeviceBuffers::new(),
             mac: DeviceMAC::new(io_base),
             config: DeviceConfig::new(io_base),
+            interrupt_line: pci_dev.interrupt_info().interrupt_line as usize,
         }
     }
 
@@ -358,7 +360,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
 
     fn get_interrupt_no(&self) -> Result<usize, iface::PhyNetdevError> {
         // TODO:
-        Ok(0)
+        Ok(self.interrupt_line)
     }
 
     fn get_mtu_size(&self) -> Result<usize, iface::PhyNetdevError> {
@@ -389,6 +391,11 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
 
         // TODO: Handle more events, as of now, just acknowledge
         Ok(())
+    }
+
+    fn get_mac_address(&self) -> Result<[u8; 6], iface::PhyNetdevError> {
+        let mac_address = self.mac.get_mac();
+        Ok(mac_address)
     }
 }
 

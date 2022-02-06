@@ -1,13 +1,13 @@
 pub mod abi;
 pub mod filesystem;
 pub mod loader;
+pub mod net;
 pub mod posix;
 pub mod process;
 pub mod tasking;
 pub mod thread;
 pub mod timer;
 pub mod utils;
-pub mod net;
 
 use tasking::Sched;
 
@@ -23,6 +23,10 @@ pub fn init_fs() {
 
 pub fn probe_filesystems() {
     filesystem::detect::detect_filesystems();
+}
+
+pub fn init_networking() {
+    net::iface::setup_network_interface();
 }
 
 #[inline]

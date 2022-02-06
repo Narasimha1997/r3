@@ -4,22 +4,25 @@ extern crate log;
 extern crate smoltcp;
 extern crate spin;
 
-use smoltcp::iface::EthernetInterface;
-use smoltcp::iface::EthernetInterfaceBuilder;
+use crate::cpu::hw_interrupts;
+use crate::drivers;
+
+use smoltcp::iface::{EthernetInterface, EthernetInterfaceBuilder, NeighborCache, Routes};
 use smoltcp::phy::Device;
 use smoltcp::phy::{DeviceCapabilities, RxToken, TxToken};
 use smoltcp::time::Instant;
+use smoltcp::wire::{EthernetAddress, IpCidr, Ipv4Address};
+use smoltcp::Error as NetError;
 use smoltcp::Result as NetResult;
 
-use core::fmt;
-use core::sync::atomic::{AtomicU64, Ordering};
+use core::sync::atomic::AtomicU64;
 
-use lazy_static::lazy_static;
 use spin::Mutex;
+use spin::Once;
 
 const NET_DEFAULT_MTU: usize = 1500;
 
-use alloc::{boxed::Box, vec::Vec};
+use alloc::{boxed::Box, collections::BTreeMap, vec::Vec};
 
 /// Smoltcp token type for Transmission
 pub struct VirtualTx {}
@@ -31,22 +34,48 @@ pub struct VirtualRx {
 }
 
 impl TxToken for VirtualTx {
-    fn consume<R, F>(mut self, timestamp: Instant, len: usize, f: F) -> NetResult<R>
+    #[allow(unused_mut)]
+    fn consume<R, F>(mut self, _timestamp: Instant, len: usize, f: F) -> NetResult<R>
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
-        let mut buff: [u8; 10] = [0; 10];
-        f(&mut buff)
+        let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
+        if phy_lock.is_none() {
+            log::error!("no physical interface found.");
+            return Err(NetError::Illegal);
+        }
+
+        let phy_dev = phy_lock.as_mut().unwrap();
+        let buffer_res = phy_dev.get_current_tx_buffer();
+        if buffer_res.is_err() {
+            log::error!("interface error: {:?}", buffer_res.unwrap_err());
+            return Err(NetError::Illegal);
+        }
+
+        let buffer = buffer_res.unwrap();
+        let buffer_copy_res = f(buffer);
+        if buffer_copy_res.is_err() {
+            log::error!("interface error: failed to copy packet to DMA buffer");
+            return Err(NetError::Illegal);
+        }
+
+        let transmit_result = phy_dev.transmit_and_wait(buffer, len);
+        if transmit_result.is_err() {
+            log::error!("interface error: {:?}", transmit_result.unwrap_err());
+            return Err(NetError::Illegal);
+        }
+
+        Ok(buffer_copy_res.unwrap())
     }
 }
 
 impl RxToken for VirtualRx {
-    fn consume<R, F>(mut self, timestamp: Instant, f: F) -> NetResult<R>
+    #[allow(unused_mut)]
+    fn consume<R, F>(mut self, _timestamp: Instant, f: F) -> NetResult<R>
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
-        let mut buff: [u8; 10] = [0; 10];
-        f(&mut buff)
+        f(&mut self.recv_buffer)
     }
 }
 
@@ -58,30 +87,11 @@ pub struct VirtualNetworkDeviceStats {
     pub n_rx_bytes: AtomicU64,
 }
 
-type PhyNetDevType = dyn PhysicalNetworkDevice + Sync + Send;
+pub type PhyNetDevType = dyn PhysicalNetworkDevice + Sync + Send;
+pub type EthernetInterfaceType = EthernetInterface<'static, VirtualNetworkDevice>;
 
 /// VirtualNetworkInterface plugs the physical device with smoltcp
-pub struct VirtualNetworkDevice {
-    /// represents a physical network device
-    /// this can be optional, if `None`, the loopback interface
-    /// will be used with `127.0.0.1` address.
-    phy_driver: Option<Box<PhyNetDevType>>,
-    stats: VirtualNetworkDeviceStats,
-}
-
-impl VirtualNetworkDevice {
-    pub fn with_mut_phy_dev_ref<F, R>(&mut self, mut virtual_func: F) -> Result<R, PhyNetdevError>
-    where
-        F: FnMut(&mut PhyNetDevType) -> Result<R, PhyNetdevError>,
-    {
-        if self.phy_driver.is_none() {
-            return Err(PhyNetdevError::NoPhysicalDevice);
-        }
-
-        let dev_mut_ref = self.phy_driver.as_mut().unwrap().as_mut();
-        virtual_func(dev_mut_ref)
-    }
-}
+pub struct VirtualNetworkDevice;
 
 impl<'a> Device<'a> for VirtualNetworkDevice {
     type TxToken = VirtualTx;
@@ -98,10 +108,12 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     fn capabilities(&self) -> DeviceCapabilities {
         let mut caps = DeviceCapabilities::default();
 
-        caps.max_transmission_unit = if self.phy_driver.is_none() {
+        let dev_lock = PHY_ETHERNET_DRIVER.lock();
+
+        caps.max_transmission_unit = if dev_lock.is_none() {
             NET_DEFAULT_MTU
         } else {
-            let mtu_res = self.phy_driver.as_ref().unwrap().get_mtu_size();
+            let mtu_res = dev_lock.as_ref().unwrap().get_mtu_size();
             let dev_mtu = if mtu_res.is_ok() {
                 log::debug!(
                     "MTU not provided by the device, using default mtu={}",
@@ -148,12 +160,70 @@ pub trait PhysicalNetworkDevice {
 
     /// get the device MTU size
     fn get_mtu_size(&self) -> Result<usize, PhyNetdevError>;
+
+    /// get the mac address
+    fn get_mac_address(&self) -> Result<[u8; 6], PhyNetdevError>;
 }
 
 /// the function will be called from the device's receiver function
 /// triggered by the network interrupt and there is a frame in DMA buffer.
 /// The parameter `buffer` contains the read-only slice view of the
 /// DMA buffer.
-pub fn handle_recv_packet(_buffer: &[u8]) {}
+pub fn handle_recv_packet(buffer: &[u8]) {
+    log::debug!("{:?}", buffer);
+}
 
-pub fn setup_network_interface() {}
+/// contains the physical network device type, can be None, if `None`, loopback will be used.
+static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
+static ETHERNET_INTERFACE: Once<Mutex<EthernetInterfaceType>> = Once::new();
+
+pub fn setup_network_interface() {
+    // 1. get available network device:
+    let device_opt = drivers::get_network_device();
+    if device_opt.is_none() {
+        log::error!("no network interfaces found, configuring interface in loopback mode.");
+        // TODO: setup loopback
+        return;
+    }
+
+    let netdev = device_opt.unwrap();
+
+    // register device interrupt
+    let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
+    hw_interrupts::register_network_interrupt(interrupt_no);
+
+    if let Ok(mac_addr) = netdev.get_mac_address() {
+        // TODO: Update this later
+        let neighbor_cache = NeighborCache::new(BTreeMap::new());
+        let routes = Routes::new(BTreeMap::new());
+        let ip_addrs = [IpCidr::new(Ipv4Address::UNSPECIFIED.into(), 0)];
+        let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
+            .ethernet_addr(EthernetAddress::from_bytes(&mac_addr))
+            .neighbor_cache(neighbor_cache)
+            .ip_addrs(ip_addrs)
+            .routes(routes)
+            .finalize();
+
+        log::info!(
+            "Initialized system network interface, ip_addr={:?}",
+            iface.ipv4_address()
+        );
+        ETHERNET_INTERFACE.call_once(|| Mutex::new(iface));
+    }
+
+    // save network device:
+    *PHY_ETHERNET_DRIVER.lock() = Some(netdev);
+}
+
+pub fn network_interrupt_handler() {
+    let mut net_dev_lock = PHY_ETHERNET_DRIVER.lock();
+    if net_dev_lock.is_some() {
+        let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
+        if result.is_err() {
+            log::error!(
+                "failed to handle device interrupt: {:?}",
+                result.unwrap_err()
+            );
+        }
+    }
+}
