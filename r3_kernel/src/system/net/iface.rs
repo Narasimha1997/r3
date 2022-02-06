@@ -56,7 +56,7 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     }
 
     fn transmit(&'a mut self) -> Option<Self::TxToken> {
-        None
+        Some(VirtualTx {})
     }
 
     fn capabilities(&self) -> DeviceCapabilities {
@@ -71,22 +71,33 @@ pub trait NetworkInterrupt {
 }
 
 #[derive(Debug, Clone)]
-pub enum PhyTransmissionErr {
+pub enum PhyNetdevError {
     InterfaceError = 0,
     NoTxBuffer = 1,
+    NoInterruptLine = 2,
+    InterruptHandlingError = 3,
+    EmptyInterruptRecvBuffer = 4,
+    InvalidRecvHeader = 5,
 }
 
 /// the core trait implemented by physical network device driver
 pub trait PhysicalNetworkDevice {
     /// get the buffer region where the next packet must be copied to
-    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], PhyTransmissionErr>;
+    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], PhyNetdevError>;
 
     /// call the transmit on device's side and wait for the hardware driver to return back
-    fn transmit_and_wait(
-        &mut self,
-        buffer: &mut [u8],
-        length: usize,
-    ) -> Result<(), PhyTransmissionErr>;
+    fn transmit_and_wait(&mut self, buffer: &mut [u8], length: usize)
+        -> Result<(), PhyNetdevError>;
 
-    // 
+    /// get the interrupt handler details from the network device
+    fn handle_interrupt(&mut self) -> Result<(), PhyNetdevError>;
+
+    /// get device interrupt line no
+    fn get_interrupt_no(&self) -> Result<usize, PhyNetdevError>;
 }
+
+/// the function will be called from the device's receiver function
+/// after it got the packet in it's DMA receive buffer.
+/// The parameter `buffer` contains the read-only slice view of the
+/// DMA buffer.
+pub fn handle_recv_packet(_buffer: &[u8]) {}

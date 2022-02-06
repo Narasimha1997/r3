@@ -9,6 +9,10 @@ use lazy_static::lazy_static;
 
 use spin::Mutex;
 
+/// increase the size factor by 1 to double the receive buffer size
+/// the base size is 8k
+const RTL_RX_SIZE_FACTOR: usize = 0;
+
 const RTL_VENDOR_ID: u16 = 0x10EC;
 const RTL_DEVICE_ID: u16 = 0x8139;
 
@@ -33,9 +37,11 @@ const RTL_INTERFRAME_TIME_GAP: usize = 1 << 24;
 const RTL_RX_BUFFER_PAD: usize = 16;
 const RTL_RX_BUFFER_LENGTH: usize = 0 << 11;
 const RTL_TX_BUFFER_SIZE: usize = 4096;
-const RTL_RX_BUFFER_SIZE: usize = 8145;
+
+const RTL_RX_BUFFER_SIZE: usize = ((8 * 1024) << RTL_RX_SIZE_FACTOR) + RTL_RX_BUFFER_PAD;
 const PHY_MTU_SIZE: usize = 1500;
 const RTL_N_TX_BUFFERS: usize = 4;
+const RTL_RC_EMPTY_BUFFER: usize = 1 << 0;
 
 /// First 13 bits will be used for representing length
 const RTL_LENGTH_BITS: usize = 0x1FFF;
@@ -50,7 +56,6 @@ pub enum RTLDeviceCommand {
     SoftReset = 1 << 4,
     EnableTx = 1 << 2,
     EnableRx = 1 << 3,
-    EmptyBuffer = 1 << 0,
 }
 
 struct DeviceTx {
@@ -123,6 +128,7 @@ impl DeviceRx {
 struct DeviceBuffers {
     tx_dma: [phy::DMABuffer; RTL_N_TX_BUFFERS],
     rx_dma: phy::DMABuffer,
+    read_offset: usize,
 }
 
 impl DeviceBuffers {
@@ -135,7 +141,11 @@ impl DeviceBuffers {
             phy::DMAMemoryManager::alloc(RTL_TX_BUFFER_SIZE).expect("Failed to allocate DMA buffer")
         });
 
-        DeviceBuffers { rx_dma, tx_dma }
+        DeviceBuffers {
+            rx_dma,
+            tx_dma,
+            read_offset: 0,
+        }
     }
 }
 
@@ -251,6 +261,47 @@ impl Realtek8139Device {
             .write_u32((RTL_INTERFRAME_TIME_GAP | RTL_TX_DMA0 | RTL_TX_DMA1 | RTL_TX_DMA2) as u32);
     }
 
+    #[inline]
+    pub fn receive_packet(&mut self) -> Result<&'static [u8], iface::PhyNetdevError> {
+        // is this an empty packet?
+        let cmd_data = self.config.cmd.read_u32() as usize;
+        if cmd_data & RTL_RC_EMPTY_BUFFER == RTL_RC_EMPTY_BUFFER {
+            return Err(iface::PhyNetdevError::EmptyInterruptRecvBuffer);
+        }
+
+        let capr_data = self.config.capr.read_u32() as usize;
+        let cbr_data = self.config.cbr.read_u32() as usize;
+
+        let bounded_offset = (capr_data + RTL_RX_BUFFER_PAD) % (1 << 16);
+
+        // parse the buffer:
+        // structure: | header - (2 bytes, u16) | length - (2 bytes, u16) | data - (length - 4 bytes [u8]) | crc - (4 bytes, u32)
+
+        let buffer_slice: &[u8] = &(self.buffers.rx_dma.get_slice::<u8>())[bounded_offset..];
+
+        let header = u16::from_le_bytes([buffer_slice[0], buffer_slice[1]]) as usize;
+        // header must have ROK flag set
+        if header & RTL_RECV_OK != RTL_RECV_OK {
+            self.config.capr.write_u32(cbr_data as u32);
+            return Err(iface::PhyNetdevError::InvalidRecvHeader);
+        }
+
+        let buffer_length = u16::from_le_bytes([buffer_slice[2], buffer_slice[3]]) as usize;
+
+        // ignore CRC (i.e the last 4 bytes)
+        let data_length = buffer_length - 4;
+
+        self.buffers.read_offset = (bounded_offset + buffer_length + 3) & !3;
+
+        // write back the updated offset back to the capr
+        self.config
+            .capr
+            .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
+
+        // return the slice over the data:
+        Ok(&buffer_slice[4..data_length])
+    }
+
     pub fn prepare_interface(&mut self) {
         // 1. boot up
         self.send_command(&self.config.config_1, RTLDeviceCommand::HardPowerUp as u8);
@@ -274,10 +325,10 @@ impl Realtek8139Device {
 }
 
 impl iface::PhysicalNetworkDevice for Realtek8139Device {
-    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], iface::PhyTransmissionErr> {
+    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], iface::PhyNetdevError> {
         let tx_id = self.tx_line.tx_id;
         if tx_id >= RTL_N_TX_BUFFERS {
-            return Err(iface::PhyTransmissionErr::NoTxBuffer);
+            return Err(iface::PhyNetdevError::NoTxBuffer);
         }
 
         Ok(self.buffers.tx_dma[tx_id].get_mut_slice::<u8>())
@@ -287,10 +338,10 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         &mut self,
         _buffer: &mut [u8],
         length: usize,
-    ) -> Result<(), iface::PhyTransmissionErr> {
+    ) -> Result<(), iface::PhyNetdevError> {
         let tx_id = self.tx_line.tx_id;
         if tx_id >= RTL_N_TX_BUFFERS {
-            return Err(iface::PhyTransmissionErr::NoTxBuffer);
+            return Err(iface::PhyNetdevError::NoTxBuffer);
         }
 
         // get current command port
@@ -306,6 +357,37 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         self.tx_line.tx_id = (tx_id + 1) % RTL_N_TX_BUFFERS;
 
         // Tx is not complete
+        Ok(())
+    }
+
+    fn get_interrupt_no(&self) -> Result<usize, iface::PhyNetdevError> {
+        // TODO:
+        Ok(0)
+    }
+
+    fn handle_interrupt(&mut self) -> Result<(), iface::PhyNetdevError> {
+        let interrupt_code = self.config.isr.read_u32() as usize;
+        // Transmit OK signal, we have already handled it
+        if interrupt_code & RTL_TX_OK == RTL_TX_OK {
+            self.config.isr.write_u32(0x05);
+            return Ok(());
+        }
+        // Receive OK signal, receive the packet and process it
+        if interrupt_code & RTL_RECV_OK == RTL_RECV_OK {
+            let recv_result = self.receive_packet();
+            self.config.isr.write_u32(0x05);
+
+            if recv_result.is_err() {
+                return Err(recv_result.unwrap_err());
+            }
+
+            // call the on_packet_handler:
+            iface::handle_recv_packet(recv_result.unwrap());
+
+            return Ok(());
+        }
+
+        // TODO: Handle more events, as of now, just acknowledge
         Ok(())
     }
 }
