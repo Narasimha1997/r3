@@ -24,7 +24,10 @@ const RTL_TX_DMA1: usize = 1 << 9;
 const RTL_TX_DMA2: usize = 1 << 10;
 
 // RTL basic device flags
-const RTL_ROK: usize = 0x01;
+const RTL_RECV_OK: usize = 0x01;
+const RTL_TX_OK: usize = 1 << 15;
+const RTL_DMA_COMPLETE: usize = 1 << 13;
+
 const RTL_WRAP_BUFFER: usize = 1 << 7;
 const RTL_INTERFRAME_TIME_GAP: usize = 1 << 24;
 const RTL_RX_BUFFER_PAD: usize = 16;
@@ -33,6 +36,9 @@ const RTL_TX_BUFFER_SIZE: usize = 4096;
 const RTL_RX_BUFFER_SIZE: usize = 8145;
 const PHY_MTU_SIZE: usize = 1500;
 const RTL_N_TX_BUFFERS: usize = 4;
+
+/// First 13 bits will be used for representing length
+const RTL_LENGTH_BITS: usize = 0x1FFF;
 
 // RTL interrupts flags
 const RTL_INTERRUPT_RECVOK: usize = 1 << 0;
@@ -268,8 +274,38 @@ impl Realtek8139Device {
 }
 
 impl iface::PhysicalNetworkDevice for Realtek8139Device {
-    fn get_current_tx_buffer(&mut self) -> &'static mut [u8] {
+    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], iface::PhyTransmissionErr> {
         let tx_id = self.tx_line.tx_id;
-        let buff_ptr = self.buffers.tx_dma[tx_id].get_mut_ptr::<u8>();
+        if tx_id >= RTL_N_TX_BUFFERS {
+            return Err(iface::PhyTransmissionErr::NoTxBuffer);
+        }
+
+        Ok(self.buffers.tx_dma[tx_id].get_mut_slice::<u8>())
+    }
+
+    fn transmit_and_wait(
+        &mut self,
+        _buffer: &mut [u8],
+        length: usize,
+    ) -> Result<(), iface::PhyTransmissionErr> {
+        let tx_id = self.tx_line.tx_id;
+        if tx_id >= RTL_N_TX_BUFFERS {
+            return Err(iface::PhyTransmissionErr::NoTxBuffer);
+        }
+
+        // get current command port
+        let tx_cmd_port = self.tx_line.cmds[tx_id];
+        // write the length:
+        tx_cmd_port.write_u32((RTL_LENGTH_BITS & length) as u32);
+        // wait for packet to be moved from DMA to FIFO queue
+        while (tx_cmd_port.read_u32() as usize & RTL_DMA_COMPLETE) != RTL_DMA_COMPLETE {}
+        // wait for Tx to complete
+        while (tx_cmd_port.read_u32() as usize & RTL_TX_OK) != RTL_TX_OK {}
+
+        // increment tx_id
+        self.tx_line.tx_id = (tx_id + 1) % RTL_N_TX_BUFFERS;
+
+        // Tx is not complete
+        Ok(())
     }
 }

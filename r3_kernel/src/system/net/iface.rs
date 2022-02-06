@@ -70,7 +70,23 @@ pub trait NetworkInterrupt {
     fn ack(&mut self);
 }
 
+#[derive(Debug, Clone)]
+pub enum PhyTransmissionErr {
+    InterfaceError = 0,
+    NoTxBuffer = 1,
+}
+
 /// the core trait implemented by physical network device driver
 pub trait PhysicalNetworkDevice {
-    fn get_current_tx_buffer(&mut self) -> &'static mut [u8];
+    /// get the buffer region where the next packet must be copied to
+    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], PhyTransmissionErr>;
+
+    /// call the transmit on device's side and wait for the hardware driver to return back
+    fn transmit_and_wait(
+        &mut self,
+        buffer: &mut [u8],
+        length: usize,
+    ) -> Result<(), PhyTransmissionErr>;
+
+    // 
 }

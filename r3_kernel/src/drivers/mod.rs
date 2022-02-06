@@ -51,7 +51,7 @@ pub fn load_pci_drivers() {
             }
             RTL_NETWORK_INTERFACE => {
                 log::info!("Found driver for device {:x}:{:x}", device_id, vendor_id);
-                rtl8139::init();
+                // rtl8139::init();
             }
             _ => {
                 log::warn!(
