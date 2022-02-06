@@ -4,6 +4,11 @@ use crate::cpu::io::{wait, Port};
 use crate::drivers::pci;
 use crate::mm::phy;
 
+// smoltcp
+extern crate smoltcp;
+
+use smoltcp::phy::Device;
+
 use lazy_static::lazy_static;
 
 use spin::Mutex;
@@ -265,6 +270,7 @@ impl Realtek8139Device {
         self.finalize_config();
     }
 }
+
 
 lazy_static! {
     pub static ref RTL_DEVICE: Mutex<Realtek8139Device> = Mutex::new(Realtek8139Device::new());

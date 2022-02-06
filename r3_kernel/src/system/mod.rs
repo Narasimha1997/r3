@@ -7,6 +7,7 @@ pub mod tasking;
 pub mod thread;
 pub mod timer;
 pub mod utils;
+pub mod net;
 
 use tasking::Sched;
 
