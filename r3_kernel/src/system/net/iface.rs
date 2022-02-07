@@ -6,12 +6,13 @@ extern crate spin;
 
 use crate::cpu::hw_interrupts;
 use crate::drivers;
+use crate::system::net::ip_utils;
 
 use smoltcp::iface::{EthernetInterface, EthernetInterfaceBuilder, NeighborCache, Routes};
 use smoltcp::phy::Device;
 use smoltcp::phy::{DeviceCapabilities, RxToken, TxToken};
 use smoltcp::time::Instant;
-use smoltcp::wire::{EthernetAddress, IpCidr, Ipv4Address};
+use smoltcp::wire::{EthernetAddress, IpAddress, IpCidr, Ipv4Address};
 use smoltcp::Error as NetError;
 use smoltcp::Result as NetResult;
 
@@ -177,12 +178,45 @@ pub fn handle_recv_packet(buffer: &[u8]) {
 static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
 static ETHERNET_INTERFACE: Once<Mutex<EthernetInterfaceType>> = Once::new();
 
+fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
+    let neighbor_cache = NeighborCache::new(BTreeMap::new());
+    let routes = Routes::new(BTreeMap::new());
+    let ip_addrs = [IpCidr::new(Ipv4Address::UNSPECIFIED.into(), 0)];
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
+        .ethernet_addr(EthernetAddress::from_bytes(&mac_addr))
+        .neighbor_cache(neighbor_cache)
+        .ip_addrs(ip_addrs)
+        .routes(routes)
+        .finalize();
+    iface
+}
+
+fn create_loopback_interface() -> EthernetInterfaceType {
+    let neighbor_cache = NeighborCache::new(BTreeMap::new());
+    let routes = Routes::new(BTreeMap::new());
+
+    let (ip, prefix) = ip_utils::get_ipv4_with_prefix_from_string("127.0.0.1/8").unwrap();
+    let ip_addrs = [IpCidr::new(IpAddress::from(ip), prefix as u8)];
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
+        .ethernet_addr(EthernetAddress::default().into())
+        .neighbor_cache(neighbor_cache)
+        .ip_addrs(ip_addrs)
+        .routes(routes)
+        .finalize();
+    iface
+}
+
 pub fn setup_network_interface() {
     // 1. get available network device:
     let device_opt = drivers::get_network_device();
     if device_opt.is_none() {
         log::error!("no network interfaces found, configuring interface in loopback mode.");
-        // TODO: setup loopback
+        let iface = create_loopback_interface();
+        log::info!(
+            "Initialized system network interface, ip_addr={:?}",
+            iface.ipv4_address()
+        );
+        ETHERNET_INTERFACE.call_once(|| Mutex::new(iface));
         return;
     }
 
@@ -194,15 +228,7 @@ pub fn setup_network_interface() {
 
     if let Ok(mac_addr) = netdev.get_mac_address() {
         // TODO: Update this later
-        let neighbor_cache = NeighborCache::new(BTreeMap::new());
-        let routes = Routes::new(BTreeMap::new());
-        let ip_addrs = [IpCidr::new(Ipv4Address::UNSPECIFIED.into(), 0)];
-        let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
-            .ethernet_addr(EthernetAddress::from_bytes(&mac_addr))
-            .neighbor_cache(neighbor_cache)
-            .ip_addrs(ip_addrs)
-            .routes(routes)
-            .finalize();
+        let iface = create_unspecified_interface(&mac_addr);
 
         log::info!(
             "Initialized system network interface, ip_addr={:?}",
