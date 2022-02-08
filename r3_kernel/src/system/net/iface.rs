@@ -7,6 +7,7 @@ extern crate spin;
 use crate::cpu::hw_interrupts;
 use crate::drivers;
 use crate::system::net::ip_utils;
+use crate::system::net::types;
 
 use smoltcp::iface::{EthernetInterface, EthernetInterfaceBuilder, NeighborCache, Routes};
 use smoltcp::phy::Device;
@@ -19,9 +20,12 @@ use smoltcp::Result as NetResult;
 use core::sync::atomic::AtomicU64;
 
 use spin::Mutex;
-use spin::Once;
 
 const NET_DEFAULT_MTU: usize = 1500;
+
+// TODO: Make these as variables passed from boot-info
+const DEFAULT_GATEWAY: &str = "192.168.0.1";
+const DEFAULT_STATIC_IP: &str = "192.168.0.115/24";
 
 use alloc::{boxed::Box, collections::BTreeMap, vec::Vec};
 
@@ -99,10 +103,16 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     type RxToken = VirtualRx;
 
     fn receive(&'a mut self) -> Option<(Self::RxToken, Self::TxToken)> {
+        log::debug!("called receive!");
+        if let Ok(recv_buffer) = types::NETWORK_IFACE_QUEUE.lock().pop() {
+            return Some((VirtualRx { recv_buffer }, VirtualTx {}));
+        }
+
         None
     }
 
     fn transmit(&'a mut self) -> Option<Self::TxToken> {
+        log::debug!("called transmit!");
         Some(VirtualTx {})
     }
 
@@ -171,12 +181,16 @@ pub trait PhysicalNetworkDevice {
 /// The parameter `buffer` contains the read-only slice view of the
 /// DMA buffer.
 pub fn handle_recv_packet(buffer: &[u8]) {
-    log::debug!("{:?}", buffer);
+    let packet_vec = buffer.to_vec();
+    log::debug!("received packet!");
+    if let Err(_) = types::NETWORK_IFACE_QUEUE.lock().push(packet_vec) {
+        log::debug!("dropping network packet because interface queue is full")
+    }
 }
 
 /// contains the physical network device type, can be None, if `None`, loopback will be used.
 static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
-static ETHERNET_INTERFACE: Once<Mutex<EthernetInterfaceType>> = Once::new();
+static ETHERNET_INTERFACE: Mutex<Option<EthernetInterfaceType>> = Mutex::new(None);
 
 fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
@@ -189,6 +203,41 @@ fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
         .routes(routes)
         .finalize();
     iface
+}
+
+fn create_static_ip_interface(
+    mac: &[u8],
+    gateway: &str,
+    ip: &str,
+) -> Option<EthernetInterfaceType> {
+    let mut routes = Routes::new(BTreeMap::new());
+    let neighbor_cache = NeighborCache::new(BTreeMap::new());
+    // set gateway as the default route:
+    let gateway_ip = ip_utils::get_ipv4_from_string(gateway)?;
+
+    routes
+        .add_default_ipv4_route(gateway_ip)
+        .expect("failed to add default ip to the network routes");
+    // set provided static IP
+    let (ip, prefix) = ip_utils::get_ipv4_with_prefix_from_string(ip)?;
+    let ip_addrs = [IpCidr::new(IpAddress::from(ip), prefix as u8)];
+
+    log::info!(
+        "creating static IP interface ip={}, gateway={}",
+        DEFAULT_STATIC_IP,
+        DEFAULT_GATEWAY
+    );
+
+    // create the ethernet interface
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
+        .ethernet_addr(EthernetAddress::from_bytes(mac))
+        .neighbor_cache(neighbor_cache)
+        .ip_addrs(ip_addrs)
+        .routes(routes)
+        .finalize();
+
+    log::debug!("created interface");
+    Some(iface)
 }
 
 fn create_loopback_interface() -> EthernetInterfaceType {
@@ -216,37 +265,56 @@ pub fn setup_network_interface() {
             "Initialized system network interface, ip_addr={:?}",
             iface.ipv4_address()
         );
-        ETHERNET_INTERFACE.call_once(|| Mutex::new(iface));
+
+        *ETHERNET_INTERFACE.lock() = Some(iface);
         return;
     }
 
     let netdev = device_opt.unwrap();
-
-    // register device interrupt
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
     hw_interrupts::register_network_interrupt(interrupt_no);
+    log::info!("registered network interrupt on line: {}", interrupt_no);
 
-    if let Ok(mac_addr) = netdev.get_mac_address() {
+    *PHY_ETHERNET_DRIVER.lock() = Some(netdev);
+
+    let mac_result = PHY_ETHERNET_DRIVER
+        .lock()
+        .as_ref()
+        .unwrap()
+        .get_mac_address();
+
+    // register device interrupt
+    if let Ok(mac_addr) = mac_result {
         // TODO: Update this later
-        let iface = create_unspecified_interface(&mac_addr);
-
-        log::info!(
-            "Initialized system network interface, ip_addr={:?}",
-            iface.ipv4_address()
-        );
-        ETHERNET_INTERFACE.call_once(|| Mutex::new(iface));
+        if let Some(iface) =
+            create_static_ip_interface(&mac_addr, DEFAULT_GATEWAY, DEFAULT_STATIC_IP)
+        {
+            log::info!(
+                "initialized network interface with IP: {:?}",
+                iface.ipv4_address()
+            );
+            *ETHERNET_INTERFACE.lock() = Some(iface);
+        } else {
+            let iface = create_unspecified_interface(&mac_addr);
+            log::warn!(
+                "initialized network interface with unspecified IP: {:?}",
+                iface.ipv4_address()
+            );
+            *ETHERNET_INTERFACE.lock() = Some(iface);
+        }
     }
 
+    types::setup_interface_queue();
     // save network device:
-    *PHY_ETHERNET_DRIVER.lock() = Some(netdev);
 }
 
 pub fn network_interrupt_handler() {
+    log::info!("got network interrupt!");
     let mut net_dev_lock = PHY_ETHERNET_DRIVER.lock();
     if net_dev_lock.is_some() {
         let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
         if result.is_err() {
-            log::error!(
+            log::debug!(
                 "failed to handle device interrupt: {:?}",
                 result.unwrap_err()
             );
