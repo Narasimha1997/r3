@@ -19,11 +19,13 @@ static mut SYSTEM_KEYBOARD_INTERRUPT_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
 static mut PRIVILEGE_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
+static mut SYSTEM_NETWORK_INTERRUPT_STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+
 pub fn init_system_stacks(tss: &mut TaskStateSegment) {
     // default interrupt handler is 0th entry
     unsafe {
         tss.set_interrupt_stack(0, (&DEFAULT_INTERRUPT_STACK as *const _) as u64);
-        // set the privilege stacl
+        // set the privilege stack
         tss.set_privilege_stack(0, (&PRIVILEGE_STACK as *const _) as u64);
 
         // set the default system call stack
@@ -34,6 +36,9 @@ pub fn init_system_stacks(tss: &mut TaskStateSegment) {
 
         // set the LAPIC timer stack
         tss.set_interrupt_stack(3, (&LAPIC_TIMER_INTERRPUT_STACK as *const _) as u64);
+
+        // set Network stack
+        tss.set_interrupt_stack(4, (&SYSTEM_NETWORK_INTERRUPT_STACK as *const _) as u64);
     }
 }
 

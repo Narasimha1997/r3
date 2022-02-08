@@ -39,7 +39,7 @@ pub fn get_page_table_address() -> PhysicalAddress {
 
 pub fn set_page_table_address(addr: PhysicalAddress) {
     let masked_value = addr.as_u64();
-    write_cr3(masked_value);   
+    write_cr3(masked_value);
 }
 
 pub fn get_page_table_flags() -> u16 {

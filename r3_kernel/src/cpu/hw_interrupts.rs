@@ -6,7 +6,7 @@ use crate::cpu::interrupts;
 use crate::cpu::pic;
 use crate::cpu::pit;
 use crate::drivers::keyboard;
-
+use crate::system::net::iface::network_interrupt_handler;
 
 #[allow(unused_imports)]
 // unused because this is called from assembly
@@ -24,6 +24,9 @@ const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
 
 /// ATA interrupt line - SECONDARY slave:
 const ATA_SECONDARY_INTERRUPT_LINE: usize = 0x0F;
+
+/// Timeshot interrupt line
+const TIMESHOT_INTERRUPT_LINE: usize = 0x10;
 
 /// Keyboard controller interrupt line:
 const KEYBOARD_INTERRUPT_LINE: usize = 0x01;
@@ -57,17 +60,13 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
     LAPICUtils::eoi();
 }
 
+extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
+    network_interrupt_handler();
+    LAPICUtils::eoi();
+}
+
 #[naked]
-/// This function is called via Naked ABI: https://github.com/nox/rust-rfcs/blob/master/text/1201-naked-fns.md
-/// this ABI keeps all the registers unaffected, the state of the CPU is dumped into
-/// CPURegustersState type, this can be used by schedulers context switched.
-/// The warning 'unsupported_naked_functions' is allowed since
-/// get_state() calls assembly and is always inlined.
 extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
-    // as of now, this function saves the current state,
-    // saves the CPU states, performs some work and enables
-    // the next timer event, then loads the previously saved state
-    // so execution can continue normally.
     unsafe {
         asm!(
             "push r15;
@@ -92,24 +91,28 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 }
 
 pub fn setup_hw_interrupts() {
-
     // PIT legacy timer
     let irq0x00_handle = prepare_default_handle(pit_irq0_handler, 0);
-    IDT.lock().interrupts[PIT_INTERRUPT_LINE] = irq0x00_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE] = irq0x00_handle;
 
     // ATA 14 primary
     let irq0x0e_handle = prepare_default_handle(ata_irq14_handler, 0);
-    IDT.lock().interrupts[ATA_PRIMARY_INTERRIUPT_LINE] = irq0x0e_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + ATA_PRIMARY_INTERRIUPT_LINE] = irq0x0e_handle;
 
     // ATA 15 secondary
     let irq0x0f_handle = prepare_default_handle(ata_irq15_handler, 0);
-    IDT.lock().interrupts[ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + ATA_SECONDARY_INTERRUPT_LINE] = irq0x0f_handle;
 }
 
 pub fn setup_post_apic_interrupts() {
     let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt, 3);
-    IDT.lock().naked_0 = irq0x30_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + TIMESHOT_INTERRUPT_LINE] = irq0x30_handle;
 
     let irq0x01_handle = prepare_default_handle(kbd_irq1_handler, 2);
-    IDT.lock().interrupts[KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;
+}
+
+pub fn register_network_interrupt(int_no: usize) {
+    let irq_handler = prepare_default_handle(net_interrupt_wrapper, 4);
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + int_no] = irq_handler;
 }

@@ -255,7 +255,12 @@ impl FDOps for TarFSDriver {
         return Err(FSError::NotFound);
     }
 
-    fn ioctl(&self, _fd: &mut FileDescriptor, _command: usize, _arg: usize) -> Result<usize, FSError> {
+    fn ioctl(
+        &self,
+        _fd: &mut FileDescriptor,
+        _command: usize,
+        _arg: usize,
+    ) -> Result<usize, FSError> {
         Ok(0)
     }
 }

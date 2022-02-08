@@ -3,9 +3,6 @@ typedef uint64_t u64;
 typedef int64_t i64;
 
 static const char *brand_string_heading = "Brand string is: ";
-static const char *term = "/sbin/write";
-static const char *parent = "parent\n";
-static const char *child = "child\n";
 static int a[10];
 
 void syscall_write(u64 rdi, u64 rsi, u64 rdx)
@@ -15,38 +12,6 @@ void syscall_write(u64 rdi, u64 rsi, u64 rdx)
         "int $0x80"
         : "=a"(ret_val)
         : "0"(1), "D"(rdi), "S"(rsi), "d"(rdx)
-        : "rcx", "r11", "memory");
-}
-
-u64 syscall_fork()
-{
-    i64 ret_val;
-    asm volatile(
-        "int $0x80"
-        : "=a"(ret_val)
-        : "0"(11)
-        : "rcx", "r11", "memory");
-    return ret_val;
-}
-
-u64 syscall_pid()
-{
-    i64 ret_val;
-    asm volatile(
-        "int $0x80"
-        : "=a"(ret_val)
-        : "0"(9)
-        : "rcx", "r11", "memory");
-    return ret_val;
-}
-
-void syscall_execv(u64 rdi)
-{
-    i64 ret_val;
-    asm volatile(
-        "int $0x80"
-        : "=a"(ret_val)
-        : "0"(59), "D"(rdi)
         : "rcx", "r11", "memory");
 }
 

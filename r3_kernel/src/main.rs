@@ -5,7 +5,6 @@
 #![feature(alloc_error_handler)] // enable allocation errors
 #![feature(naked_functions)] // allow naked calling convention
 #![feature(drain_filter)] // used to remove threads to wake up from sleep queue
-#![feature(llvm_asm)]
 
 extern crate alloc;
 extern crate bootloader;
@@ -46,7 +45,6 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     acpi::init();
 
     // read_addr();
-
     log::info!("Initial stage booted properly.");
 }
 
@@ -71,14 +69,16 @@ fn start_idle_kthread() {
         return;
     }
 
+    // run this thread
+    log::info!("Started system idle thread in background.");
+
+    // start the echo client process
     let pid = system::process::new(format!("test"), true, "/sbin/write");
     let thread_result = system::thread::new_main_thread(&pid, format!("main"));
     if thread_result.is_err() {
-        log::error!("Failed to run system idle thread, threading not working!!!");
+        log::error!("Failed to run /sbin/write thread, threading not working!!!");
         return;
     }
-    // run this thread
-    log::info!("Started system idle thread in background.")
 }
 
 fn init_functionalities() {
@@ -98,6 +98,9 @@ fn init_functionalities() {
 
     // mount necessary file-systems
     system::probe_filesystems();
+
+    // init networking
+    system::init_networking();
 
     // setup multi-tasking
     system::init_tasking();

@@ -3,17 +3,17 @@ extern crate log;
 pub mod cpuid;
 pub mod exceptions;
 pub mod hw_interrupts;
-pub mod interrupts;
 pub mod interrupt_stacks;
+pub mod interrupts;
 pub mod io;
 pub mod mmu;
 pub mod pic;
 pub mod pit;
 pub mod rflags;
 pub mod segments;
-pub mod tsc;
-pub mod syscall;
 pub mod state;
+pub mod syscall;
+pub mod tsc;
 
 pub fn enable_interrupts() {
     unsafe {

@@ -6,7 +6,9 @@ typedef int64_t i64;
 static char buffer[4096];
 static const char *welcome = "Welcome to ECHO program, I will echo whatever you say noob!.\n";
 static const char *bullets = ">>> ";
-static const char *cpuid_term = "/sbin/cpuid";
+
+// syscall 0 - read
+// syscall 1 - write
 
 typedef struct
 {
@@ -36,6 +38,7 @@ i64 syscall_sleep(u64 rdi)
     return ret_val;
 }
 
+<<<<<<< HEAD
 i64 syscall_exit(u64 rdi)
 {
     i64 ret_val;
@@ -113,6 +116,8 @@ void exec_cpuid()
     }
 }
 
+=======
+>>>>>>> 7814cbb7259dee237460843d6315ab1d1af066b1
 void _start()
 {
     i64 read_length = 0, iter = 0, n_times = 0;
@@ -121,18 +126,20 @@ void _start()
     sleep_time.microseconds = 0;
 
     syscall(1, 1, (u64)welcome, 62);
-    for (n_times = 0; n_times < 4; n_times++)
+    for (;;)
     {
         syscall(1, 1, (u64)bullets, 5);
         read_length = syscall(0, 0, (u64)buffer, 4096);
-        syscall_sleep((u64)(&sleep_time));
-        exec_cpuid();
         syscall(1, 1, (u64)buffer, (u64)read_length);
+        syscall_sleep((u64)(&sleep_time));
         for (iter = 0; iter < read_length; iter++)
         {
             buffer[iter] = 0;
         }
     }
+<<<<<<< HEAD
 
     syscall_shutdown();
+=======
+>>>>>>> 7814cbb7259dee237460843d6315ab1d1af066b1
 }

@@ -34,6 +34,7 @@ const SYSCALL_NO_SHUTDOWN: usize = 48;
 const SYSCALL_NO_REBOOT: usize = 49;
 const SYSCALL_NO_EXECVP: usize = 59;
 const SYSCALL_NO_UNAME: usize = 63;
+const SYSCALL_NO_GETRANDOM: usize = 64;
 const SYSCALL_NO_GETTIME: usize = 228;
 
 #[inline]
@@ -164,6 +165,21 @@ pub fn dispatch_syscall(regs: &mut SyscallRegsState, frame: &mut InterruptStackF
                 };
 
                 execvp_res
+            };
+
+            res
+        }
+        SYSCALL_NO_GETRANDOM => {
+            let res = if !abi::is_in_userspace(arg0 as u64) {
+                Err(abi::Errno::EFAULT)
+            } else {
+                let rand_result = misc::sys_getrandom(
+                    VirtualAddress::from_u64(arg0 as u64),
+                    arg1 as usize,
+                    arg2 as u8,
+                );
+
+                rand_result
             };
 
             res

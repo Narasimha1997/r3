@@ -11,8 +11,8 @@ use crate::system::tasking::{Sched, SCHEDULER};
 
 use crate::system::utils;
 
-use core::mem;
 use alloc::{boxed::Box, string::String};
+use core::mem;
 use core::sync::atomic::{AtomicU64, Ordering};
 
 pub type ThreadFn = fn();
@@ -378,7 +378,7 @@ pub fn new_from_function(
     }
 
     let thread = th_res.unwrap();
-    
+
     SCHEDULER.lock().add_new_thread(thread.clone());
     Ok(thread.thread_id)
 }

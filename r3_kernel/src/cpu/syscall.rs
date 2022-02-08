@@ -59,7 +59,7 @@ pub extern "sysv64" fn x80_handle(_stk: &mut InterruptStackFrame) {
 
 pub fn setup_syscall_interrupt() {
     let irq0x80_handle = prepare_syscall_interrupt(x80_handle, 1);
-    IDT.lock().interrupts_1[79] = irq0x80_handle;
+    IDT.lock().interrupts[0x80] = irq0x80_handle;
 }
 
 pub fn set_syscall_stack(addr: u64) {

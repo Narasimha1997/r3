@@ -10,6 +10,22 @@ use madt::PROCESSORS;
 
 pub struct ProcessorID(u8);
 
+const IA32_MSR_APIC_BASE: u32 = 0x1B;
+
+pub fn read_msr_base_address() -> u32 {
+    let base_addr_eax: u32;
+    unsafe {
+        asm!(
+            "rdmsr",
+            in("ecx") IA32_MSR_APIC_BASE,
+            out("eax") base_addr_eax,
+            options(nomem, nostack)
+        );
+    }
+
+    base_addr_eax & 0xfffff000
+}
+
 impl ProcessorID {
     #[inline]
     pub fn is_bsp(&self) -> bool {
@@ -97,6 +113,7 @@ impl LAPICUtils {
     pub fn enable_lapic() {
         // disable legacy interrupts
         disable_legacy_interrupts();
+
         let lapic_addr = LAPICRegistersIO::get_base_addr();
 
         let suprious_vec_addr =

@@ -360,7 +360,6 @@ lazy_static! {
 pub struct ATAController;
 
 impl ATAController {
-
     #[inline]
     pub fn new_drive(io_start: usize, ctrl_start: usize, irq_no: u8, id: u8) -> ATADevice {
         ATADevice {

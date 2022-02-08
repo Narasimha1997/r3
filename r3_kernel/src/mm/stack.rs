@@ -80,7 +80,8 @@ impl StackAllocator {
 
             log::debug!(
                 "Allocated stack from free-list index={:?}, n_remaining={}",
-                addr_index, self.free_list.len()
+                addr_index,
+                self.free_list.len()
             );
 
             return Ok(addr);
@@ -93,8 +94,11 @@ impl StackAllocator {
 
         let at_addr = self.addr_from_index(self.n_stacks);
         // map this page:
-        KernelVirtualMemoryManager::alloc_huge_page(at_addr, PageEntryFlags::kernel_hugepage_flags())
-            .expect("Failed to allocate huge-page page for stack.");
+        KernelVirtualMemoryManager::alloc_huge_page(
+            at_addr,
+            PageEntryFlags::kernel_hugepage_flags(),
+        )
+        .expect("Failed to allocate huge-page page for stack.");
 
         // zero the memory:
         self.zero(at_addr);

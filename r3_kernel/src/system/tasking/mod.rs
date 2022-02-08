@@ -1,4 +1,5 @@
 pub mod srbs;
+pub mod wait_queue;
 
 extern crate alloc;
 extern crate log;
@@ -124,4 +125,27 @@ pub fn schedule_yield() {
 
 pub fn handle_exit(thread: &mut Thread) {
     thread.free_stack();
+}
+
+// design inspired from: https://github.com/nuta/kerla/blob/main/kernel/process/wait_queue.rs
+pub fn wait_until_return<W, R, E>(mut wait_func: W) -> Result<R, E>
+where
+    W: FnMut() -> Result<Option<R>, E>,
+{
+    loop {
+        // check the return value:
+        let func_ret_value = wait_func();
+        let wait_ret_value: Option<Result<R, E>> = match func_ret_value {
+            Ok(ret_or_pending) => ret_or_pending.and_then(|res| Some(Ok(res))),
+            Err(err) => Some(Err(err)),
+        };
+
+        if wait_ret_value.is_none() {
+            // continue to wait if the task has not returned.
+            schedule_yield();
+        } else {
+            // return the value back to the caller
+            return wait_ret_value.unwrap();
+        }
+    }
 }

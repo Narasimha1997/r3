@@ -1,5 +1,5 @@
-extern crate spin;
 extern crate log;
+extern crate spin;
 
 use core::sync::atomic::{AtomicUsize, Ordering};
 use spin::Mutex;
