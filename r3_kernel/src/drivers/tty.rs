@@ -111,9 +111,9 @@ impl BlockingSystemTerminal {
                 col_line: 0,
             },
             color: Pixel {
-                b: 0,
+                b: 255,
                 g: 255,
-                r: 0,
+                r: 255,
                 channel: 0,
             },
             echo_input: true,

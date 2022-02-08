@@ -89,13 +89,13 @@ void syscall_wait(u64 rdi)
         : "rcx", "r11", "memory");
 }
 
-void syscall_reboot()
+void syscall_shutdown()
 {
     i64 ret_val;
     asm volatile(
         "int $0x80"
         : "=a"(ret_val)
-        : "0"(49)
+        : "0"(48)
         : "rcx", "r11", "memory");
 }
 
@@ -134,5 +134,5 @@ void _start()
         }
     }
 
-    syscall_reboot();
+    syscall_shutdown();
 }
