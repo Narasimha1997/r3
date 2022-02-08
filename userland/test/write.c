@@ -57,9 +57,4 @@ void _start()
             buffer[iter] = 0;
         }
     }
-<<<<<<< HEAD
-
-    syscall_shutdown();
-=======
->>>>>>> 7814cbb7259dee237460843d6315ab1d1af066b1
 }
