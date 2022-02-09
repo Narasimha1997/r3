@@ -1,10 +1,12 @@
 extern crate alloc;
 extern crate lazy_static;
 extern crate log;
+extern crate smoltcp;
 extern crate spin;
 
-use alloc::vec::Vec;
+use alloc::{vec::Vec, vec};
 use lazy_static::lazy_static;
+use smoltcp::socket::SocketSet;
 use spin::Mutex;
 
 const MAX_IFACE_QUEUE_SIZE: usize = 64;
@@ -19,6 +21,8 @@ pub enum NetworkInterfaceQueueError {
 pub struct NetworkInterfaceQueue {
     pub queue: Vec<NetworkInterfacePacket>,
 }
+
+pub static SOCKETS_SET: Mutex<Option<SocketSet>> = Mutex::new(None);
 
 lazy_static! {
     pub static ref NETWORK_IFACE_QUEUE: Mutex<NetworkInterfaceQueue> =
@@ -57,4 +61,8 @@ pub fn setup_interface_queue() {
         "initialized network interface queue with size={}",
         NETWORK_IFACE_QUEUE.lock().queue.capacity()
     );
+}
+
+pub fn setup_socket_set() {
+    *SOCKETS_SET.lock() = Some(SocketSet::new(vec![]));
 }

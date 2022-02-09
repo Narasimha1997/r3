@@ -26,7 +26,7 @@ pub fn probe_filesystems() {
 }
 
 pub fn init_networking() {
-    net::iface::setup_network_interface();
+    net::init_networking();
 }
 
 #[inline]

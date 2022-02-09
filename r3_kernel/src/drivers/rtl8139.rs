@@ -213,7 +213,7 @@ impl Realtek8139Device {
 
         // get io base register offset
         let io_base = (pci_dev.bars[0] & 0xFFF0) as usize;
-        log::info!("Initialized RTL 8139 device driver, MAC address");
+
         Realtek8139Device {
             tx_line: DeviceTx::new(io_base),
             rx_line: DeviceRx::new(io_base),

@@ -44,6 +44,8 @@ impl TxToken for VirtualTx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
+
+        log::debug!("called tx");
         let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
         if phy_lock.is_none() {
             log::error!("no physical interface found.");
@@ -57,8 +59,9 @@ impl TxToken for VirtualTx {
             return Err(NetError::Illegal);
         }
 
-        let buffer = buffer_res.unwrap();
+        let buffer = &mut buffer_res.unwrap()[0..len];
         let buffer_copy_res = f(buffer);
+
         if buffer_copy_res.is_err() {
             log::error!("interface error: failed to copy packet to DMA buffer");
             return Err(NetError::Illegal);
@@ -80,6 +83,7 @@ impl RxToken for VirtualRx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
+        log::debug!("called rx");
         f(&mut self.recv_buffer)
     }
 }
@@ -105,6 +109,7 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     fn receive(&'a mut self) -> Option<(Self::RxToken, Self::TxToken)> {
         log::debug!("called receive!");
         if let Ok(recv_buffer) = types::NETWORK_IFACE_QUEUE.lock().pop() {
+            log::info!("recv buffer: {:?}", recv_buffer);
             return Some((VirtualRx { recv_buffer }, VirtualTx {}));
         }
 
@@ -190,7 +195,7 @@ pub fn handle_recv_packet(buffer: &[u8]) {
 
 /// contains the physical network device type, can be None, if `None`, loopback will be used.
 static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
-static ETHERNET_INTERFACE: Mutex<Option<EthernetInterfaceType>> = Mutex::new(None);
+pub static ETHERNET_INTERFACE: Mutex<Option<EthernetInterfaceType>> = Mutex::new(None);
 
 fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
@@ -305,11 +310,10 @@ pub fn setup_network_interface() {
     }
 
     types::setup_interface_queue();
-    // save network device:
 }
 
 pub fn network_interrupt_handler() {
-    log::info!("got network interrupt!");
+    log::debug!("got network interrupt!");
     let mut net_dev_lock = PHY_ETHERNET_DRIVER.lock();
     if net_dev_lock.is_some() {
         let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
