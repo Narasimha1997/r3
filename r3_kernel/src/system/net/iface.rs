@@ -24,10 +24,10 @@ use spin::Mutex;
 const NET_DEFAULT_MTU: usize = 1500;
 
 // TODO: Make these as variables passed from boot-info
-const DEFAULT_GATEWAY: &str = "192.168.0.1";
-const DEFAULT_STATIC_IP: &str = "192.168.0.115/24";
+const DEFAULT_GATEWAY: &str = "192.168.2.1";
+const DEFAULT_STATIC_IP: &str = "192.168.2.115/24";
 
-use alloc::{boxed::Box, collections::BTreeMap, vec::Vec};
+use alloc::{boxed::Box, collections::BTreeMap, format, string::String, vec::Vec};
 
 /// Smoltcp token type for Transmission
 pub struct VirtualTx {}
@@ -44,7 +44,6 @@ impl TxToken for VirtualTx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
-
         log::debug!("called tx");
         let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
         if phy_lock.is_none() {
@@ -108,11 +107,22 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
 
     fn receive(&'a mut self) -> Option<(Self::RxToken, Self::TxToken)> {
         log::debug!("called receive!");
-        if let Ok(recv_buffer) = types::NETWORK_IFACE_QUEUE.lock().pop() {
-            log::info!("recv buffer: {:?}", recv_buffer);
-            return Some((VirtualRx { recv_buffer }, VirtualTx {}));
-        }
+        let mut phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
 
+        if let Some(phy_dev) = phy_dev_lock.as_mut() {
+            if let Ok(true) = phy_dev.is_polling_enabled() {
+                // poll for frame
+                let poll_result = phy_dev.poll_for_frame();
+                if let Ok(buffer) = poll_result {
+                    let recv_buffer = buffer.to_vec();
+                    return Some((VirtualRx { recv_buffer }, VirtualTx {}));
+                }
+            } else {
+                if let Ok(recv_buffer) = types::NETWORK_IFACE_QUEUE.lock().pop() {
+                    return Some((VirtualRx { recv_buffer }, VirtualTx {}));
+                }
+            }
+        }
         None
     }
 
@@ -157,6 +167,7 @@ pub enum PhyNetdevError {
     InterruptHandlingError,
     EmptyInterruptRecvBuffer,
     InvalidRecvHeader,
+    PollingModeError,
 }
 
 /// the core trait implemented by physical network device driver
@@ -179,6 +190,15 @@ pub trait PhysicalNetworkDevice {
 
     /// get the mac address
     fn get_mac_address(&self) -> Result<[u8; 6], PhyNetdevError>;
+
+    /// set polling mode
+    fn set_polling_mode(&mut self, enable: bool) -> Result<(), PhyNetdevError>;
+
+    /// is polling enabled?
+    fn is_polling_enabled(&self) -> Result<bool, PhyNetdevError>;
+
+    /// poll for packet
+    fn poll_for_frame(&mut self) -> Result<&'static [u8], PhyNetdevError>;
 }
 
 /// the function will be called from the device's receiver function
@@ -275,8 +295,13 @@ pub fn setup_network_interface() {
         return;
     }
 
-    let netdev = device_opt.unwrap();
+    let mut netdev = device_opt.unwrap();
+    /* netdev
+    .set_polling_mode(true)
+    .expect("failed to enable polling mode on ethernet device"); */
+
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
+
     hw_interrupts::register_network_interrupt(interrupt_no);
     log::info!("registered network interrupt on line: {}", interrupt_no);
 
@@ -291,7 +316,7 @@ pub fn setup_network_interface() {
     // register device interrupt
     if let Ok(mac_addr) = mac_result {
         // TODO: Update this later
-        if let Some(iface) =
+        /* if let Some(iface) =
             create_static_ip_interface(&mac_addr, DEFAULT_GATEWAY, DEFAULT_STATIC_IP)
         {
             log::info!(
@@ -306,7 +331,8 @@ pub fn setup_network_interface() {
                 iface.ipv4_address()
             );
             *ETHERNET_INTERFACE.lock() = Some(iface);
-        }
+        } */
+        *ETHERNET_INTERFACE.lock() = Some(create_unspecified_interface(&mac_addr));
     }
 
     types::setup_interface_queue();
@@ -324,4 +350,15 @@ pub fn network_interrupt_handler() {
             );
         }
     }
+}
+
+pub fn get_formatted_mac() -> Option<String> {
+    let phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
+    if let Ok(mac_bytes) = phy_dev_lock.as_ref().unwrap().get_mac_address() {
+        let hexified: Vec<String> = mac_bytes.iter().map(|byte| format!("{:02x}", byte)).collect();
+        let stringified_mac = hexified.join(":");
+        return Some(stringified_mac);
+    }
+
+    None
 }

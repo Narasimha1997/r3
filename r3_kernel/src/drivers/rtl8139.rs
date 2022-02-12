@@ -43,8 +43,11 @@ const RTL_RC_EMPTY_BUFFER: usize = 1 << 0;
 const RTL_LENGTH_BITS: usize = 0x1FFF;
 
 // RTL interrupts flags
-const RTL_INTERRUPT_RECVOK: usize = 1 << 0;
-const RTL_INTERRUPT_TXOK: usize = 1 << 2;
+const RTL_INTERRUPT_RECVOK: usize = 0x01;
+const RTL_INTERRUPT_TXOK: usize = 0x04;
+const RTL_INTERRUPT_RECV_OVF: usize = 0x10;
+const RTL_INTERRUPT_RECV_ERR: usize = 0x02;
+const RTL_INTERRUPT_TX_ERR: usize = 0x08;
 
 #[repr(u8)]
 pub enum RTLDeviceCommand {
@@ -184,6 +187,7 @@ pub struct Realtek8139Device {
     mac: DeviceMAC,
     config: DeviceConfig,
     interrupt_line: usize,
+    is_polling: bool,
 }
 
 impl Realtek8139Device {
@@ -221,6 +225,7 @@ impl Realtek8139Device {
             mac: DeviceMAC::new(io_base),
             config: DeviceConfig::new(io_base),
             interrupt_line: pci_dev.interrupt_info().interrupt_line as usize,
+            is_polling: false,
         }
     }
 
@@ -241,9 +246,13 @@ impl Realtek8139Device {
     #[inline]
     fn finalize_config(&self) {
         // configure interrupts:
-        self.config
-            .imr
-            .write_u32((RTL_INTERRUPT_TXOK | RTL_INTERRUPT_RECVOK) as u32);
+        self.config.imr.write_u32(
+            (RTL_INTERRUPT_TXOK
+                | RTL_INTERRUPT_RECVOK
+                | RTL_INTERRUPT_RECV_OVF
+                | RTL_INTERRUPT_RECV_ERR
+                | RTL_INTERRUPT_TX_ERR) as u32,
+        );
         // setup operation modes of buffers
         self.rx_line.config.write_u32(
             (RTL_RX_BUFFER_LENGTH
@@ -257,6 +266,13 @@ impl Realtek8139Device {
         self.tx_line
             .config
             .write_u32((RTL_INTERFRAME_TIME_GAP | RTL_TX_DMA0 | RTL_TX_DMA1 | RTL_TX_DMA2) as u32);
+    }
+
+    #[inline]
+    pub fn has_packet(&mut self) -> bool {
+        let cmd_data = self.config.cmd.read_u32() as usize;
+        log::debug!("RTL cmd data: {:b}", cmd_data);
+        !(cmd_data & RTL_RC_EMPTY_BUFFER == RTL_RC_EMPTY_BUFFER)
     }
 
     #[inline]
@@ -313,7 +329,7 @@ impl Realtek8139Device {
 
         // read mac
         let mac = self.mac.get_mac();
-        log::info!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
+        log::debug!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
 
         log::debug!("configuring transmitter and receivers");
         self.configure_transmitter();
@@ -370,12 +386,12 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn handle_interrupt(&mut self) -> Result<(), iface::PhyNetdevError> {
         let interrupt_code = self.config.isr.read_u32() as usize;
         // Transmit OK signal, we have already handled it
-        if interrupt_code & RTL_TX_OK == RTL_TX_OK {
+        if interrupt_code & RTL_INTERRUPT_TXOK == RTL_INTERRUPT_TXOK {
             self.config.isr.write_u32(0x05);
             return Ok(());
         }
         // Receive OK signal, receive the packet and process it
-        if interrupt_code & RTL_RECV_OK == RTL_RECV_OK {
+        if interrupt_code & RTL_INTERRUPT_RECVOK == RTL_INTERRUPT_RECVOK {
             let recv_result = self.receive_packet();
             self.config.isr.write_u32(0x05);
 
@@ -396,6 +412,47 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn get_mac_address(&self) -> Result<[u8; 6], iface::PhyNetdevError> {
         let mac_address = self.mac.get_mac();
         Ok(mac_address)
+    }
+
+    fn set_polling_mode(&mut self, enable: bool) -> Result<(), iface::PhyNetdevError> {
+        // disable receive ok
+        if enable {
+            self.config.imr.write_u32(
+                (RTL_INTERRUPT_TXOK
+                    | RTL_INTERRUPT_RECV_OVF
+                    | RTL_INTERRUPT_RECV_ERR
+                    | RTL_INTERRUPT_TX_ERR) as u32,
+            );
+
+            self.is_polling = true;
+        } else {
+            self.config.imr.write_u32(
+                (RTL_INTERRUPT_TXOK
+                    | RTL_INTERRUPT_RECVOK
+                    | RTL_INTERRUPT_RECV_OVF
+                    | RTL_INTERRUPT_RECV_ERR
+                    | RTL_INTERRUPT_TX_ERR) as u32,
+            );
+
+            self.is_polling = false;
+        }
+
+        Ok(())
+    }
+
+    fn is_polling_enabled(&self) -> Result<bool, iface::PhyNetdevError> {
+        Ok(self.is_polling)
+    }
+
+    fn poll_for_frame(&mut self) -> Result<&'static [u8], iface::PhyNetdevError> {
+        // loop until there is no packet
+        while !self.has_packet() {}
+        // there is a packet, get it's data:
+        if let Ok(data_slice) = self.receive_packet() {
+            return Ok(data_slice);
+        }
+
+        Err(iface::PhyNetdevError::PollingModeError)
     }
 }
 

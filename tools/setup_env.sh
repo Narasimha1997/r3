@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# install tunctl
+function install_net_utils () {
+    apt-get install net-tools uml-utilities bridge-utils
+}
+
 # install qemu if not exist:
 function install_qemu () {
     if ! command -v qemu-system-x86_64 &> /dev/null; then
@@ -79,5 +84,6 @@ function configure_vscode () {
 
 install_qemu
 install_rust_cargo
+install_net_utils
 setup_toolchain_env
 configure_vscode

@@ -8,6 +8,8 @@ use crate::cpu::pit;
 use crate::drivers::keyboard;
 use crate::system::net::iface::network_interrupt_handler;
 
+use core::sync::atomic::{AtomicUsize, Ordering};
+
 #[allow(unused_imports)]
 // unused because this is called from assembly
 use crate::system::tasking::schedule_handle;
@@ -30,6 +32,8 @@ const TIMESHOT_INTERRUPT_LINE: usize = 0x10;
 
 /// Keyboard controller interrupt line:
 const KEYBOARD_INTERRUPT_LINE: usize = 0x01;
+
+static NETWORK_INTERRUPT_NO: AtomicUsize = AtomicUsize::new(0);
 
 use exceptions::IDT;
 use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFrame};
@@ -62,7 +66,9 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
 
 extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
     network_interrupt_handler();
-    LAPICUtils::eoi();
+    CHAINED_PIC
+        .lock()
+        .send_eoi((HARDWARE_INTERRUPTS_BASE + NETWORK_INTERRUPT_NO.load(Ordering::Relaxed)) as u8)
 }
 
 #[naked]
@@ -113,6 +119,7 @@ pub fn setup_post_apic_interrupts() {
 }
 
 pub fn register_network_interrupt(int_no: usize) {
+    NETWORK_INTERRUPT_NO.store(int_no, Ordering::Relaxed);
     let irq_handler = prepare_default_handle(net_interrupt_wrapper, 4);
     IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + int_no] = irq_handler;
 }

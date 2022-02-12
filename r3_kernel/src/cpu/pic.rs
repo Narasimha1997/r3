@@ -248,7 +248,7 @@ lazy_static! {
 pub fn enable_legacy_interrupts() {
     let chained_pic = CHAINED_PIC.lock();
     if !chained_pic.is_enabled {
-        chained_pic.mask_requests(0x00, 0x08);
+        chained_pic.mask_requests(0x00, 0x00);
     }
 }
 
