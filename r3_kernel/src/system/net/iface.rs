@@ -24,8 +24,8 @@ use spin::Mutex;
 const NET_DEFAULT_MTU: usize = 1500;
 
 // TODO: Make these as variables passed from boot-info
-const DEFAULT_GATEWAY: &str = "192.168.2.1";
-const DEFAULT_STATIC_IP: &str = "192.168.2.115/24";
+const DEFAULT_GATEWAY: &str = "192.168.0.1";
+const DEFAULT_STATIC_IP: &str = "192.168.0.24/24";
 
 use alloc::{boxed::Box, collections::BTreeMap, format, string::String, vec::Vec};
 
@@ -296,9 +296,11 @@ pub fn setup_network_interface() {
     }
 
     let mut netdev = device_opt.unwrap();
-    /* netdev
-    .set_polling_mode(true)
-    .expect("failed to enable polling mode on ethernet device"); */
+
+    // TODO: FIX interrupt mode bugs - interrupts not firing as of now
+    netdev
+        .set_polling_mode(true)
+        .expect("failed to enable polling mode on ethernet device");
 
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
 
@@ -316,7 +318,7 @@ pub fn setup_network_interface() {
     // register device interrupt
     if let Ok(mac_addr) = mac_result {
         // TODO: Update this later
-        /* if let Some(iface) =
+        if let Some(iface) =
             create_static_ip_interface(&mac_addr, DEFAULT_GATEWAY, DEFAULT_STATIC_IP)
         {
             log::info!(
@@ -331,8 +333,7 @@ pub fn setup_network_interface() {
                 iface.ipv4_address()
             );
             *ETHERNET_INTERFACE.lock() = Some(iface);
-        } */
-        *ETHERNET_INTERFACE.lock() = Some(create_unspecified_interface(&mac_addr));
+        }
     }
 
     types::setup_interface_queue();
@@ -355,7 +356,10 @@ pub fn network_interrupt_handler() {
 pub fn get_formatted_mac() -> Option<String> {
     let phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
     if let Ok(mac_bytes) = phy_dev_lock.as_ref().unwrap().get_mac_address() {
-        let hexified: Vec<String> = mac_bytes.iter().map(|byte| format!("{:02x}", byte)).collect();
+        let hexified: Vec<String> = mac_bytes
+            .iter()
+            .map(|byte| format!("{:02x}", byte))
+            .collect();
         let stringified_mac = hexified.join(":");
         return Some(stringified_mac);
     }

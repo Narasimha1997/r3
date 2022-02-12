@@ -1,5 +1,6 @@
 extern crate spin;
 
+use crate::cpu::hw_interrupts::register_network_interrupt;
 use crate::cpu::io::{wait, Port};
 use crate::drivers::pci;
 use crate::mm::phy;
@@ -255,8 +256,7 @@ impl Realtek8139Device {
         );
         // setup operation modes of buffers
         self.rx_line.config.write_u32(
-            (RTL_RX_BUFFER_LENGTH
-                | RTL_WRAP_BUFFER
+            (RTL_WRAP_BUFFER
                 | RTL_ENABLE_ALL_PACKETS
                 | RTL_ENABLE_MATCH_PACKETS
                 | RTL_ENABLE_MULTICAST
@@ -271,7 +271,7 @@ impl Realtek8139Device {
     #[inline]
     pub fn has_packet(&mut self) -> bool {
         let cmd_data = self.config.cmd.read_u32() as usize;
-        log::debug!("RTL cmd data: {:b}", cmd_data);
+        // log::debug!("RTL cmd data: {:b}", cmd_data);
         !(cmd_data & RTL_RC_EMPTY_BUFFER == RTL_RC_EMPTY_BUFFER)
     }
 
@@ -283,20 +283,19 @@ impl Realtek8139Device {
             return Err(iface::PhyNetdevError::EmptyInterruptRecvBuffer);
         }
 
-        let capr_data = self.config.capr.read_u32() as usize;
+        let capr_data = self.config.capr.read_u16() as usize;
         let cbr_data = self.config.cbr.read_u32() as usize;
-
         let bounded_offset = (capr_data + RTL_RX_BUFFER_PAD) % (1 << 16);
-
+        log::info!("bounded offset: {}", bounded_offset);
         // parse the buffer:
         // structure: | header - (2 bytes, u16) | length - (2 bytes, u16) | data - (length - 4 bytes [u8]) | crc - (4 bytes, u32)
 
         let buffer_slice: &[u8] = &(self.buffers.rx_dma.get_slice::<u8>())[bounded_offset..];
-
         let header = u16::from_le_bytes([buffer_slice[0], buffer_slice[1]]) as usize;
         // header must have ROK flag set
-        if header & RTL_RECV_OK != RTL_RECV_OK {
-            self.config.capr.write_u32(cbr_data as u32);
+        if header as usize & RTL_RECV_OK != RTL_RECV_OK {
+            log::error!("unknown packet");
+            self.config.capr.write_u16(cbr_data as u16);
             return Err(iface::PhyNetdevError::InvalidRecvHeader);
         }
 
@@ -304,16 +303,16 @@ impl Realtek8139Device {
 
         // ignore CRC (i.e the last 4 bytes)
         let data_length = buffer_length - 4;
+        log::info!("buffer length: {}", data_length);
 
-        self.buffers.read_offset = (bounded_offset + buffer_length + 3) & !3;
+        self.buffers.read_offset = (bounded_offset + buffer_length + 3 + 4) & !3;
 
         // write back the updated offset back to the capr
         self.config
             .capr
             .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
 
-        // return the slice over the data:
-        Ok(&buffer_slice[4..data_length])
+        Ok(&buffer_slice[4..buffer_length])
     }
 
     pub fn prepare_interface(&mut self) {
@@ -321,20 +320,20 @@ impl Realtek8139Device {
         self.send_command(&self.config.config_1, RTLDeviceCommand::HardPowerUp as u8);
         // 2. soft-reset
         self.wait_soft_reset();
-        // 3. Enable both tx and rx modes
-        self.send_command(
-            &self.config.cmd,
-            RTLDeviceCommand::EnableTx as u8 | RTLDeviceCommand::EnableRx as u8,
-        );
 
         // read mac
         let mac = self.mac.get_mac();
         log::debug!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
 
         log::debug!("configuring transmitter and receivers");
-        self.configure_transmitter();
         self.configure_receiver();
+        self.configure_transmitter();
         self.finalize_config();
+
+        self.send_command(
+            &self.config.cmd,
+            RTLDeviceCommand::EnableTx as u8 | RTLDeviceCommand::EnableRx as u8,
+        );
     }
 }
 

@@ -5,14 +5,14 @@ r3_kernel::boot_proto INFO  Memory offset: 0xffffd00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9248768, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 9248768, end: 2147352576, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9326592, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 9326592, end: 2147352576, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 2147352576, end: 2147483648, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=640 height=480 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x891c341a0067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x891cd69a0067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,7 +23,7 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3111327600
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3114786200
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
 r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x959aa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
@@ -35,7 +35,7 @@ r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221500433,
+    instruction_pointer: 18446603336221500737,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -43,14 +43,14 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   INFO  Found memory region of size: 2138103808 bytes. start=0x8d2000, end=0x7ffe0000
+r3_kernel::mm::phy   INFO  Found memory region of size: 2138025984 bytes. start=0x8e5000, end=0x7ffe0000
 r3_kernel::mm::phy   INFO  Found 1 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
-r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8d2000 to 0xad2000
-r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8d2000, max_frames=512
+r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8e5000 to 0xae5000
+r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8e5000, max_frames=512
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000656000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000656000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000669000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000669000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febc0
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -100,7 +100,7 @@ r3_kernel::drivers   WARN  No driver found to handle the device 1237:8086
 r3_kernel::drivers   WARN  No driver found to handle the device 7000:8086
 r3_kernel::drivers   INFO  Found driver for device 7010:8086.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2508288bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2584064bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=40960bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
@@ -113,183 +113,274 @@ r3_kernel::system::filesystem::ustar INFO  Mounted tarfs at /sbin
 r3_kernel::drivers::rtl8139 DEBUG Initialized RTL 8139 device driver, MAC address: [82, 84, 0, 18, 52, 86]
 r3_kernel::drivers::rtl8139 DEBUG configuring transmitter and receivers
 r3_kernel::system::net::iface INFO  registered network interrupt on line: 11
+r3_kernel::system::net::iface INFO  creating static IP interface ip=192.168.0.24/24, gateway=192.168.0.1
 r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG created interface
+r3_kernel::system::net::iface INFO  initialized network interface with IP: Some(Address([192, 168, 0, 24]))
 r3_kernel::system::net::types INFO  initialized network interface queue with size=64
 r3_kernel::system::net INFO  System MAC Address: 52:54:00:12:34:56
 r3_kernel::system::net::dhcp INFO  initialized DHCPv4 client
 r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
 r3_kernel::system::net::dhcp INFO  config: None
 r3_kernel::system::net::iface DEBUG called receive!
-r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
-r3_kernel::system::net::iface DEBUG called transmit!
-r3_kernel::system::net::iface DEBUG called tx
-r3_kernel::system::net::iface DEBUG called receive!
-r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
-r3_kernel::system::net::dhcp DEBUG true
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 0
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
 r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
 r3_kernel::system::net::dhcp INFO  config: None
 r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 116
+r3_kernel::drivers::rtl8139 INFO  buffer length: 223
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
 r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
-r3_kernel::system::net::dhcp DEBUG false!
-r3_kernel::system::process INFO  Initializing Process Pool Manager.
-r3_kernel::system::process INFO  Process pool setup sucessfull. n_procs=0
-r3_kernel::system::tasking INFO  Setup scheduler successful, initial thread=None
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a00000 virt=0xffffc000c01fdcd8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a01000 virt=0xffffc000c01fde88
-r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
-r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x656000, rip=0xffff8000000935e0,
-            stack_end=0xffffb00000200000
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
-r3_kernel            INFO  Started system idle thread in background.
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x400000, size=228
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a04000 virt=0xffffc000c01fd618
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a05000 virt=0xffffc000c01fd468
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a06000 virt=0xffffc000c01fd468
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a07000 virt=0xffffc000c01fd618
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x401000, size=332
-r3_kernel::system::utils DEBUG /sbin/write allocation section=Ok(None) at=0x402000, size=8192
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e00000 virt=0xffffc000c01fdbf8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e01000 virt=0xffffc000c01fdda8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e02000 virt=0xffffc000c01fdbf8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e03000 virt=0xffffc000c01fdda8
-r3_kernel::mm::paging DEBUG Created new page table at phy=0x1e05000 virt=0xffffc000c01fe0f8
-r3_kernel::system::process DEBUG Adding thread 1 for process test:1
-r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=1, page_table=0x1a02000, rip=0x40105c,
-            stack_end=0x7ffc00200000
-r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(1) to the thread queue.
-r3_kernel::drivers::tty DEBUG Initialized system terminal.
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x400000, arg2=0x3e
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x5
-r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
-r3_kernel::system::tasking DEBUG Scheduling thread main
-r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 348
+r3_kernel::drivers::rtl8139 INFO  buffer length: 110
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 468
+r3_kernel::drivers::rtl8139 INFO  buffer length: 90
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 568
+r3_kernel::drivers::rtl8139 INFO  buffer length: 223
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 800
+r3_kernel::drivers::rtl8139 INFO  buffer length: 211
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1020
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1136
+r3_kernel::drivers::rtl8139 INFO  buffer length: 211
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1356
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1472
+r3_kernel::drivers::rtl8139 INFO  buffer length: 211
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1692
+r3_kernel::drivers::rtl8139 INFO  buffer length: 70
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1772
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1888
+r3_kernel::drivers::rtl8139 INFO  buffer length: 70
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 1968
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2084
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2200
+r3_kernel::drivers::rtl8139 INFO  buffer length: 70
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2280
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2348
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2416
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2484
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2552
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2620
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2688
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2756
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2824
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2892
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 2960
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3028
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3096
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3164
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3232
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3300
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3368
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3436
+r3_kernel::drivers::rtl8139 INFO  buffer length: 107
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3552
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3620
+r3_kernel::drivers::rtl8139 INFO  buffer length: 70
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::dhcp DEBUG unrecognized
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3700
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3768
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3836
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3904
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 3972
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 4040
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 4108
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 4176
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  bounded offset: 4244
+r3_kernel::drivers::rtl8139 INFO  buffer length: 60
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!

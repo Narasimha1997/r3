@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# this is the name of the physical interface you are using on the host
+# run ifconfig for more info
 MY_IFACE="enp0s25"
 
 brctl addbr brr3
