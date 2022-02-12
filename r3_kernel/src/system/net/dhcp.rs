@@ -62,15 +62,6 @@ impl DHCPClient {
         let mut sockets = sockets_lock.as_mut().unwrap();
 
         loop {
-            let poll_result = dhcp.poll(&mut iface, &mut sockets, instant);
-            if poll_result.is_err() {
-                log::error!("DHCP poll error: {:?}", poll_result.unwrap_err());
-                continue;
-            }
-
-            let dhcp_config = poll_result.unwrap();
-            log::info!("config: {:?}", dhcp_config);
-
             match iface.poll(&mut sockets, instant) {
                 Ok(false) => {
                     log::debug!("false!");
@@ -87,11 +78,19 @@ impl DHCPClient {
                     break;
                 }
             }
+
+            let poll_result = dhcp.poll(&mut iface, &mut sockets, instant);
+            if poll_result.is_err() {
+                log::error!("DHCP poll error: {:?}", poll_result.unwrap_err());
+                continue;
+            }
+
+            let dhcp_config = poll_result.unwrap();
+            log::info!("config: {:?}", dhcp_config);
         }
 
         dhcp.next_poll(instant);
 
-        if let Some(_timeout) = iface.poll_delay(&sockets, instant) {
-        }
+        if let Some(_timeout) = iface.poll_delay(&sockets, instant) {}
     }
 }

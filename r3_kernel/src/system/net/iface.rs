@@ -299,8 +299,8 @@ pub fn setup_network_interface() {
 
     // TODO: FIX interrupt mode bugs - interrupts not firing as of now
     netdev
-        .set_polling_mode(true)
-        .expect("failed to enable polling mode on ethernet device");
+    .set_polling_mode(true)
+    .expect("failed to enable polling mode on ethernet device");
 
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
 

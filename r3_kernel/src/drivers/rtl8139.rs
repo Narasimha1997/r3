@@ -1,6 +1,5 @@
 extern crate spin;
 
-use crate::cpu::hw_interrupts::register_network_interrupt;
 use crate::cpu::io::{wait, Port};
 use crate::drivers::pci;
 use crate::mm::phy;
@@ -32,7 +31,6 @@ const RTL_DMA_COMPLETE: usize = 1 << 13;
 const RTL_WRAP_BUFFER: usize = 1 << 7;
 const RTL_INTERFRAME_TIME_GAP: usize = 1 << 24;
 const RTL_RX_BUFFER_PAD: usize = 16;
-const RTL_RX_BUFFER_LENGTH: usize = 0 << 11;
 const RTL_TX_BUFFER_SIZE: usize = 4096;
 
 const RTL_RX_BUFFER_SIZE: usize = ((8 * 1024) << RTL_RX_SIZE_FACTOR) + RTL_RX_BUFFER_PAD;
@@ -247,12 +245,12 @@ impl Realtek8139Device {
     #[inline]
     fn finalize_config(&self) {
         // configure interrupts:
-        self.config.imr.write_u32(
+        self.config.imr.write_u16(
             (RTL_INTERRUPT_TXOK
                 | RTL_INTERRUPT_RECVOK
                 | RTL_INTERRUPT_RECV_OVF
                 | RTL_INTERRUPT_RECV_ERR
-                | RTL_INTERRUPT_TX_ERR) as u32,
+                | RTL_INTERRUPT_TX_ERR) as u16,
         );
         // setup operation modes of buffers
         self.rx_line.config.write_u32(
@@ -286,7 +284,6 @@ impl Realtek8139Device {
         let capr_data = self.config.capr.read_u16() as usize;
         let cbr_data = self.config.cbr.read_u32() as usize;
         let bounded_offset = (capr_data + RTL_RX_BUFFER_PAD) % (1 << 16);
-        log::info!("bounded offset: {}", bounded_offset);
         // parse the buffer:
         // structure: | header - (2 bytes, u16) | length - (2 bytes, u16) | data - (length - 4 bytes [u8]) | crc - (4 bytes, u32)
 
@@ -301,16 +298,15 @@ impl Realtek8139Device {
 
         let buffer_length = u16::from_le_bytes([buffer_slice[2], buffer_slice[3]]) as usize;
 
-        // ignore CRC (i.e the last 4 bytes)
-        let data_length = buffer_length - 4;
-        log::info!("buffer length: {}", data_length);
-
         self.buffers.read_offset = (bounded_offset + buffer_length + 3 + 4) & !3;
 
         // write back the updated offset back to the capr
         self.config
             .capr
             .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
+        
+
+        log::info!("buffer length: {}", buffer_length);
 
         Ok(&buffer_slice[4..buffer_length])
     }
@@ -326,8 +322,9 @@ impl Realtek8139Device {
         log::debug!("Initialized RTL 8139 device driver, MAC address: {:?}", mac);
 
         log::debug!("configuring transmitter and receivers");
-        self.configure_receiver();
+
         self.configure_transmitter();
+        self.configure_receiver();
         self.finalize_config();
 
         self.send_command(
