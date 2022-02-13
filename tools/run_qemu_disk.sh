@@ -17,10 +17,12 @@ fi
 
 STORAGE_DISK=storage/tarfs.tar
 KERNEL_BIN_PATH="./kbin"
-INET_OPTIONS="-netdev tap,id=r3net,script=no,downscript=no -device rtl8139,netdev=r3net -object filter-dump,id=r3net,netdev=r3net,file=net_dump.dat"
+INET_1="-netdev tap,id=r3net,script=no,downscript=no -device rtl8139,netdev=r3net -object filter-dump,id=r3net,netdev=r3net,file=net_dump.dat"
+INET_2="-nic tap,model=rtl8139"
 INET_3="-netdev tap,helper=/usr/lib/qemu/qemu-bridge-helper,id=r3_net -device rtl8139,netdev=r3_net,id=r3_net -object filter-dump,id=r3_net,netdev=r3_net,file=net_dump.dat"
 
-QEMU_ARGS="-enable-kvm -cpu host,x2apic=off, -m 2G -M pc -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk $INET_3"
+
+QEMU_ARGS="-enable-kvm -cpu host,x2apic=off, -m 2G -M pc -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk $INET_2"
 
 if [[ "$1" == "--uefi" || "$2" == "--uefi" || "$3" == "--uefi" ]]; then
     KERNEL_BIN_PATH="$KERNEL_BIN_PATH/boot-uefi-r3_kernel.img"
