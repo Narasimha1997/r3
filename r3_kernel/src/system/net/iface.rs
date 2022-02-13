@@ -111,7 +111,6 @@ impl TxToken for VirtualTx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
-        log::debug!("called tx");
         let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
         if phy_lock.is_none() {
             log::error!("no physical interface found.");
@@ -149,7 +148,6 @@ impl RxToken for VirtualRx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
-        log::debug!("called rx");
         f(&mut self.recv_buffer)
     }
 }
@@ -165,7 +163,6 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     type RxToken = VirtualRx;
 
     fn receive(&'a mut self) -> Option<(Self::RxToken, Self::TxToken)> {
-        log::debug!("called receive!");
         let mut phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
 
         if let Some(phy_dev) = phy_dev_lock.as_mut() {
@@ -186,7 +183,6 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
     }
 
     fn transmit(&'a mut self) -> Option<Self::TxToken> {
-        log::debug!("called transmit!");
         Some(VirtualTx {})
     }
 
@@ -222,7 +218,6 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
 /// DMA buffer.
 pub fn handle_recv_packet(buffer: &[u8]) {
     let packet_vec = buffer.to_vec();
-    log::debug!("received packet!");
     if let Err(_) = types::NETWORK_IFACE_QUEUE.lock().push(packet_vec) {
         log::debug!("dropping network packet because interface queue is full")
     }
@@ -276,7 +271,6 @@ pub fn create_static_ip_interface(
     .routes(routes)
     .finalize();
 
-    log::debug!("created interface");
     Some(iface)
 }
 
@@ -341,7 +335,6 @@ pub fn setup_network_interface() {
 }
 
 pub fn network_interrupt_handler() {
-    log::debug!("got network interrupt!");
     let mut net_dev_lock = PHY_ETHERNET_DRIVER.lock();
     if net_dev_lock.is_some() {
         let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
