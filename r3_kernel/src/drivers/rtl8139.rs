@@ -13,9 +13,19 @@ const RTL_VENDOR_ID: u16 = 0x10EC;
 const RTL_DEVICE_ID: u16 = 0x8139;
 
 // RTL packet type falgs
+
+#[allow(unused)]
+/// use this flag while configuring Rx settings, enabling this will make the
+/// interface see all types of packets, which might not be useful.
 const RTL_ENABLE_ALL_PACKETS: usize = 1 << 0;
+
+/// Receive packets that match the interface MAC address
 const RTL_ENABLE_MATCH_PACKETS: usize = 1 << 1;
+
+/// Receive multicast packets (Ex: ICMP multicasts)
 const RTL_ENABLE_MULTICAST: usize = 1 << 2;
+
+/// Receive broadcast packets
 const RTL_ENABLE_BROADCAST: usize = 1 << 3;
 
 // RTL DMA flags
@@ -255,7 +265,6 @@ impl Realtek8139Device {
         // setup operation modes of buffers
         self.rx_line.config.write_u32(
             (RTL_WRAP_BUFFER
-                | RTL_ENABLE_ALL_PACKETS
                 | RTL_ENABLE_MATCH_PACKETS
                 | RTL_ENABLE_MULTICAST
                 | RTL_ENABLE_BROADCAST) as u32,
