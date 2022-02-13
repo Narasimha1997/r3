@@ -5,20 +5,30 @@ extern crate smoltcp;
 extern crate spin;
 
 use alloc::vec;
+use core::time::Duration;
 use lazy_static::lazy_static;
-use smoltcp::dhcp::Dhcpv4Client;
-use smoltcp::socket::{RawPacketMetadata, RawSocketBuffer};
+use smoltcp::dhcp::{Dhcpv4Client, Dhcpv4Config};
+use smoltcp::socket::{RawPacketMetadata, RawSocketBuffer, SocketSet};
 use smoltcp::time::Instant;
-use spin::Mutex;
+use spin::{Mutex, MutexGuard};
 
 use crate::system::net::iface;
 use crate::system::net::types::SOCKETS_SET;
-use crate::system::timer::PosixTimeval;
+use crate::system::timer::{wait_ns, PosixTimeval};
 
 const DHCP_BUFFER_SIZE: usize = 2048;
 
 lazy_static! {
     pub static ref DHCP_CLIENT: Mutex<Option<Dhcpv4Client>> = Mutex::new(None);
+}
+
+pub type LockedDHCPClient = MutexGuard<'static, Option<Dhcpv4Client>>;
+
+pub enum DHCPError {
+    PollingError,
+    UnrecognizedPacket,
+    NoInterface,
+    NoDHCPClient,
 }
 
 pub struct DHCPClient;
@@ -41,20 +51,21 @@ impl DHCPClient {
         log::info!("initialized DHCPv4 client")
     }
 
-    pub fn poll_dhcp_over_iface() {
-        let mut iface_lock = iface::ETHERNET_INTERFACE.lock();
+    fn poll_dhcp_over_iface(
+        iface_lock: &mut iface::LockedEthernetInterface,
+        dhcp_lock: &mut LockedDHCPClient,
+    ) -> Result<Dhcpv4Config, DHCPError> {
         if iface_lock.as_ref().is_none() {
             log::error!("cannot poll DHCP over empty interface");
-            return;
+            return Err(DHCPError::NoInterface);
         }
-
         let mut iface = iface_lock.as_mut().unwrap();
-        let mut dhcp_lock = DHCP_CLIENT.lock();
-
         if dhcp_lock.is_none() {
             log::error!("cannot poll over empty DHCP client");
+            return Err(DHCPError::NoDHCPClient);
         }
         let dhcp = dhcp_lock.as_mut().unwrap();
+
         let ts = PosixTimeval::from_ticks().mills();
         let instant = Instant::from_millis(ts as i64);
 
@@ -62,35 +73,96 @@ impl DHCPClient {
         let mut sockets = sockets_lock.as_mut().unwrap();
 
         loop {
+            match iface.poll(&mut sockets, instant) {
+                Ok(false) => {}
+                Ok(true) => {}
+                Err(smoltcp::Error::Unrecognized) => {
+                    log::debug!("unrecognized");
+                    return Err(DHCPError::UnrecognizedPacket);
+                }
+
+                Err(err) => {
+                    log::debug!("smoltcp error: {:?}", err);
+                    return Err(DHCPError::PollingError);
+                }
+            }
+
             let poll_result = dhcp.poll(&mut iface, &mut sockets, instant);
             if poll_result.is_err() {
                 log::error!("DHCP poll error: {:?}", poll_result.unwrap_err());
-                continue;
+                return Err(DHCPError::PollingError);
             }
 
-            let dhcp_config = poll_result.unwrap();
-            log::info!("config: {:?}", dhcp_config);
+            let dhcp_config_opt = poll_result.unwrap();
+            if let Some(dhcp_config) = dhcp_config_opt {
+                return Ok(dhcp_config);
+            }
 
-            match iface.poll(&mut sockets, instant) {
-                Ok(false) => {
-                    log::debug!("false!");
-                    break;
-                }
-                Ok(true) => {
-                    log::debug!("true");
-                }
-                Err(smoltcp::Error::Unrecognized) => {
-                    log::debug!("unrecognized");
-                }
-                Err(err) => {
-                    log::debug!("smoltcp error: {:?}", err);
-                    break;
-                }
+            if let Some(duration) = iface.poll_delay(&sockets, instant) {
+                // wait for sometime
+                let d: Duration = duration.into();
+                wait_ns(d.as_nanos() as u64);
             }
         }
+    }
 
+    /// this function polls using DHCP client and returns the DHCPConfig
+    /// can be used later in the interrupt based handler for dynamic DHCP address lease changes.
+    pub fn check_dhcp_packet(
+        iface_lock: &mut iface::LockedEthernetInterface,
+        dhcp_lock: &mut LockedDHCPClient,
+        instant: Instant,
+        sockets: &mut SocketSet,
+    ) -> Result<Option<Dhcpv4Config>, DHCPError> {
+        if iface_lock.as_ref().is_none() {
+            log::error!("cannot poll DHCP over empty interface");
+            return Err(DHCPError::NoInterface);
+        }
+        let mut iface = iface_lock.as_mut().unwrap();
+        if dhcp_lock.is_none() {
+            log::error!("cannot poll over empty DHCP client");
+            return Err(DHCPError::NoDHCPClient);
+        }
+        let dhcp = dhcp_lock.as_mut().unwrap();
+
+        // poll and return:
+        let poll_result = dhcp.poll(&mut iface, sockets, instant);
+        if poll_result.is_err() {
+            log::error!("DHCP poll error: {:?}", poll_result.unwrap_err());
+            return Err(DHCPError::PollingError);
+        }
+
+        let dhcp_config_opt = poll_result.unwrap();
+        if let Some(dhcp_config) = dhcp_config_opt {
+            return Ok(Some(dhcp_config));
+        }
+
+        return Ok(None);
+    }
+
+    pub fn dhcp_next_poll(dhcp_lock: &mut LockedDHCPClient, instant: Instant) {
+        if dhcp_lock.is_none() {
+            log::error!("cannot poll over empty DHCP client");
+            return;
+        }
+
+        let dhcp = dhcp_lock.as_mut().unwrap();
         dhcp.next_poll(instant);
+    }
 
-        if let Some(_timeout) = iface.poll_delay(&sockets, instant) {}
+    /// modify the interface routes with new DHCP configuration
+    pub fn update_config(
+        config: Dhcpv4Config,
+        iface_lock: &mut iface::LockedEthernetInterface,
+    ) -> Result<(), DHCPError> {
+        if iface_lock.as_ref().is_none() {
+            log::error!("cannot poll DHCP over empty interface");
+            return Err(DHCPError::NoInterface);
+        }
+
+        let mut iface = iface_lock.as_mut().unwrap();
+
+        // 1. update the CIDR range
+        Err(DHCPError::NoDHCPClient)
     }
 }

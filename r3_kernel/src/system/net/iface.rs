@@ -19,15 +19,80 @@ use smoltcp::Result as NetResult;
 
 use core::sync::atomic::AtomicU64;
 
-use spin::Mutex;
+use spin::{Mutex, MutexGuard};
 
 const NET_DEFAULT_MTU: usize = 1500;
+const MAX_POLL_CYCLES: usize = 100;
 
 // TODO: Make these as variables passed from boot-info
 const DEFAULT_GATEWAY: &str = "192.168.0.1";
 const DEFAULT_STATIC_IP: &str = "192.168.0.24/24";
 
 use alloc::{boxed::Box, collections::BTreeMap, format, string::String, vec::Vec};
+
+/// contains the physical network device type, can be None, if `None`, loopback will be used.
+static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
+
+/// Ethernet interface type
+pub static ETHERNET_INTERFACE: Mutex<Option<EthernetInterfaceType>> = Mutex::new(None);
+
+#[derive(Debug, Clone)]
+pub enum PhyNetdevError {
+    NoPhysicalDevice,
+    NoTxBuffer,
+    NoInterruptLine,
+    NoMTU,
+    InterruptHandlingError,
+    EmptyInterruptRecvBuffer,
+    InvalidRecvHeader,
+    PollingModeError,
+}
+
+/// stores the stats of the network interface
+pub struct VirtualNetworkDeviceStats {
+    pub n_tx_packets: AtomicU64,
+    pub n_tx_bytes: AtomicU64,
+    pub n_rx_packets: AtomicU64,
+    pub n_rx_bytes: AtomicU64,
+}
+
+/// the core trait implemented by physical network device driver
+pub trait PhysicalNetworkDevice {
+    /// get the buffer region where the next packet must be copied to
+    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], PhyNetdevError>;
+
+    /// call the transmit on device's side and wait for the hardware driver to return back
+    fn transmit_and_wait(&mut self, buffer: &mut [u8], length: usize)
+        -> Result<(), PhyNetdevError>;
+
+    /// get the interrupt handler details from the network device
+    fn handle_interrupt(&mut self) -> Result<(), PhyNetdevError>;
+
+    /// get device interrupt line no
+    fn get_interrupt_no(&self) -> Result<usize, PhyNetdevError>;
+
+    /// get the device MTU size
+    fn get_mtu_size(&self) -> Result<usize, PhyNetdevError>;
+
+    /// get the mac address
+    fn get_mac_address(&self) -> Result<[u8; 6], PhyNetdevError>;
+
+    /// set polling mode
+    fn set_polling_mode(&mut self, enable: bool) -> Result<(), PhyNetdevError>;
+
+    /// is polling enabled?
+    fn is_polling_enabled(&self) -> Result<bool, PhyNetdevError>;
+
+    /// poll for packet
+    fn poll_for_frame(&mut self, max_polls: usize) -> Result<&'static [u8], PhyNetdevError>;
+}
+
+pub type PhyNetDevType = dyn PhysicalNetworkDevice + Sync + Send;
+pub type EthernetInterfaceType = EthernetInterface<'static, VirtualNetworkDevice>;
+pub type LockedEthernetInterface = MutexGuard<'static, Option<EthernetInterfaceType>>;
+
+/// VirtualNetworkInterface plugs the physical device with smoltcp
+pub struct VirtualNetworkDevice;
 
 /// Smoltcp token type for Transmission
 pub struct VirtualTx {}
@@ -87,20 +152,6 @@ impl RxToken for VirtualRx {
     }
 }
 
-/// stores the stats of the network interface
-pub struct VirtualNetworkDeviceStats {
-    pub n_tx_packets: AtomicU64,
-    pub n_tx_bytes: AtomicU64,
-    pub n_rx_packets: AtomicU64,
-    pub n_rx_bytes: AtomicU64,
-}
-
-pub type PhyNetDevType = dyn PhysicalNetworkDevice + Sync + Send;
-pub type EthernetInterfaceType = EthernetInterface<'static, VirtualNetworkDevice>;
-
-/// VirtualNetworkInterface plugs the physical device with smoltcp
-pub struct VirtualNetworkDevice;
-
 impl<'a> Device<'a> for VirtualNetworkDevice {
     type TxToken = VirtualTx;
     type RxToken = VirtualRx;
@@ -112,7 +163,7 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
         if let Some(phy_dev) = phy_dev_lock.as_mut() {
             if let Ok(true) = phy_dev.is_polling_enabled() {
                 // poll for frame
-                let poll_result = phy_dev.poll_for_frame();
+                let poll_result = phy_dev.poll_for_frame(MAX_POLL_CYCLES);
                 if let Ok(buffer) = poll_result {
                     let recv_buffer = buffer.to_vec();
                     return Some((VirtualRx { recv_buffer }, VirtualTx {}));
@@ -141,12 +192,12 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
         } else {
             let mtu_res = dev_lock.as_ref().unwrap().get_mtu_size();
             let dev_mtu = if mtu_res.is_ok() {
+                mtu_res.unwrap()
+            } else {
                 log::debug!(
                     "MTU not provided by the device, using default mtu={}",
                     NET_DEFAULT_MTU
                 );
-                mtu_res.unwrap()
-            } else {
                 NET_DEFAULT_MTU
             };
             dev_mtu
@@ -157,50 +208,6 @@ impl<'a> Device<'a> for VirtualNetworkDevice {
         caps
     }
 }
-
-#[derive(Debug, Clone)]
-pub enum PhyNetdevError {
-    NoPhysicalDevice,
-    NoTxBuffer,
-    NoInterruptLine,
-    NoMTU,
-    InterruptHandlingError,
-    EmptyInterruptRecvBuffer,
-    InvalidRecvHeader,
-    PollingModeError,
-}
-
-/// the core trait implemented by physical network device driver
-pub trait PhysicalNetworkDevice {
-    /// get the buffer region where the next packet must be copied to
-    fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], PhyNetdevError>;
-
-    /// call the transmit on device's side and wait for the hardware driver to return back
-    fn transmit_and_wait(&mut self, buffer: &mut [u8], length: usize)
-        -> Result<(), PhyNetdevError>;
-
-    /// get the interrupt handler details from the network device
-    fn handle_interrupt(&mut self) -> Result<(), PhyNetdevError>;
-
-    /// get device interrupt line no
-    fn get_interrupt_no(&self) -> Result<usize, PhyNetdevError>;
-
-    /// get the device MTU size
-    fn get_mtu_size(&self) -> Result<usize, PhyNetdevError>;
-
-    /// get the mac address
-    fn get_mac_address(&self) -> Result<[u8; 6], PhyNetdevError>;
-
-    /// set polling mode
-    fn set_polling_mode(&mut self, enable: bool) -> Result<(), PhyNetdevError>;
-
-    /// is polling enabled?
-    fn is_polling_enabled(&self) -> Result<bool, PhyNetdevError>;
-
-    /// poll for packet
-    fn poll_for_frame(&mut self) -> Result<&'static [u8], PhyNetdevError>;
-}
-
 /// the function will be called from the device's receiver function
 /// triggered by the network interrupt and there is a frame in DMA buffer.
 /// The parameter `buffer` contains the read-only slice view of the
@@ -212,10 +219,6 @@ pub fn handle_recv_packet(buffer: &[u8]) {
         log::debug!("dropping network packet because interface queue is full")
     }
 }
-
-/// contains the physical network device type, can be None, if `None`, loopback will be used.
-static PHY_ETHERNET_DRIVER: Mutex<Option<Box<PhyNetDevType>>> = Mutex::new(None);
-pub static ETHERNET_INTERFACE: Mutex<Option<EthernetInterfaceType>> = Mutex::new(None);
 
 fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
@@ -299,8 +302,8 @@ pub fn setup_network_interface() {
 
     // TODO: FIX interrupt mode bugs - interrupts not firing as of now
     netdev
-    .set_polling_mode(true)
-    .expect("failed to enable polling mode on ethernet device");
+        .set_polling_mode(true)
+        .expect("failed to enable polling mode on ethernet device");
 
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
 

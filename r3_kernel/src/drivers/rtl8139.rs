@@ -313,7 +313,6 @@ impl Realtek8139Device {
         self.config
             .capr
             .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
-        
 
         log::info!("buffer length: {}", buffer_length);
 
@@ -449,12 +448,16 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         Ok(self.is_polling)
     }
 
-    fn poll_for_frame(&mut self) -> Result<&'static [u8], iface::PhyNetdevError> {
+    fn poll_for_frame(&mut self, max_polls: usize) -> Result<&'static [u8], iface::PhyNetdevError> {
         // loop until there is no packet
-        while !self.has_packet() {}
-        // there is a packet, get it's data:
-        if let Ok(data_slice) = self.receive_packet() {
-            return Ok(data_slice);
+        for _ in 0..max_polls {
+            if !self.has_packet() {
+                continue;
+            }
+            // there is a packet, get it's data:
+            if let Ok(data_slice) = self.receive_packet() {
+                return Ok(data_slice);
+            }
         }
 
         Err(iface::PhyNetdevError::PollingModeError)

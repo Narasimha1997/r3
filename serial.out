@@ -1,18 +1,18 @@
 r3_kernel            INFO  Hello, kernel world!
 r3_kernel::boot_proto INFO  Bootloader version: 0.10.9
-r3_kernel::boot_proto INFO  RSDT Address: Some(1009872)
+r3_kernel::boot_proto INFO  RSDT Address: Some(1006368)
 r3_kernel::boot_proto INFO  Memory offset: 0xffffd00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9322496, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 9322496, end: 2147352576, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9310208, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 9310208, end: 2147352576, kind: Usable }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 2147352576, end: 2147483648, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=640 height=480 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x8916d63a0067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x891cb20a0067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,19 +23,19 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=1825027200
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3121531600
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
-r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0xf7da3223, edx=0xf8bfbff, ebx=800
-r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=14, ebx=756e6547.
+r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x959aa223, edx=0x78bfbff, ebx=800
+r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
 r3_kernel::cpu::cpuid DEBUG CPUID max_extended_level=80000008, ebx=756e6547.
-r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | FMA | CX16 | PCIDE | SSE4_1 | SSE4_2 | MOVBE | POPCNT | TSCD | AES | XSAVE | AVX | F16C | RDRND | HYPERVISOR
-r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MSR | PAE | MCE | CX8 | APIC | SEP | MTRR | PGE | MCA | CMOV | PAT | PSE36 | CLF | MMX | FXSR | SSE | SSE2 | SS
-r3_kernel::cpu::cpuid INFO  Max standard level 0x14
+r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | CX16 | PDCM | PCIDE | SSE4_1 | SSE4_2 | POPCNT | TSCD | XSAVE | AVX | HYPERVISOR
+r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MSR | PAE | MCE | CX8 | APIC | SEP | MTRR | PGE | MCA | CMOV | PAT | PSE36 | CLF | MMX | FXSR | SSE | SSE2
+r3_kernel::cpu::cpuid INFO  Max standard level 0xd
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221853361,
+    instruction_pointer: 18446603336221499761,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -43,22 +43,22 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   INFO  Found memory region of size: 2138030080 bytes. start=0x8e4000, end=0x7ffe0000
+r3_kernel::mm::phy   INFO  Found memory region of size: 2138042368 bytes. start=0x8e1000, end=0x7ffe0000
 r3_kernel::mm::phy   INFO  Found 1 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
-r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8e4000 to 0xae4000
-r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8e4000, max_frames=512
+r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8e1000 to 0xae1000
+r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8e1000, max_frames=512
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000668000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000668000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd00000665000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd00000665000
 r3_kernel::mm        INFO  Running simple paging test....
-r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febd8
+r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febc0
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
 r3_kernel::mm        INFO  Enabling kernel heap...
 r3_kernel::mm::heap  DEBUG n_heap_pages=2560.
 r3_kernel::mm::heap  DEBUG Mapping kernel virtual memory for heap at 0xffffa00000000000
-r3_kernel::mm::paging DEBUG Created new page table at phy=0xe00000 virt=0xffffc000c01fe388
-r3_kernel::mm::paging DEBUG Created new page table at phy=0xe01000 virt=0xffffc000c01fe538
+r3_kernel::mm::paging DEBUG Created new page table at phy=0xe00000 virt=0xffffc000c01fe378
+r3_kernel::mm::paging DEBUG Created new page table at phy=0xe01000 virt=0xffffc000c01fe528
 r3_kernel::mm::heap  INFO  Allocated 10485760bytes at 0xffffa00000000000
 r3_kernel::mm::heap  DEBUG Testing heap by allocating a vector: 
 r3_kernel::mm::heap  INFO  Allocated info!
@@ -80,11 +80,12 @@ r3_kernel::drivers::pci INFO  New PCI device added. bus=0, dev=3, func=0
          vendor_id=10ec, device_id=8139
 r3_kernel::acpi::rsdt INFO  Initializing ACPI tables.
 r3_kernel::acpi::rsdt INFO  acpi_2x support=false
-r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=3, supports_acpi_2=false
+r3_kernel::acpi::rsdt INFO  ACPI initialized, n_entries=4, supports_acpi_2=false
 r3_kernel::acpi::rsdt INFO  Following are the ACPI tables: 
 r3_kernel::acpi::rsdt INFO  1 FACP
 r3_kernel::acpi::rsdt INFO  2 APIC
 r3_kernel::acpi::rsdt INFO  3 HPET
+r3_kernel::acpi::rsdt INFO  4 WAET
 r3_kernel::acpi::madt DEBUG APIC Tables size: 76
 r3_kernel::acpi::madt INFO  Number of CPU cores: 1, Local APIC Address: 0xffffd000fee00000
 r3_kernel::acpi::madt INFO  CPU-0 - 0
@@ -99,7 +100,7 @@ r3_kernel::drivers   WARN  No driver found to handle the device 1237:8086
 r3_kernel::drivers   WARN  No driver found to handle the device 7000:8086
 r3_kernel::drivers   INFO  Found driver for device 7010:8086.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2581504bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2566656bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=40960bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
@@ -122,3 +123,1404 @@ r3_kernel::system::net::dhcp INFO  initialized DHCPv4 client
 r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
 r3_kernel::system::net::dhcp INFO  config: None
 r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called transmit!
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  buffer length: 594
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called transmit!
+r3_kernel::system::net::iface DEBUG called tx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  buffer length: 64
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  buffer length: 594
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: Some(Config { address: Some(Cidr { address: Address([192, 168, 0, 105]), prefix_len: 24 }), router: Some(Address([192, 168, 0, 1])), dns_servers: [Some(Address([49, 205, 72, 130])), Some(Address([183, 82, 243, 66])), None] })
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  buffer length: 64
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::drivers::rtl8139 INFO  buffer length: 64
+r3_kernel::system::net::iface DEBUG called rx
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called receive!
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::iface DEBUG MTU not provided by the device, using default mtu=1500
+r3_kernel::system::net::dhcp INFO  config: None
+r3_kernel::system::net::iface DEBUG called re
