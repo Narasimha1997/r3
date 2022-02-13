@@ -92,7 +92,9 @@ pub type EthernetInterfaceType = EthernetInterface<'static, VirtualNetworkDevice
 pub type LockedEthernetInterface = MutexGuard<'static, Option<EthernetInterfaceType>>;
 
 /// VirtualNetworkInterface plugs the physical device with smoltcp
-pub struct VirtualNetworkDevice;
+pub struct VirtualNetworkDevice {
+    pub is_in_loopback: bool,
+}
 
 /// Smoltcp token type for Transmission
 pub struct VirtualTx {}
@@ -149,6 +151,12 @@ impl RxToken for VirtualRx {
     {
         log::debug!("called rx");
         f(&mut self.recv_buffer)
+    }
+}
+
+impl VirtualNetworkDevice {
+    pub fn is_loopback(&self) -> bool {
+        self.is_in_loopback
     }
 }
 
@@ -224,16 +232,18 @@ fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
     let routes = Routes::new(BTreeMap::new());
     let ip_addrs = [IpCidr::new(Ipv4Address::UNSPECIFIED.into(), 0)];
-    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
-        .ethernet_addr(EthernetAddress::from_bytes(&mac_addr))
-        .neighbor_cache(neighbor_cache)
-        .ip_addrs(ip_addrs)
-        .routes(routes)
-        .finalize();
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice {
+        is_in_loopback: false,
+    })
+    .ethernet_addr(EthernetAddress::from_bytes(&mac_addr))
+    .neighbor_cache(neighbor_cache)
+    .ip_addrs(ip_addrs)
+    .routes(routes)
+    .finalize();
     iface
 }
 
-fn create_static_ip_interface(
+pub fn create_static_ip_interface(
     mac: &[u8],
     gateway: &str,
     ip: &str,
@@ -257,29 +267,33 @@ fn create_static_ip_interface(
     );
 
     // create the ethernet interface
-    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
-        .ethernet_addr(EthernetAddress::from_bytes(mac))
-        .neighbor_cache(neighbor_cache)
-        .ip_addrs(ip_addrs)
-        .routes(routes)
-        .finalize();
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice {
+        is_in_loopback: false,
+    })
+    .ethernet_addr(EthernetAddress::from_bytes(mac))
+    .neighbor_cache(neighbor_cache)
+    .ip_addrs(ip_addrs)
+    .routes(routes)
+    .finalize();
 
     log::debug!("created interface");
     Some(iface)
 }
 
-fn create_loopback_interface() -> EthernetInterfaceType {
+pub fn create_loopback_interface() -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
     let routes = Routes::new(BTreeMap::new());
 
     let (ip, prefix) = ip_utils::get_ipv4_with_prefix_from_string("127.0.0.1/8").unwrap();
     let ip_addrs = [IpCidr::new(IpAddress::from(ip), prefix as u8)];
-    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice)
-        .ethernet_addr(EthernetAddress::default().into())
-        .neighbor_cache(neighbor_cache)
-        .ip_addrs(ip_addrs)
-        .routes(routes)
-        .finalize();
+    let iface = EthernetInterfaceBuilder::new(VirtualNetworkDevice {
+        is_in_loopback: true,
+    })
+    .ethernet_addr(EthernetAddress::default().into())
+    .neighbor_cache(neighbor_cache)
+    .ip_addrs(ip_addrs)
+    .routes(routes)
+    .finalize();
     iface
 }
 
@@ -320,23 +334,7 @@ pub fn setup_network_interface() {
 
     // register device interrupt
     if let Ok(mac_addr) = mac_result {
-        // TODO: Update this later
-        if let Some(iface) =
-            create_static_ip_interface(&mac_addr, DEFAULT_GATEWAY, DEFAULT_STATIC_IP)
-        {
-            log::info!(
-                "initialized network interface with IP: {:?}",
-                iface.ipv4_address()
-            );
-            *ETHERNET_INTERFACE.lock() = Some(iface);
-        } else {
-            let iface = create_unspecified_interface(&mac_addr);
-            log::warn!(
-                "initialized network interface with unspecified IP: {:?}",
-                iface.ipv4_address()
-            );
-            *ETHERNET_INTERFACE.lock() = Some(iface);
-        }
+        *ETHERNET_INTERFACE.lock() = Some(create_unspecified_interface(&mac_addr));
     }
 
     types::setup_interface_queue();
@@ -368,4 +366,27 @@ pub fn get_formatted_mac() -> Option<String> {
     }
 
     None
+}
+
+pub fn set_polling_mode() {
+    let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
+    if phy_lock.is_some() {
+        let result = phy_lock.as_mut().unwrap().set_polling_mode(true);
+        log::debug!("switched physical interface to polling mode: {:?}", result);
+    }
+}
+
+pub fn set_interrupt_mode() {
+    let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
+    if phy_lock.is_some() {
+        let result = phy_lock.as_mut().unwrap().set_polling_mode(false);
+        log::debug!(
+            "switched physical interface to interrupt mode: {:?}",
+            result
+        );
+    }
+}
+
+pub fn get_virtual_interface() -> &'static Mutex<Option<EthernetInterfaceType>> {
+    &ETHERNET_INTERFACE
 }

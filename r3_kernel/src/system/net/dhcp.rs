@@ -10,6 +10,7 @@ use lazy_static::lazy_static;
 use smoltcp::dhcp::{Dhcpv4Client, Dhcpv4Config};
 use smoltcp::socket::{RawPacketMetadata, RawSocketBuffer, SocketSet};
 use smoltcp::time::Instant;
+use smoltcp::wire::IpCidr;
 use spin::{Mutex, MutexGuard};
 
 use crate::system::net::iface;
@@ -160,9 +161,41 @@ impl DHCPClient {
             return Err(DHCPError::NoInterface);
         }
 
-        let mut iface = iface_lock.as_mut().unwrap();
+        let iface = iface_lock.as_mut().unwrap();
 
-        // 1. update the CIDR range
+        // 1. Get the new CIDR and replace the current one:
+        if let Some(cidr_addr) = config.address {
+            log::info!("Assigning new IP address {}", cidr_addr);
+            iface.update_ip_addrs(|current_addresses| {
+                for addr in current_addresses.iter_mut() {
+                    *addr = IpCidr::Ipv4(cidr_addr);
+                }
+            });
+        }
+
+        // 2. Update the default gateway:
+        if let Some(router) = config.router {
+            iface
+                .routes_mut()
+                .add_default_ipv4_route(router)
+                .expect("failed to add a new ipv4 gateway route.");
+        }
+
+        // 3. TODO: Do something with DNS address
+
         Err(DHCPError::NoDHCPClient)
+    }
+
+    /// used for DHCP initial probing while bootup
+    pub fn configure_iface_via_dhcp() -> Result<(), DHCPError> {
+        let mut iface_lock = iface::get_virtual_interface().lock();
+        let mut dhcp_lock = DHCP_CLIENT.lock();
+
+        let poll_result = Self::poll_dhcp_over_iface(&mut iface_lock, &mut dhcp_lock);
+        if let Ok(dhcp_config) = poll_result {
+            return Self::update_config(dhcp_config, &mut iface_lock);
+        } else {
+            return Err(poll_result.unwrap_err());
+        }
     }
 }
