@@ -314,8 +314,6 @@ impl Realtek8139Device {
             .capr
             .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
 
-        log::info!("buffer length: {}", buffer_length);
-
         Ok(&buffer_slice[4..buffer_length])
     }
 

@@ -175,6 +175,7 @@ impl DHCPClient {
 
         // 2. Update the default gateway:
         if let Some(router) = config.router {
+            log::info!("Assigning new gateway route {}", router);
             iface
                 .routes_mut()
                 .add_default_ipv4_route(router)
@@ -182,8 +183,7 @@ impl DHCPClient {
         }
 
         // 3. TODO: Do something with DNS address
-
-        Err(DHCPError::NoDHCPClient)
+        Ok(())
     }
 
     /// used for DHCP initial probing while bootup

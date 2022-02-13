@@ -238,7 +238,7 @@ fn create_unspecified_interface(mac_addr: &[u8]) -> EthernetInterfaceType {
     iface
 }
 
-pub fn create_static_ip_interface(
+fn create_static_ip_interface(
     mac: &[u8],
     gateway: &str,
     ip: &str,
@@ -274,7 +274,7 @@ pub fn create_static_ip_interface(
     Some(iface)
 }
 
-pub fn create_loopback_interface() -> EthernetInterfaceType {
+fn create_loopback_interface() -> EthernetInterfaceType {
     let neighbor_cache = NeighborCache::new(BTreeMap::new());
     let routes = Routes::new(BTreeMap::new());
 
@@ -306,12 +306,7 @@ pub fn setup_network_interface() {
         return;
     }
 
-    let mut netdev = device_opt.unwrap();
-
-    // TODO: FIX interrupt mode bugs - interrupts not firing as of now
-    netdev
-        .set_polling_mode(true)
-        .expect("failed to enable polling mode on ethernet device");
+    let netdev = device_opt.unwrap();
 
     let interrupt_no = netdev.as_ref().get_interrupt_no().unwrap();
 
@@ -382,4 +377,21 @@ pub fn set_interrupt_mode() {
 
 pub fn get_virtual_interface() -> &'static Mutex<Option<EthernetInterfaceType>> {
     &ETHERNET_INTERFACE
+}
+
+pub fn is_in_loopback() -> bool {
+    let iface_lock = ETHERNET_INTERFACE.lock();
+    if iface_lock.is_none() {
+        return false;
+    }
+
+    iface_lock.as_ref().unwrap().device().is_loopback()
+}
+
+pub fn switch_to_static_ip() {
+    let phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
+    if let Ok(mac_bytes) = phy_dev_lock.as_ref().unwrap().get_mac_address() {
+        *ETHERNET_INTERFACE.lock() =
+            create_static_ip_interface(&mac_bytes, &DEFAULT_GATEWAY, &DEFAULT_STATIC_IP);
+    }
 }
