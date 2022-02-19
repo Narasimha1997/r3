@@ -69,7 +69,7 @@ pub struct PIC {
 impl PIC {
     #[inline]
     pub fn can_handle(&self, interrupt_no: u8) -> bool {
-        self.offset <= interrupt_no && interrupt_no <= self.offset + MAX_INTERRUPTS_PER_CHIP
+        self.offset <= interrupt_no && interrupt_no < self.offset + MAX_INTERRUPTS_PER_CHIP
     }
 
     #[inline]
@@ -138,6 +138,7 @@ impl ChainedPIC {
 
     pub fn send_eoi(&self, interrupt_no: u8) {
         let slave: &PIC = &self.pics[1];
+
         if slave.can_handle(interrupt_no) {
             slave.eoi();
         }

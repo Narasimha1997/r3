@@ -2,6 +2,7 @@ pub mod lapic;
 pub mod madt;
 pub mod power;
 pub mod rsdt;
+pub mod ioapic;
 
 pub fn init() {
     rsdt::setup_acpi();

@@ -1,6 +1,5 @@
 extern crate log;
 
-use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
@@ -57,11 +56,15 @@ extern "x86-interrupt" fn kbd_irq1_handler(_stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn ata_irq14_handler(_stk: InterruptStackFrame) {
-    LAPICUtils::eoi();
+    CHAINED_PIC
+        .lock()
+        .send_eoi((HARDWARE_INTERRUPTS_BASE + ATA_PRIMARY_INTERRIUPT_LINE) as u8)
 }
 
 extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
-    LAPICUtils::eoi();
+    CHAINED_PIC
+        .lock()
+        .send_eoi((HARDWARE_INTERRUPTS_BASE + ATA_SECONDARY_INTERRUPT_LINE) as u8)
 }
 
 extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {

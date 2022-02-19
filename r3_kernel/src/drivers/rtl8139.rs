@@ -1,6 +1,6 @@
 extern crate spin;
 
-use crate::cpu::io::{wait, Port};
+use crate::cpu::io::Port;
 use crate::drivers::pci;
 use crate::mm::phy;
 use crate::system::net::iface;
@@ -54,9 +54,6 @@ const RTL_LENGTH_BITS: usize = 0x1FFF;
 // RTL interrupts flags
 const RTL_INTERRUPT_RECVOK: usize = 0x01;
 const RTL_INTERRUPT_TXOK: usize = 0x04;
-const RTL_INTERRUPT_RECV_OVF: usize = 0x10;
-const RTL_INTERRUPT_RECV_ERR: usize = 0x02;
-const RTL_INTERRUPT_TX_ERR: usize = 0x08;
 
 #[repr(u8)]
 pub enum RTLDeviceCommand {
@@ -211,7 +208,6 @@ impl Realtek8139Device {
         loop {
             let rst_value = self.config.cmd.read_u8();
             if rst_value & RTLDeviceCommand::SoftReset as u8 != 0 {
-                wait(1);
                 continue;
             }
 
@@ -254,14 +250,6 @@ impl Realtek8139Device {
 
     #[inline]
     fn finalize_config(&self) {
-        // configure interrupts:
-        self.config.imr.write_u16(
-            (RTL_INTERRUPT_TXOK
-                | RTL_INTERRUPT_RECVOK
-                | RTL_INTERRUPT_RECV_OVF
-                | RTL_INTERRUPT_RECV_ERR
-                | RTL_INTERRUPT_TX_ERR) as u16,
-        );
         // setup operation modes of buffers
         self.rx_line.config.write_u32(
             (RTL_WRAP_BUFFER
@@ -273,6 +261,8 @@ impl Realtek8139Device {
         self.tx_line
             .config
             .write_u32((RTL_INTERFRAME_TIME_GAP | RTL_TX_DMA0 | RTL_TX_DMA1 | RTL_TX_DMA2) as u32);
+
+        self.config.imr.write_u16(0xffff);
     }
 
     #[inline]
@@ -300,7 +290,6 @@ impl Realtek8139Device {
         let header = u16::from_le_bytes([buffer_slice[0], buffer_slice[1]]) as usize;
         // header must have ROK flag set
         if header as usize & RTL_RECV_OK != RTL_RECV_OK {
-            log::error!("unknown packet");
             self.config.capr.write_u16(cbr_data as u16);
             return Err(iface::PhyNetdevError::InvalidRecvHeader);
         }
@@ -320,6 +309,7 @@ impl Realtek8139Device {
     pub fn prepare_interface(&mut self) {
         // 1. boot up
         self.send_command(&self.config.config_1, RTLDeviceCommand::HardPowerUp as u8);
+
         // 2. soft-reset
         self.wait_soft_reset();
 
@@ -371,7 +361,6 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
 
         // increment tx_id
         self.tx_line.tx_id = (tx_id + 1) % RTL_N_TX_BUFFERS;
-
         // Tx is not complete
         Ok(())
     }
@@ -386,6 +375,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     }
 
     fn handle_interrupt(&mut self) -> Result<(), iface::PhyNetdevError> {
+
         let interrupt_code = self.config.isr.read_u32() as usize;
         // Transmit OK signal, we have already handled it
         if interrupt_code & RTL_INTERRUPT_TXOK == RTL_INTERRUPT_TXOK {
@@ -419,22 +409,10 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn set_polling_mode(&mut self, enable: bool) -> Result<(), iface::PhyNetdevError> {
         // disable receive ok
         if enable {
-            self.config.imr.write_u32(
-                (RTL_INTERRUPT_TXOK
-                    | RTL_INTERRUPT_RECV_OVF
-                    | RTL_INTERRUPT_RECV_ERR
-                    | RTL_INTERRUPT_TX_ERR) as u32,
-            );
-
+            self.config.imr.write_u16(0x0000);
             self.is_polling = true;
         } else {
-            self.config.imr.write_u32(
-                (RTL_INTERRUPT_TXOK
-                    | RTL_INTERRUPT_RECVOK
-                    | RTL_INTERRUPT_RECV_OVF
-                    | RTL_INTERRUPT_RECV_ERR
-                    | RTL_INTERRUPT_TX_ERR) as u32,
-            );
+            self.config.imr.write_u16(0xffff);
 
             self.is_polling = false;
         }
@@ -452,7 +430,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
             if !self.has_packet() {
                 continue;
             }
-            // there is a packet, get it's data:
+
             if let Ok(data_slice) = self.receive_packet() {
                 return Ok(data_slice);
             }

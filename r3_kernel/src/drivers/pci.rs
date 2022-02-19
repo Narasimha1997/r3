@@ -219,6 +219,12 @@ impl PCIDevice {
         let config_reg = PCIConfigRegister::new(self.bus, self.dev, self.func, 0x04);
         let mut current_data = config_reg.read_config();
         current_data.set_bit(2, true);
+        log::debug!(
+            "PCI bus mastering status for {:x}:{:x}={:b}",
+            self.vendor_id,
+            self.device_id,
+            current_data
+        );
         config_reg.write_config(current_data);
     }
 }

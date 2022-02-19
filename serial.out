@@ -1,18 +1,18 @@
 r3_kernel            INFO  Hello, kernel world!
 r3_kernel::boot_proto INFO  Bootloader version: 0.10.9
-r3_kernel::boot_proto INFO  RSDT Address: Some(1006368)
+r3_kernel::boot_proto INFO  RSDT Address: Some(1006352)
 r3_kernel::boot_proto INFO  Memory offset: 0xffffd00000000000
 r3_kernel::boot_proto INFO  MemoryRegion { start: 0, end: 654336, kind: Bootloader }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 654336, end: 655360, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 983040, end: 1048576, kind: UnknownBios(2) }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9330688, kind: Bootloader }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 9330688, end: 2147352576, kind: Usable }
-r3_kernel::boot_proto INFO  MemoryRegion { start: 2147352576, end: 2147483648, kind: UnknownBios(2) }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1048576, end: 9342976, kind: Bootloader }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 9342976, end: 1073610752, kind: Usable }
+r3_kernel::boot_proto INFO  MemoryRegion { start: 1073610752, end: 1073741824, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4278173696, end: 4278190080, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  MemoryRegion { start: 4294705152, end: 4294967296, kind: UnknownBios(2) }
 r3_kernel::boot_proto INFO  Framebuffer address: 0xffffc00080000000
 r3_kernel::boot_proto DEBUG Framebuffer info: width=640 height=480 bps=4 pixel_format=BGR
-r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x891cdafa0067
+r3_kernel::cpu::segments DEBUG TSS descriptor high=0xffff8000, low=0x891cf3ca0067
 r3_kernel::cpu::segments INFO  Kernel code selector: 8
 r3_kernel::cpu::segments DEBUG Verified Code Segment Register value: 0x8
 r3_kernel::cpu::segments INFO  Initialized GDT.
@@ -23,19 +23,19 @@ r3_kernel::cpu::pic  INFO  PICs initialized in chain PIC mode, n_pics=2
 r3_kernel::cpu       INFO  Enabled legacy PIC chip.
 r3_kernel::cpu::tsc  INFO  Enabling CPU timestamp counter..
 r3_kernel::cpu::pit  DEBUG n_ticks: 10
-r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3111591300
+r3_kernel::cpu::tsc  INFO  Enabled CPU TSC, cpu_frequency=3107925000
 r3_kernel::cpu::cpuid INFO  Probing CPU Features with cpuid instruction.
-r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x959aa223, edx=0x78bfbff, ebx=800
+r3_kernel::cpu::cpuid DEBUG cpuid register ecx=0x95baa223, edx=0x78bfbff, ebx=800
 r3_kernel::cpu::cpuid DEBUG CPUID max_standard_level=d, ebx=756e6547.
 r3_kernel::cpu::cpuid DEBUG CPUID max_extended_level=80000008, ebx=756e6547.
-r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | CX16 | PDCM | PCIDE | SSE4_1 | SSE4_2 | POPCNT | TSCD | XSAVE | AVX | HYPERVISOR
+r3_kernel::cpu::cpuid INFO  Feature Register ecx=SSE3 | PCLMUL | VMX | SSSE3 | CX16 | PDCM | PCIDE | SSE4_1 | SSE4_2 | X2APIC | POPCNT | TSCD | XSAVE | AVX | HYPERVISOR
 r3_kernel::cpu::cpuid INFO  Feature Register edx=FPU | VME | DE | PSE | TSC | MSR | PAE | MCE | CX8 | APIC | SEP | MTRR | PGE | MCA | CMOV | PAT | PSE36 | CLF | MMX | FXSR | SSE | SSE2
 r3_kernel::cpu::cpuid INFO  Max standard level 0xd
 r3_kernel::cpu::cpuid INFO  Max extended level 0x80000008
 r3_kernel::cpu::cpuid INFO  CPU level checks passed.
 r3_kernel::cpu::exceptions ERROR Breakpoint exception
 Exception info: Exception Info {
-    instruction_pointer: 18446603336221500273,
+    instruction_pointer: 18446603336221502977,
     code_segment: 8,
     cpu_flags: 130,
     stack_pointer: 18446673708188692136,
@@ -43,14 +43,14 @@ Exception info: Exception Info {
 }
 r3_kernel::cpu       INFO  Recovered from breakpoint, interrupts properly working.
 r3_kernel::mm        INFO  Enabling frame allocator...
-r3_kernel::mm::phy   INFO  Found memory region of size: 2138021888 bytes. start=0x8e6000, end=0x7ffe0000
+r3_kernel::mm::phy   INFO  Found memory region of size: 1064267776 bytes. start=0x8e9000, end=0x3ffe0000
 r3_kernel::mm::phy   INFO  Found 1 memory regions as usable.
 r3_kernel::mm::phy   INFO  Set-up Linear memory allocator for Physical memory successfull, regions=1
-r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8e6000 to 0xae6000
-r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8e6000, max_frames=512
+r3_kernel::mm::phy   DEBUG Moved the start address of memory region below 16MiB from 0x8e9000 to 0xae9000
+r3_kernel::mm::phy   INFO  Set-up DMA Allocator for DMA memory manager successfull, start=0x8e9000, max_frames=512
 r3_kernel::mm        INFO  Enabling kernel paging...
-r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd0000066a000
-r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd0000066a000
+r3_kernel::mm::paging INFO  Page table at Virtual address: 0xffffd0000066d000
+r3_kernel::mm::paging INFO  Kernel paging is initialized, address at: 0xffffd0000066d000
 r3_kernel::mm        INFO  Running simple paging test....
 r3_kernel::mm        DEBUG The expected value is at virtual address=0xffffc000c01febc0
 r3_kernel::mm        INFO  Virtual Memory test passed, expected=0x34445544, got=0x34445544
@@ -87,6 +87,8 @@ r3_kernel::acpi::rsdt INFO  2 APIC
 r3_kernel::acpi::rsdt INFO  3 HPET
 r3_kernel::acpi::rsdt INFO  4 WAET
 r3_kernel::acpi::madt DEBUG APIC Tables size: 76
+r3_kernel::acpi::madt DEBUG found processor entry: 0
+r3_kernel::acpi::madt DEBUG found ioapic entry: 0
 r3_kernel::acpi::madt INFO  Number of CPU cores: 1, Local APIC Address: 0xffffd000fee00000
 r3_kernel::acpi::madt INFO  CPU-0 - 0
 r3_kernel            INFO  Initial stage booted properly.
@@ -100,7 +102,7 @@ r3_kernel::drivers   WARN  No driver found to handle the device 1237:8086
 r3_kernel::drivers   WARN  No driver found to handle the device 7000:8086
 r3_kernel::drivers   INFO  Found driver for device 7010:8086.
 r3_kernel::drivers::disk::ata_pio INFO  Probed ATA PCI drives.
-r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2588160bytes
+r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"primary" model=QEMU HARDDISK, serial=QM00001, size=2599424bytes
 r3_kernel::drivers::disk::ata_pio INFO  ATA:0_"secondary" model=QEMU HARDDISK, serial=QM00002, size=40960bytes
 r3_kernel::drivers::disk INFO  Registered devfs device hda
 r3_kernel::drivers::disk INFO  Registered devfs device hdb
@@ -110,6 +112,7 @@ r3_kernel::drivers   INFO  Found driver for device 8139:10ec
 r3_kernel::system::filesystem::detect WARN  No usuable filesystem detected on /dev/hda
 r3_kernel::system::filesystem::detect INFO  Detected TAR filesystem on device /dev/hdb
 r3_kernel::system::filesystem::ustar INFO  Mounted tarfs at /sbin
+r3_kernel::drivers::pci DEBUG PCI bus mastering status for 10ec:8139=100000111
 r3_kernel::drivers::rtl8139 DEBUG Initialized RTL 8139 device driver, MAC address: [82, 84, 0, 18, 52, 86]
 r3_kernel::drivers::rtl8139 DEBUG configuring transmitter and receivers
 r3_kernel::system::net::iface INFO  registered network interrupt on line: 11
@@ -117,7 +120,7 @@ r3_kernel::system::net::types INFO  initialized network interface queue with siz
 r3_kernel::system::net INFO  Network interface MAC: 52:54:00:12:34:56
 r3_kernel::system::net::dhcp INFO  initialized DHCPv4 client
 r3_kernel::system::net::iface DEBUG switched physical interface to polling mode: Ok(())
-r3_kernel::system::net::dhcp INFO  Assigning new IP address 192.168.0.105/24
+r3_kernel::system::net::dhcp INFO  Assigning new IP address 192.168.0.102/24
 r3_kernel::system::net::dhcp INFO  Assigning new gateway route 192.168.0.1
 r3_kernel::system::net INFO  DHCP configuration complete
 r3_kernel::system::net::iface DEBUG switched physical interface to interrupt mode: Ok(())
@@ -128,7 +131,7 @@ r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a00000 virt=0xffffc
 r3_kernel::mm::paging DEBUG Created new page table at phy=0x1a01000 virt=0xffffc000c01fde88
 r3_kernel::system::process DEBUG Adding thread 0 for process kernel_background:0
 r3_kernel::system::thread DEBUG Initialized context for new thread
-            thread_id=0, page_table=0x66a000, rip=0xffff800000093b30,
+            thread_id=0, page_table=0x66d000, rip=0xffff800000094890,
             stack_end=0xffffb00000200000
 r3_kernel::system::tasking::srbs DEBUG Adding thread ThreadID(0) to the thread queue.
 r3_kernel            INFO  Started system idle thread in background.
@@ -182,6 +185,149 @@ r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x403000, arg2=0x6
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=46, arg0=0x7ffc001fffd0, arg1=0x403000, arg2=0x7ffc001fffd0
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
+r3_kernel::system::tasking DEBUG Scheduling thread main
+r3_kernel::system::posix::sched DEBUG Returned from sleep!
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=1, arg0=0x1, arg1=0x40003e, arg2=0x5
+r3_kernel::system::posix DEBUG SYSCALL: sys_no=0, arg0=0x0, arg1=0x403000, arg2=0x1000
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
 r3_kernel::system::tasking DEBUG Scheduling thread main
 r3_kernel::system::tasking DEBUG Scheduling thread idle_thread
