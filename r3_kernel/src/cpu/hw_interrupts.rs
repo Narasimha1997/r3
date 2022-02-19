@@ -15,7 +15,7 @@ use crate::system::tasking::schedule_handle;
 
 /// hardware interrupts start from 0x20, i.e from 32
 /// because of interrupt remapping.
-const HARDWARE_INTERRUPTS_BASE: usize = 0x20;
+pub const HARDWARE_INTERRUPTS_BASE: usize = 0x20;
 
 /// PIT interrupt line:
 const PIT_INTERRUPT_LINE: usize = 0x00;

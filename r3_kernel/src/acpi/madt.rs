@@ -27,7 +27,7 @@ pub struct PerProcessorIOAPIC {
     pub ioapic_id: u8,
     reserved: u8,
     pub mmio_address: u32,
-    pub gsi: u32,
+    pub gsi_base: u32,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -38,7 +38,6 @@ pub struct InterruptSourceOverride {
     pub gsi: u32,
     pub flags: u16,
 }
-
 
 #[derive(Debug)]
 pub struct MultiProcessorInfo {

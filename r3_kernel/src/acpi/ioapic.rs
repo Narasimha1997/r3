@@ -1,6 +1,14 @@
+extern crate spin;
+
+use crate::acpi::madt;
+use crate::cpu::hw_interrupts::HARDWARE_INTERRUPTS_BASE;
 use crate::mm;
 
-const IOAPIC_MMIO_WRITE_OFFSET: u32 = 0x10;
+use core::mem;
+
+use spin::MutexGuard;
+
+const MAX_IOAPIC_INTERRUTPS: usize = 24;
 
 #[derive(Debug, Copy, Clone)]
 pub enum IOAPICDeliveryMode {
@@ -12,12 +20,14 @@ pub enum IOAPICDeliveryMode {
     ExternalInt = 7,
 }
 
-pub enum IOAPICGeneralInfo {
+pub enum IOAPICMMIOCommands {
     IOAPICRegisterID = 0,
     IOAPICRegisterVersion = 1,
     IOAPICRegisterArbID = 2,
+    IOAPICRegisterReadWrite = 16,
 }
 
+#[derive(Copy, Clone)]
 #[repr(C, packed)]
 pub struct IOAPICRedirectEntry {
     ri_vector: u8,
@@ -90,8 +100,138 @@ impl IOAPICUtils {
     #[inline]
     pub fn write_io_register(ioapic_address: u32, offset: u32, value: u32) {
         Self::select_io_register(ioapic_address, offset);
-        Self::get_mmio_handle(ioapic_address, IOAPIC_MMIO_WRITE_OFFSET).write_u32(
-            value
+        Self::get_mmio_handle(
+            ioapic_address,
+            IOAPICMMIOCommands::IOAPICRegisterReadWrite as u32,
+        )
+        .write_u32(value);
+    }
+
+    #[inline]
+    pub fn get_ioapic_version(ioapic_address: u32) -> u8 {
+        Self::select_io_register(
+            ioapic_address,
+            IOAPICMMIOCommands::IOAPICRegisterVersion as u32,
+        );
+
+        let v_data = Self::get_mmio_handle(
+            ioapic_address,
+            IOAPICMMIOCommands::IOAPICRegisterReadWrite as u32,
+        )
+        .read_u32();
+        (v_data >> 16) as u8
+    }
+
+    pub fn register_ioapic_interrupt(
+        ioapics: &[madt::PerProcessorIOAPIC],
+        r_entry: IOAPICRedirectEntry,
+        irq_no: usize,
+    ) {
+        for apic in ioapics {
+            if (apic.gsi_base as usize) < irq_no {
+                let local_offset = irq_no - apic.gsi_base as usize;
+                let max_version = Self::get_ioapic_version(apic.mmio_address);
+                if local_offset <= max_version as usize {
+                    // register redirect entry
+                    let write_offset = (IOAPICMMIOCommands::IOAPICRegisterReadWrite as usize
+                        + local_offset * 2) as u32;
+                    // redirect entry is 64 bits in length
+                    let redirect_flags: u64 = unsafe { mem::transmute(r_entry) };
+                    // write lower 32 bits
+                    Self::write_io_register(apic.mmio_address, write_offset, redirect_flags as u32);
+                    // write upper 32 bits
+                    Self::write_io_register(
+                        apic.mmio_address,
+                        write_offset + 1,
+                        (redirect_flags >> 32) as u32,
+                    );
+                }
+            }
+        }
+    }
+}
+
+fn register_default_interrupt(
+    ioapics: &[madt::PerProcessorIOAPIC],
+    base_offset: usize,
+    delivery_method: IOAPICDeliveryMode,
+    is_low_pin: bool,
+    destination_cpu: usize,
+    irq_no: usize,
+    source_irq: usize,
+) {
+    // create a redirect entry
+    let redirect_entry = IOAPICRedirectEntry::new(
+        // base irq no = exceptions + hardware interrupt
+        (base_offset + irq_no) as u8,
+        // is not masked
+        false,
+        // destination cpu:
+        destination_cpu as u8,
+        // delivery mode
+        delivery_method,
+        // is this a logical CPU?
+        false,
+        // is this a pending interrupt?
+        false,
+        // has low pin parity?
+        is_low_pin,
+        // remote?
+        false,
+    );
+
+    // register this interrupt
+    IOAPICUtils::register_ioapic_interrupt(ioapics, redirect_entry, source_irq);
+}
+
+#[inline]
+fn get_override_info_if_present<'a>(
+    bus: usize,
+    irq: usize,
+    isos: &'a [madt::InterruptSourceOverride],
+) -> Option<&'a madt::InterruptSourceOverride> {
+    for iso_entry in isos {
+        if iso_entry.bus == (bus as u8) && iso_entry.irq == (irq as u8) {
+            return Some(&iso_entry);
+        }
+    }
+
+    None
+}
+
+pub fn init_io_apics() {
+    let mp_info: MutexGuard<madt::MultiProcessorInfo> = madt::PROCESSORS.lock();
+    let base_cpu_apic_id = mp_info.cores.get(0).unwrap().apic_id;
+    let all_ioapics = &mp_info.ioapics;
+    let overrides = &mp_info.isos;
+
+    for source_irq in 0..MAX_IOAPIC_INTERRUTPS {
+        let mut base_irq = source_irq;
+        let mut low_pin_parity = false;
+
+        // check if the PCI device on bus 0 is connected to an overrided IRQ source
+        if let Some(iso) = get_override_info_if_present(0, source_irq as usize, &overrides) {
+            // base irq then becomes the gsi
+            base_irq = iso.gsi as usize;
+            // low pin parity?
+            low_pin_parity = iso.flags & 2 != 0;
+        }
+
+        log::debug!(
+            "mapping device interrupt to I/O APIC {} -> {}",
+            source_irq,
+            base_irq
+        );
+
+        // register this interrupt
+        register_default_interrupt(
+            &all_ioapics,
+            HARDWARE_INTERRUPTS_BASE,
+            IOAPICDeliveryMode::Fixed,
+            low_pin_parity,
+            base_cpu_apic_id as usize,
+            base_irq,
+            source_irq,
         );
     }
 }
