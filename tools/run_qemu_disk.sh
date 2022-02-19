@@ -22,7 +22,7 @@ INET_2="-nic tap,model=rtl8139"
 INET_3="-netdev tap,helper=/usr/lib/qemu/qemu-bridge-helper,id=r3_net -device rtl8139,netdev=r3_net,id=r3_net -object filter-dump,id=r3_net,netdev=r3_net,file=net_dump.dat"
 
 
-QEMU_ARGS="-enable-kvm -cpu host -m 1G -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk $INET_2"
+QEMU_ARGS="-enable-kvm -cpu host -M pc -m 1G -monitor stdio --serial file:serial.out -drive file=$STORAGE_DISK,format=raw,index=1,media=disk $INET_2"
 
 if [[ "$1" == "--uefi" || "$2" == "--uefi" || "$3" == "--uefi" ]]; then
     KERNEL_BIN_PATH="$KERNEL_BIN_PATH/boot-uefi-r3_kernel.img"

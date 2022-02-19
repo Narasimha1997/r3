@@ -30,10 +30,21 @@ pub struct PerProcessorIOAPIC {
     pub gsi: u32,
 }
 
+#[derive(Debug, Copy, Clone)]
+#[repr(C, packed)]
+pub struct InterruptSourceOverride {
+    pub bus: u8,
+    pub irq: u8,
+    pub gsi: u32,
+    pub flags: u16,
+}
+
+
 #[derive(Debug)]
 pub struct MultiProcessorInfo {
     pub cores: Vec<PerProcessorLAPIC>,
     pub ioapics: Vec<PerProcessorIOAPIC>,
+    pub isos: Vec<InterruptSourceOverride>,
     pub lapic_address: VirtualAddress,
 }
 
@@ -80,6 +91,7 @@ impl MADT {
 
         let mut cores: Vec<PerProcessorLAPIC> = Vec::new();
         let mut ioapics: Vec<PerProcessorIOAPIC> = Vec::new();
+        let mut isos: Vec<InterruptSourceOverride> = Vec::new();
 
         let table_end = madt_address.as_u64() + lapic_root.header.length as u64;
 
@@ -108,6 +120,18 @@ impl MADT {
                 ioapics.push(ioapic_entry);
             }
 
+            if lapic_entry.entry_type == 2 {
+                // IRQ overrides information:
+                let body_addr = entries_start + mem::size_of::<LAPICEntry>() as u64;
+                let iso_entry: InterruptSourceOverride = unsafe { *(body_addr as *const _) };
+                log::debug!(
+                    "found iso entry: irq={}, bus={}",
+                    iso_entry.irq,
+                    iso_entry.bus,
+                );
+                isos.push(iso_entry);
+            }
+
             entries_start = entries_start + lapic_entry.entry_size as u64;
         }
 
@@ -115,6 +139,7 @@ impl MADT {
         Ok(MultiProcessorInfo {
             cores,
             ioapics,
+            isos,
             lapic_address,
         })
     }
