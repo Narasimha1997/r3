@@ -48,6 +48,7 @@ extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn kbd_irq1_handler(_stk: InterruptStackFrame) {
+    log::debug!("keyboard!");
     keyboard::PC_KEYBOARD.lock().read_key();
 
     CHAINED_PIC

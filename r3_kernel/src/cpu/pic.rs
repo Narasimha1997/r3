@@ -245,20 +245,22 @@ lazy_static! {
 }
 
 /// Enables legacy interrupts by clearing the mask bits
-/// when enabled, PIC will raise interrupts on behalf of hardware devices.
+/// when enabled, 8259 PIC will raise interrupts on behalf of hardware devices.
 pub fn enable_legacy_interrupts() {
-    let chained_pic = CHAINED_PIC.lock();
+    let mut chained_pic = CHAINED_PIC.lock();
     if !chained_pic.is_enabled {
         chained_pic.mask_requests(0x00, 0x00);
+        chained_pic.is_enabled = true;
     }
 }
 
 /// Disables legacy interrupts by setting the masks.
 /// We can disabled PIC once we migrate to LAPIC during SMP boot.
 pub fn disable_legacy_interrupts() {
-    let chained_pic = CHAINED_PIC.lock();
+    let mut chained_pic = CHAINED_PIC.lock();
     if chained_pic.is_enabled {
         chained_pic.mask_requests(0xff, 0xff);
+        chained_pic.is_enabled = false;
     }
 }
 

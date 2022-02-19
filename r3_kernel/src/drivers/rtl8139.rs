@@ -409,11 +409,10 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn set_polling_mode(&mut self, enable: bool) -> Result<(), iface::PhyNetdevError> {
         // disable receive ok
         if enable {
-            self.config.imr.write_u16(0x0000);
+            self.config.imr.write_u16(0xffff);
             self.is_polling = true;
         } else {
             self.config.imr.write_u16(0xffff);
-
             self.is_polling = false;
         }
 
