@@ -1,5 +1,7 @@
 use crate::mm;
 
+const IOAPIC_MMIO_WRITE_OFFSET: u32 = 0x10;
+
 #[derive(Debug, Copy, Clone)]
 pub enum IOAPICDeliveryMode {
     Fixed = 0,
@@ -74,9 +76,22 @@ impl IOAPICUtils {
     }
 
     #[inline]
+    pub fn get_mmio_handle(ioapic_address: u32, offset: u32) -> mm::io::MemoryIO {
+        let virt_addr = Self::get_ioapic_vaddr(ioapic_address, offset);
+        mm::io::MemoryIO::new(virt_addr, false)
+    }
+
+    #[inline]
     pub fn select_io_register(ioapic_address: u32, offset: u32) {
-        let virt_addr = Self::get_ioapic_vaddr(ioapic_address, 0);
-        let mmio = mm::io::MemoryIO::new(virt_addr, false);
+        let mmio = Self::get_mmio_handle(ioapic_address, 0);
         mmio.write_u32(offset);
+    }
+
+    #[inline]
+    pub fn write_io_register(ioapic_address: u32, offset: u32, value: u32) {
+        Self::select_io_register(ioapic_address, offset);
+        Self::get_mmio_handle(ioapic_address, IOAPIC_MMIO_WRITE_OFFSET).write_u32(
+            value
+        );
     }
 }
