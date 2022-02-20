@@ -73,14 +73,13 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
+    log::debug!("network interrupt!");
     network_interrupt_handler();
-    LAPICUtils::eoi();
+    // LAPICUtils::eoi();
 }
 
 extern "x86-interrupt" fn no_interrupt_handler(stk: InterruptStackFrame) {
     log::debug!("Unhandled interrupt received: {:?}", stk);
-    pic::CHAINED_PIC.lock().pics[1].eoi();
-    pic::CHAINED_PIC.lock().pics[0].eoi();
 }
 
 #[naked]

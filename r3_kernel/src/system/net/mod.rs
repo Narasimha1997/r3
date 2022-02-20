@@ -19,12 +19,12 @@ pub fn init_networking() {
         // enable polling mode for initial configuration:
         iface::set_polling_mode();
 
-        if let Ok(_) = dhcp::DHCPClient::configure_iface_via_dhcp() {
+        /* if let Ok(_) = dhcp::DHCPClient::configure_iface_via_dhcp() {
             log::info!("DHCP configuration complete");
         } else {
             log::info!("DHCP configuration failed, falling back to static IP");
             iface::switch_to_static_ip();
-        }
+        } */
 
         // switch back to interrupt mode
         iface::set_interrupt_mode();

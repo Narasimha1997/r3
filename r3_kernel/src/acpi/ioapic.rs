@@ -31,8 +31,8 @@ pub enum IOAPICMMIOCommands {
 #[repr(C, packed)]
 pub struct IOAPICRedirectEntry {
     ri_vector: u8,
-    ri_flags: u8,
-    is_masked: bool,
+    flag_set_0: u8,
+    flag_set_1: u8,
     reserved: [u8; 4],
     ri_destination: u8,
 }
@@ -45,12 +45,17 @@ impl IOAPICRedirectEntry {
         pending: bool,
         low_pin: bool,
         remote: bool,
-    ) -> u8 {
-        (delivery_method as u8)
-            | ((logical_dest as u8) << 4)
-            | ((pending as u8) << 5)
-            | ((low_pin as u8) << 6)
-            | ((remote as u8) << 7)
+        level_trigger: bool,
+        is_masked: bool,
+    ) -> (u8, u8) {
+        (
+            (delivery_method as u8)
+                | ((logical_dest as u8) << 4)
+                | ((pending as u8) << 5)
+                | ((low_pin as u8) << 6)
+                | ((remote as u8) << 7),
+            ((level_trigger as u8) | ((is_masked as u8) << 1)),
+        )
     }
 
     pub fn new(
@@ -62,14 +67,22 @@ impl IOAPICRedirectEntry {
         pending: bool,
         low_pin: bool,
         remote: bool,
+        level_trigger: bool,
     ) -> Self {
         let reserved: [u8; 4] = [0; 4];
-        let ri_flags =
-            Self::prepare_ri_flags(delivery_method, logical_dest, pending, low_pin, remote);
+        let (flag_set_0, flag_set_1) = Self::prepare_ri_flags(
+            delivery_method,
+            logical_dest,
+            pending,
+            low_pin,
+            remote,
+            level_trigger,
+            is_masked,
+        );
         Self {
             ri_vector,
-            ri_flags,
-            is_masked,
+            flag_set_0,
+            flag_set_1,
             reserved,
             ri_destination,
         }
@@ -159,6 +172,7 @@ fn register_default_interrupt(
     destination_cpu: usize,
     irq_no: usize,
     source_irq: usize,
+    level_trigger: bool,
 ) {
     // create a redirect entry
     let redirect_entry = IOAPICRedirectEntry::new(
@@ -178,6 +192,8 @@ fn register_default_interrupt(
         is_low_pin,
         // remote?
         false,
+        // is level triggered?
+        level_trigger,
     );
 
     // register this interrupt
@@ -208,6 +224,7 @@ pub fn init_io_apics() {
     for source_irq in 0..MAX_IOAPIC_INTERRUTPS {
         let mut base_irq = source_irq;
         let mut low_pin_parity = false;
+        let mut level_trigger = false;
 
         // check if the PCI device on bus 0 is connected to an overrided IRQ source
         if let Some(iso) = get_override_info_if_present(0, source_irq as usize, &overrides) {
@@ -215,12 +232,15 @@ pub fn init_io_apics() {
             base_irq = iso.gsi as usize;
             // low pin parity?
             low_pin_parity = iso.flags & 2 != 0;
+            // is it level or edge triggered?
+            level_trigger = iso.flags & 8 != 0;
         }
 
         log::debug!(
-            "mapping device interrupt to I/O APIC {} -> {}",
+            "mapping device interrupt to I/O APIC {} -> {}, trigger_mode={}",
             source_irq,
-            base_irq
+            base_irq,
+            if level_trigger { "level" } else { "edge" }
         );
 
         // register this interrupt
@@ -232,6 +252,7 @@ pub fn init_io_apics() {
             base_cpu_apic_id as usize,
             base_irq,
             source_irq,
+            level_trigger,
         );
     }
 }
