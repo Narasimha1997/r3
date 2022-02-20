@@ -49,7 +49,9 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
 }
 
 fn ideal_k_thread() {
-    cpu::halt_with_interrupts();
+    loop {
+        
+    }
 }
 
 fn start_idle_kthread() {
@@ -83,9 +85,9 @@ fn start_idle_kthread() {
 
 fn init_functionalities() {
     acpi::setup_smp_prerequisites();
-    log::info!("Enabled APIC interrupts.");
+    
     cpu::hw_interrupts::setup_post_apic_interrupts();
-    log::info!("Created handlers.");
+
     cpu::syscall::setup_syscall_interrupt();
     // init file-system
     system::init_fs();

@@ -22,7 +22,6 @@ const DOUBLE_FAULT_ISR_NO: usize = 8;
 const GPF_ISR_NO: usize = 13;
 const PAFE_FAULT_ISR_NO: usize = 14;
 
-
 pub extern "x86-interrupt" fn divide_by_zero(stk: InterruptStackFrame) {
     log::error!("Divide by zero exception\nException info: {:#?}", stk);
 }
@@ -52,8 +51,8 @@ extern "x86-interrupt" fn gpf(stk: InterruptStackFrame, err: u64) {
     cpu::halt_no_interrupts();
 }
 
-extern "x86-interrupt" fn double_fault(stk: InterruptStackFrame, err: u64) -> ! {
-    log::error!("Double fault exception {}\nException info: {:#?}", err, stk);
+extern "x86-interrupt" fn double_fault(stk: InterruptStackFrame, _err: u64) -> ! {
+    log::debug!("double fault interrupt");
     log::error!(
         "Double fault rflags: {:?}\n",
         RFlagsStruct::from_bits_truncate(stk.cpu_flags)

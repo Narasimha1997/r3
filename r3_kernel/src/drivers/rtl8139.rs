@@ -375,29 +375,32 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     }
 
     fn handle_interrupt(&mut self) -> Result<(), iface::PhyNetdevError> {
-
         let interrupt_code = self.config.isr.read_u32() as usize;
+        log::debug!("network interrupt: {:032b}", interrupt_code);
+
         // Transmit OK signal, we have already handled it
         if interrupt_code & RTL_INTERRUPT_TXOK == RTL_INTERRUPT_TXOK {
             self.config.isr.write_u32(0x05);
+            log::debug!("served network interrupt TX");
             return Ok(());
         }
         // Receive OK signal, receive the packet and process it
         if interrupt_code & RTL_INTERRUPT_RECVOK == RTL_INTERRUPT_RECVOK {
             let recv_result = self.receive_packet();
+            log::debug!("served network interrupt RX");
             self.config.isr.write_u32(0x05);
-
             if recv_result.is_err() {
                 return Err(recv_result.unwrap_err());
             }
 
             // call the on_packet_handler:
             iface::handle_recv_packet(recv_result.unwrap());
-
             return Ok(());
         }
 
         // TODO: Handle more events, as of now, just acknowledge
+        
+        self.config.isr.write_u32(0x05);
         Ok(())
     }
 
@@ -409,7 +412,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn set_polling_mode(&mut self, enable: bool) -> Result<(), iface::PhyNetdevError> {
         // disable receive ok
         if enable {
-            self.config.imr.write_u16(0xffff);
+            self.config.imr.write_u16(0x0000);
             self.is_polling = true;
         } else {
             self.config.imr.write_u16(0xffff);

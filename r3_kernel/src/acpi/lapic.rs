@@ -1,7 +1,6 @@
 extern crate log;
 
 use crate::acpi::madt;
-use crate::cpu::pic::disable_legacy_interrupts;
 use crate::mm::{io::MemoryIO, VirtualAddress};
 
 use core::sync::atomic::{AtomicBool, Ordering};
@@ -32,9 +31,6 @@ impl ProcessorID {
         self.0 == 0
     }
 }
-
-/// offset of spurious vector register
-const SUPRIOUS_VECTOR_OFFSET: u8 = 0xf0;
 
 pub enum LapicNumbers {
     LapicID = 0x20,
@@ -110,20 +106,33 @@ impl LAPICUtils {
         LAPICRegistersIO::write_register(LapicNumbers::LvtTimer as u64, timer_flag);
     }
 
-    pub fn enable_lapic() {
-        // disable legacy interrupts
-        disable_legacy_interrupts();
-
+    #[inline]
+    fn write_lapic_reg(offset: u64, data: u32) {
         let lapic_addr = LAPICRegistersIO::get_base_addr();
+        let v_addr = VirtualAddress::from_u64(lapic_addr.as_u64() + offset as u64);
+        let mmio_port = MemoryIO::new(v_addr, false);
+        mmio_port.write_u32(data);
+    }
 
-        let suprious_vec_addr =
-            VirtualAddress::from_u64(lapic_addr.as_u64() + SUPRIOUS_VECTOR_OFFSET as u64);
+    pub fn enable_lapic() {
+        // set task priority register
+        Self::write_lapic_reg(LapicNumbers::TaskPriority as u64, 0);
 
-        let mmio_port = MemoryIO::new(suprious_vec_addr, false);
-        let current_value = mmio_port.read_u32();
+        // set destination format:
+        Self::write_lapic_reg(LapicNumbers::DestinationFormat as u64, 0xffffffff);
 
-        // https://wiki.osdev.org/APIC#Spurious_Interrupt_Vector_Registers
-        mmio_port.write_u32(current_value | 0xff | 0x100);
+        // disable LVT0 and LVT1
+        Self::write_lapic_reg(LapicNumbers::LvtLINT0 as u64, 0x10000);
+        Self::write_lapic_reg(LapicNumbers::LvtLINT1 as u64, 0x10000);
+
+        // set perf monitoring
+        Self::write_lapic_reg(LapicNumbers::LvtPMCounters as u64, 4 << 8);
+
+        // set spurious interrupt
+        Self::write_lapic_reg(LapicNumbers::SupriousInterrupt as u64, 0xff | 0x100);
+
+        // disable timer
+        Self::write_lapic_reg(LapicNumbers::LvtTimer as u64, 0x10000);
     }
 }
 
@@ -140,7 +149,7 @@ pub fn init_bsp_lapic() {
     LAPICUtils::enable_lapic();
 
     // set up LAPIC timer:
-    LAPICUtils::setup_timer(0x30);
+    LAPICUtils::setup_timer(0x50);
 
     log::info!("Enabled LAPIC and APIC timer for base processor.");
     APIC_BSP_ENABLED.store(true, Ordering::SeqCst);

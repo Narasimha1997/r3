@@ -94,7 +94,7 @@ pub fn setup_scheduler() {
 /// the function will acknowledge the interrupt, selects a thread
 /// and initiates it's state.
 pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
-    // eoi:
+
     LAPICUtils::eoi();
 
     SCHEDULER.lock().save_current_ctx(state_repr);

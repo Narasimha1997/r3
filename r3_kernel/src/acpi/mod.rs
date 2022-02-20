@@ -4,7 +4,10 @@ pub mod madt;
 pub mod power;
 pub mod rsdt;
 
+use crate::cpu;
+
 pub fn init() {
+    log::info!("enabling APIC");
     rsdt::setup_acpi();
     madt::setup_madt();
 }
@@ -12,7 +15,14 @@ pub fn init() {
 pub fn setup_smp_prerequisites() {
     // enable LAPIC for base processor.
     // enable ioapics for handling external device interrupts
-    ioapic::init_io_apics();
+
+    // disable interrupts
+    cpu::disable_interrupts();
+
+    cpu::pic::reinit_and_disable();
     lapic::init_bsp_lapic();
     assert_eq!(lapic::bsp_apic_enabled(), true);
+
+    ioapic::init_io_apics();
+    cpu::enable_interrupts();
 }

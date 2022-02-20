@@ -1,5 +1,6 @@
 extern crate log;
 
+use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;
 use crate::cpu::pic;
@@ -13,12 +14,17 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 // unused because this is called from assembly
 use crate::system::tasking::schedule_handle;
 
+pub const HARDWARE_INTERRUPTS_BASE: usize = 0x30;
+
 /// hardware interrupts start from 0x20, i.e from 32
 /// because of interrupt remapping.
-pub const HARDWARE_INTERRUPTS_BASE: usize = 0x20;
+pub const LEGACY_HARDWARE_INTERRUPTS_BASE: usize = 0x20;
 
 /// PIT interrupt line:
 const PIT_INTERRUPT_LINE: usize = 0x00;
+
+/// Maximum interrupts possible on x86
+const MAX_ARCH_INTERRUPTS: usize = 256;
 
 /// ATA interrupt line - PRIMARY master:
 const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
@@ -27,7 +33,7 @@ const ATA_PRIMARY_INTERRIUPT_LINE: usize = 0x0E;
 const ATA_SECONDARY_INTERRUPT_LINE: usize = 0x0F;
 
 /// Timeshot interrupt line
-const TIMESHOT_INTERRUPT_LINE: usize = 0x10;
+const TIMESHOT_INTERRUPT_LINE: usize = 0x20;
 
 /// Keyboard controller interrupt line:
 const KEYBOARD_INTERRUPT_LINE: usize = 0x01;
@@ -39,40 +45,42 @@ use interrupts::{prepare_default_handle, prepare_naked_handler, InterruptStackFr
 use pic::CHAINED_PIC;
 use pit::pit_callback;
 
-extern "x86-interrupt" fn pit_irq0_handler(_stk: InterruptStackFrame) {
+#[inline]
+fn ack_hw_interrupt(interrupt_no: u8) {
+    // PIC mode?
+    let ch_lock = CHAINED_PIC.lock();
+    ch_lock.send_eoi(interrupt_no);
+}
+
+extern "x86-interrupt" fn pit_irq0_handler_legacy(_stk: InterruptStackFrame) {
     pit_callback();
     // 0th line is PIT
-    CHAINED_PIC
-        .lock()
-        .send_eoi((HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
+    // ack_hw_interrupt((LEGACY_HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
+    ack_hw_interrupt((LEGACY_HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE) as u8);
 }
 
 extern "x86-interrupt" fn kbd_irq1_handler(_stk: InterruptStackFrame) {
-    log::debug!("keyboard!");
     keyboard::PC_KEYBOARD.lock().read_key();
-
-    CHAINED_PIC
-        .lock()
-        .send_eoi((HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE) as u8)
+    LAPICUtils::eoi();
 }
 
 extern "x86-interrupt" fn ata_irq14_handler(_stk: InterruptStackFrame) {
-    CHAINED_PIC
-        .lock()
-        .send_eoi((HARDWARE_INTERRUPTS_BASE + ATA_PRIMARY_INTERRIUPT_LINE) as u8)
+    LAPICUtils::eoi();
 }
 
 extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
-    CHAINED_PIC
-        .lock()
-        .send_eoi((HARDWARE_INTERRUPTS_BASE + ATA_SECONDARY_INTERRUPT_LINE) as u8)
+    LAPICUtils::eoi();
 }
 
 extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
     network_interrupt_handler();
-    CHAINED_PIC
-        .lock()
-        .send_eoi((HARDWARE_INTERRUPTS_BASE + NETWORK_INTERRUPT_NO.load(Ordering::Relaxed)) as u8)
+    LAPICUtils::eoi();
+}
+
+extern "x86-interrupt" fn no_interrupt_handler(stk: InterruptStackFrame) {
+    log::debug!("Unhandled interrupt received: {:?}", stk);
+    pic::CHAINED_PIC.lock().pics[1].eoi();
+    pic::CHAINED_PIC.lock().pics[0].eoi();
 }
 
 #[naked]
@@ -102,8 +110,15 @@ extern "C" fn tsc_deadline_interrupt(_stk: &mut InterruptStackFrame) {
 
 pub fn setup_hw_interrupts() {
     // PIT legacy timer
-    let irq0x00_handle = prepare_default_handle(pit_irq0_handler, 0);
-    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE] = irq0x00_handle;
+    let irq0x00_handle = prepare_default_handle(pit_irq0_handler_legacy, 0);
+    IDT.lock().interrupts[LEGACY_HARDWARE_INTERRUPTS_BASE + PIT_INTERRUPT_LINE] = irq0x00_handle;
+
+    // fill remaining interrupts with legacy handler
+    for idx in 1..(MAX_ARCH_INTERRUPTS - LEGACY_HARDWARE_INTERRUPTS_BASE) {
+        // catch an unhandled hardware interrupt
+        let irq_no_entry = prepare_default_handle(no_interrupt_handler, 0);
+        IDT.lock().interrupts[LEGACY_HARDWARE_INTERRUPTS_BASE + idx] = irq_no_entry;
+    }
 
     // ATA 14 primary
     let irq0x0e_handle = prepare_default_handle(ata_irq14_handler, 0);
@@ -115,8 +130,8 @@ pub fn setup_hw_interrupts() {
 }
 
 pub fn setup_post_apic_interrupts() {
-    let irq0x30_handle = prepare_naked_handler(tsc_deadline_interrupt, 3);
-    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + TIMESHOT_INTERRUPT_LINE] = irq0x30_handle;
+    let irq0x50_handle = prepare_naked_handler(tsc_deadline_interrupt, 3);
+    IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + TIMESHOT_INTERRUPT_LINE] = irq0x50_handle;
 
     let irq0x01_handle = prepare_default_handle(kbd_irq1_handler, 2);
     IDT.lock().interrupts[HARDWARE_INTERRUPTS_BASE + KEYBOARD_INTERRUPT_LINE] = irq0x01_handle;

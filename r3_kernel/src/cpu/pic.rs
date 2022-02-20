@@ -48,7 +48,7 @@ impl fmt::Display for InterruptStatusRegister {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "master_isr={:b}, master_irr={:#b}, slave_isr={:b}, slave_irr={:b}",
+            "master_isr={:08b}, master_irr={:08b}, slave_isr={:08b}, slave_irr={:08b}",
             self.master_isr, self.master_irq, self.slave_isr, self.slave_irq
         )
     }
@@ -115,11 +115,8 @@ impl ChainedPIC {
     pub fn mask_requests(&self, master_mask: u8, slave_mask: u8) {
         let slave: &PIC = &self.pics[1];
         slave.data_port.write_u8(slave_mask);
-        wait(1);
-
         let master: &PIC = &self.pics[0];
         master.data_port.write_u8(master_mask);
-        wait(1);
     }
 
     pub fn can_handle(&self, interrupt_no: u8) -> bool {
@@ -262,6 +259,10 @@ pub fn disable_legacy_interrupts() {
         chained_pic.mask_requests(0xff, 0xff);
         chained_pic.is_enabled = false;
     }
+}
+
+pub fn reinit_and_disable() {
+    CHAINED_PIC.lock().setup(0xff, 0xff);
 }
 
 pub fn setup_pics() {

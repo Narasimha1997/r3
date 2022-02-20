@@ -81,8 +81,8 @@ pub fn init_core_legacy_hardware() {
     pic::setup_pics();
     hw_interrupts::setup_hw_interrupts();
 
-    // enable legacy interrupts:
+    // disable legacy interrupts:
     pic::enable_legacy_interrupts();
-    log::info!("Enabled legacy PIC chip.");
     tsc::init_timer();
+    log::info!("Enabled legacy PIC chip.");
 }
