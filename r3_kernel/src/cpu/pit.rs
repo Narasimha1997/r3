@@ -111,3 +111,7 @@ pub fn sleep_ns(ns: u64) {
         asm!("cli");
     }
 }
+
+pub fn reset_timer() {
+    setup_timer(PIT_LEAST_FREQUENCY);
+}

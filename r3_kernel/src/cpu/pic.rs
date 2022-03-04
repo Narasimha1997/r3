@@ -261,10 +261,6 @@ pub fn disable_legacy_interrupts() {
     }
 }
 
-pub fn reinit_and_disable() {
-    CHAINED_PIC.lock().setup(0xff, 0xff);
-}
-
 pub fn setup_pics() {
     log::info!(
         "PICs initialized in chain PIC mode, n_pics={}",

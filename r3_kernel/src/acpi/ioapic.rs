@@ -54,7 +54,7 @@ impl IOAPICRedirectEntry {
                 | ((pending as u8) << 5)
                 | ((low_pin as u8) << 6)
                 | ((remote as u8) << 7),
-            ((level_trigger as u8) | ((is_masked as u8) << 1)),
+            ((is_masked as u8) | ((level_trigger as u8) << 1)),
         )
     }
 
@@ -173,13 +173,14 @@ fn register_default_interrupt(
     irq_no: usize,
     source_irq: usize,
     level_trigger: bool,
+    is_masked: bool,
 ) {
     // create a redirect entry
     let redirect_entry = IOAPICRedirectEntry::new(
         // base irq no = exceptions + hardware interrupt
         (base_offset + irq_no) as u8,
-        // is not masked
-        false,
+        // is masked?
+        is_masked,
         // destination cpu:
         destination_cpu as u8,
         // delivery mode
@@ -215,7 +216,18 @@ fn get_override_info_if_present<'a>(
     None
 }
 
-pub fn init_io_apics() {
+#[inline]
+fn should_mask<'a>(current_irq: u8, masks: &'a [u8]) -> bool {
+    for masked_no in masks {
+        if *masked_no == current_irq {
+            return true;
+        }
+    }
+
+    false
+}
+
+pub fn init_io_apics(masked_interrupts: &[u8]) {
     let mp_info: MutexGuard<madt::MultiProcessorInfo> = madt::PROCESSORS.lock();
     let base_cpu_apic_id = mp_info.cores.get(0).unwrap().apic_id;
     let all_ioapics = &mp_info.ioapics;
@@ -225,6 +237,7 @@ pub fn init_io_apics() {
         let mut base_irq = source_irq;
         let mut low_pin_parity = false;
         let mut level_trigger = false;
+        let is_masked = should_mask(source_irq as u8, masked_interrupts);
 
         // check if the PCI device on bus 0 is connected to an overrided IRQ source
         if let Some(iso) = get_override_info_if_present(0, source_irq as usize, &overrides) {
@@ -237,10 +250,11 @@ pub fn init_io_apics() {
         }
 
         log::debug!(
-            "mapping device interrupt to I/O APIC {} -> {}, trigger_mode={}",
+            "mapping device interrupt to I/O APIC {} -> {}, trigger_mode={}, masked={}",
             source_irq,
             base_irq,
-            if level_trigger { "level" } else { "edge" }
+            if level_trigger { "level" } else { "edge" },
+            is_masked
         );
 
         // register this interrupt
@@ -253,6 +267,7 @@ pub fn init_io_apics() {
             base_irq,
             source_irq,
             level_trigger,
+            is_masked,
         );
     }
 }

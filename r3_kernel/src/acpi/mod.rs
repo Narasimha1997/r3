@@ -19,10 +19,12 @@ pub fn setup_smp_prerequisites() {
     // disable interrupts
     cpu::disable_interrupts();
 
-    cpu::pic::reinit_and_disable();
+    cpu::pic::disable_legacy_interrupts();
     lapic::init_bsp_lapic();
     assert_eq!(lapic::bsp_apic_enabled(), true);
 
-    ioapic::init_io_apics();
+    let masked_interrupts  = [0, 2];
+
+    ioapic::init_io_apics(&masked_interrupts);
     cpu::enable_interrupts();
 }

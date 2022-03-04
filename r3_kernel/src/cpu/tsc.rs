@@ -109,6 +109,9 @@ impl TSC {
         let t2 = TSC::read_tsc();
 
         CPU_FREQUENCY.store(100 * (t2.0 - t1.0), Ordering::SeqCst);
+
+        // once CPU speed is detected, switch back PIT frequency to 1
+        pit::reset_timer();
     }
 }
 
