@@ -102,8 +102,8 @@ impl SystemTimer {
         // creates a manual time shot:
         unsafe {
             // call an interrupt over line 48
-            // i.e 32 + 16, which is the tsc deadline interrupt line.
-            asm!("int 0x30");
+            // i.e 0x50, which is the tsc deadline interrupt line.
+            asm!("int 0x50");
         }
     }
 

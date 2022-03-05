@@ -42,8 +42,8 @@ void _start()
 {
     i64 read_length = 0, iter = 0, n_times = 0;
     timeval_t sleep_time;
-    sleep_time.seconds = 1;
-    sleep_time.microseconds = 0;
+    sleep_time.seconds = 0;
+    sleep_time.microseconds = 100000;
 
     syscall(1, 1, (u64)welcome, 62);
     for (;;)
