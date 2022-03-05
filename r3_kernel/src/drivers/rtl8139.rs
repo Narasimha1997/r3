@@ -248,6 +248,12 @@ impl Realtek8139Device {
         }
     }
 
+
+    #[inline]
+    fn ack_probable_isr(&self) {
+        self.config.isr.write_u16(0x05);
+    }
+
     #[inline]
     fn finalize_config(&self) {
         // setup operation modes of buffers
@@ -262,7 +268,7 @@ impl Realtek8139Device {
             .config
             .write_u32((RTL_INTERFRAME_TIME_GAP | RTL_TX_DMA0 | RTL_TX_DMA1 | RTL_TX_DMA2) as u32);
 
-        self.config.imr.write_u16(0xffff);
+        self.ack_probable_isr();
     }
 
     #[inline]
@@ -303,6 +309,7 @@ impl Realtek8139Device {
             .capr
             .write_u16((self.buffers.read_offset - RTL_RX_BUFFER_PAD) as u16);
 
+        self.ack_probable_isr();
         Ok(&buffer_slice[4..buffer_length])
     }
 
@@ -362,6 +369,9 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         // increment tx_id
         self.tx_line.tx_id = (tx_id + 1) % RTL_N_TX_BUFFERS;
         // Tx is not complete
+
+        self.ack_probable_isr();
+
         Ok(())
     }
 
@@ -380,7 +390,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
 
         // Transmit OK signal, we have already handled it
         if interrupt_code & RTL_INTERRUPT_TXOK == RTL_INTERRUPT_TXOK {
-            self.config.isr.write_u32(0x05);
+            self.ack_probable_isr();
             log::debug!("served network interrupt TX");
             return Ok(());
         }
@@ -388,7 +398,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         if interrupt_code & RTL_INTERRUPT_RECVOK == RTL_INTERRUPT_RECVOK {
             let recv_result = self.receive_packet();
             log::debug!("served network interrupt RX");
-            self.config.isr.write_u32(0x05);
+            self.ack_probable_isr();
             if recv_result.is_err() {
                 return Err(recv_result.unwrap_err());
             }
@@ -398,9 +408,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
             return Ok(());
         }
 
-        // TODO: Handle more events, as of now, just acknowledge
-        
-        self.config.isr.write_u32(0x05);
+        self.ack_probable_isr();
         Ok(())
     }
 

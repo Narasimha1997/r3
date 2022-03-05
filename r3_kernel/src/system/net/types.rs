@@ -4,7 +4,7 @@ extern crate log;
 extern crate smoltcp;
 extern crate spin;
 
-use alloc::{vec::Vec, vec};
+use alloc::{vec, vec::Vec};
 use lazy_static::lazy_static;
 use smoltcp::socket::SocketSet;
 use spin::Mutex;
@@ -66,3 +66,4 @@ pub fn setup_interface_queue() {
 pub fn setup_socket_set() {
     *SOCKETS_SET.lock() = Some(SocketSet::new(vec![]));
 }
+

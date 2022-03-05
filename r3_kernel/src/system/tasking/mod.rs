@@ -96,7 +96,7 @@ pub fn setup_scheduler() {
 pub extern "sysv64" fn schedule_handle(state_repr: CPURegistersState) {
 
     LAPICUtils::eoi();
-    // log::debug!("sched interrupt");
+    log::debug!("sched interrupt");
 
     SCHEDULER.lock().save_current_ctx(state_repr);
 

@@ -7,6 +7,7 @@ extern crate spin;
 use crate::cpu::hw_interrupts;
 use crate::drivers;
 use crate::system::net::ip_utils;
+use crate::system::net::process::process_network_packet_event;
 use crate::system::net::types;
 
 use smoltcp::iface::{EthernetInterface, EthernetInterfaceBuilder, NeighborCache, Routes};
@@ -340,6 +341,9 @@ pub fn network_interrupt_handler() {
             );
         }
     }
+
+    drop(net_dev_lock);
+    process_network_packet_event();
 }
 
 pub fn get_formatted_mac() -> Option<String> {
@@ -365,6 +369,7 @@ pub fn set_polling_mode() {
 }
 
 pub fn set_interrupt_mode() {
+    log::debug!("set interrupt mode!");
     let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
     if phy_lock.is_some() {
         let result = phy_lock.as_mut().unwrap().set_polling_mode(false);

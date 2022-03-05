@@ -85,13 +85,13 @@ extern "x86-interrupt" fn ata_irq15_handler(_stk: InterruptStackFrame) {
 }
 
 extern "x86-interrupt" fn net_interrupt_wrapper(_stk: InterruptStackFrame) {
-    log::debug!("network interrupt!");
     network_interrupt_handler();
     LAPICUtils::eoi();
 }
 
 fn no_irq_fn(irq_no: usize) {
-    ack_hw_interrupt(irq_no as u8);
+    log::debug!("dev interrupt {:x}", irq_no);
+    LAPICUtils::eoi();
 }
 
 #[naked]

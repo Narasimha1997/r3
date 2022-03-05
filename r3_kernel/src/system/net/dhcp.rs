@@ -25,6 +25,7 @@ lazy_static! {
 
 pub type LockedDHCPClient = MutexGuard<'static, Option<Dhcpv4Client>>;
 
+#[derive(Debug)]
 pub enum DHCPError {
     PollingError,
     UnrecognizedPacket,
@@ -129,7 +130,6 @@ impl DHCPClient {
         // poll and return:
         let poll_result = dhcp.poll(&mut iface, sockets, instant);
         if poll_result.is_err() {
-            log::error!("DHCP poll error: {:?}", poll_result.unwrap_err());
             return Err(DHCPError::PollingError);
         }
 

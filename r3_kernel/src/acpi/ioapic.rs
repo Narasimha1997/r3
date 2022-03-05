@@ -1,3 +1,4 @@
+extern crate bit_field;
 extern crate spin;
 
 use crate::acpi::madt;
@@ -5,6 +6,7 @@ use crate::cpu::hw_interrupts::HARDWARE_INTERRUPTS_BASE;
 use crate::mm;
 
 use core::mem;
+use bit_field::BitField;
 
 use spin::MutexGuard;
 
@@ -29,34 +31,9 @@ pub enum IOAPICMMIOCommands {
 
 #[derive(Copy, Clone)]
 #[repr(C, packed)]
-pub struct IOAPICRedirectEntry {
-    ri_vector: u8,
-    flag_set_0: u8,
-    flag_set_1: u8,
-    reserved: [u8; 4],
-    ri_destination: u8,
-}
+pub struct IOAPICRedirectEntry(u64);
 
 impl IOAPICRedirectEntry {
-    #[inline]
-    fn prepare_ri_flags(
-        delivery_method: IOAPICDeliveryMode,
-        logical_dest: bool,
-        pending: bool,
-        low_pin: bool,
-        remote: bool,
-        level_trigger: bool,
-        is_masked: bool,
-    ) -> (u8, u8) {
-        (
-            (delivery_method as u8)
-                | ((logical_dest as u8) << 4)
-                | ((pending as u8) << 5)
-                | ((low_pin as u8) << 6)
-                | ((remote as u8) << 7),
-            ((is_masked as u8) | ((level_trigger as u8) << 1)),
-        )
-    }
 
     pub fn new(
         ri_vector: u8,
@@ -69,23 +46,30 @@ impl IOAPICRedirectEntry {
         remote: bool,
         level_trigger: bool,
     ) -> Self {
-        let reserved: [u8; 4] = [0; 4];
-        let (flag_set_0, flag_set_1) = Self::prepare_ri_flags(
-            delivery_method,
-            logical_dest,
-            pending,
-            low_pin,
-            remote,
-            level_trigger,
-            is_masked,
-        );
-        Self {
-            ri_vector,
-            flag_set_0,
-            flag_set_1,
-            reserved,
-            ri_destination,
-        }
+       let mut entry = 0u64;
+
+       // first 8 bits = ri vector
+       entry.set_bits(0..8, ri_vector as u64);
+       // next 3 bits = delivery mode
+       entry.set_bits(8..11, delivery_method as u64);
+       // logical destination?
+       entry.set_bit(11, logical_dest);
+       // bit 12 is status
+       entry.set_bit(12, pending);
+       // bit 13 is pin polarity
+       entry.set_bit(13, low_pin);
+       // bit 14 is remote IRR
+       entry.set_bit(14, remote);
+       // bit 15 is trigger
+       entry.set_bit(15, level_trigger);
+       // bit 16 is mask
+       entry.set_bit(16, is_masked);
+       // bits 56-63 is the destination cpu id
+       entry.set_bits(56..64, ri_destination as u64);
+
+       log::debug!("IOAPIC entry: {:064b}", entry);
+
+       Self(entry)
     }
 }
 
