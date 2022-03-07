@@ -4,7 +4,7 @@ extern crate log;
 extern crate smoltcp;
 extern crate spin;
 
-use alloc::{vec, vec::Vec};
+use alloc::{collections::BTreeSet, vec, vec::Vec};
 use lazy_static::lazy_static;
 use smoltcp::socket::SocketSet;
 use spin::Mutex;
@@ -65,5 +65,23 @@ pub fn setup_interface_queue() {
 
 pub fn setup_socket_set() {
     *SOCKETS_SET.lock() = Some(SocketSet::new(vec![]));
+}
+
+pub type TransportLayerPort = u16;
+pub type TransportLayerPorts = BTreeSet<TransportLayerPort>;
+pub type TransportSocketFamily = u16;
+
+#[derive(Debug, Clone, Copy)]
+#[repr(C, packed)]
+pub struct SocketAddressNw {
+    family: TransportSocketFamily,
+    port: [u8; 2],
+    address: [u8; 4],
+    padding: [u8; 8],
+}
+
+lazy_static! {
+    pub static ref CURRENT_TL_PORTS: Mutex<TransportLayerPorts> =
+        Mutex::new(TransportLayerPorts::new());
 }
 
