@@ -7,6 +7,7 @@ extern crate spin;
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 use lazy_static::lazy_static;
 use smoltcp::socket::SocketSet;
+use smoltcp::wire::{IpAddress, IpEndpoint, Ipv4Address};
 use spin::Mutex;
 
 const MAX_IFACE_QUEUE_SIZE: usize = 64;
@@ -69,19 +70,84 @@ pub fn setup_socket_set() {
 
 pub type TransportLayerPort = u16;
 pub type TransportLayerPorts = BTreeSet<TransportLayerPort>;
-pub type TransportSocketFamily = u16;
+pub type TransportSocketFlags = u16;
+
+#[derive(Debug, Clone)]
+pub enum TransportType {
+    // TODO: Support IPv6 network backend
+    AFUnix = 1,
+    AFInet = 2,
+}
+
+#[derive(Debug, Clone)]
+pub enum TransportSocketTypes {
+    SockStream = 1,
+    SockDgram = 2,
+}
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C, packed)]
-pub struct SocketAddressNw {
-    family: TransportSocketFamily,
+pub struct NetworkSocketAddress {
+    family: TransportSocketFlags,
     port: [u8; 2],
     address: [u8; 4],
     padding: [u8; 8],
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(C, packed)]
+pub struct UnixSocketAddress {
+    // TODO
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SocketAddr {
+    Network(NetworkSocketAddress),
+    Unix(UnixSocketAddress),
+}
+
+impl SocketAddr {
+    #[inline]
+    pub fn from_inet_addr(ep: &IpEndpoint) -> SocketAddr {
+        let ip_addr = match ep.addr {
+            IpAddress::Ipv4(addr) => addr.0,
+            // TODO: Support IPv6 network backend, ipv6 address will be treated
+            // as unspecified as of now.
+            _ => Ipv4Address::UNSPECIFIED.0,
+        };
+
+        let sock_port = ep.port.to_be_bytes();
+
+        SocketAddr::Network(NetworkSocketAddress {
+            family: TransportType::AFInet as u16,
+            address: ip_addr,
+            port: sock_port,
+            padding: [0; 8],
+        })
+    }
+
+    #[inline]
+    pub fn to_inet_addr(&self) -> Option<IpEndpoint> {
+        let ep_addr = match self {
+            SocketAddr::Network(sock_addr) => {
+                let port = u16::from_be_bytes(sock_addr.port);
+
+                let addr = if u32::from_be_bytes(sock_addr.address) == 0 {
+                    IpAddress::Unspecified
+                } else {
+                    IpAddress::Ipv4(Ipv4Address::from_bytes(&sock_addr.address))
+                };
+
+                Some(IpEndpoint { addr, port })
+            }
+            SocketAddr::Unix(_) => None,
+        };
+
+        ep_addr
+    }
 }
 
 lazy_static! {
     pub static ref CURRENT_TL_PORTS: Mutex<TransportLayerPorts> =
         Mutex::new(TransportLayerPorts::new());
 }
-
