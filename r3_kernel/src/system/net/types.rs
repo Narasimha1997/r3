@@ -30,6 +30,11 @@ lazy_static! {
         Mutex::new(NetworkInterfaceQueue::new());
 }
 
+lazy_static! {
+    pub static ref CURRENT_TL_PORTS: Mutex<TransportLayerPorts> =
+        Mutex::new(TransportLayerPorts::new());
+}
+
 impl NetworkInterfaceQueue {
     pub fn new() -> Self {
         Self {
@@ -132,6 +137,7 @@ impl SocketAddr {
             SocketAddr::Network(sock_addr) => {
                 let port = u16::from_be_bytes(sock_addr.port);
 
+                // TODO: Support IPv6
                 let addr = if u32::from_be_bytes(sock_addr.address) == 0 {
                     IpAddress::Unspecified
                 } else {
@@ -147,7 +153,17 @@ impl SocketAddr {
     }
 }
 
-lazy_static! {
-    pub static ref CURRENT_TL_PORTS: Mutex<TransportLayerPorts> =
-        Mutex::new(TransportLayerPorts::new());
+#[derive(Debug)]
+pub enum SocketError {
+    InvalidAddress,
+    PortAlreadyInUse,
+}
+
+pub trait SocketFn {
+    /// bind socket to specified address, throw SocketError if not possible
+    fn bind(&self, addr: SocketAddr) -> Result<(), SocketError>;
+    /// send data to the destination address, throw SocketError if not possible 
+    fn sendto(&self, addr: SocketAddr, buffer: &[u8]) -> Result<usize, SocketError>;
+    /// receive data from the destination address, throw SocketError if not possible 
+    fn recvfrom(&self, addr: SocketAddr, buffer: &[u8]) -> Result<usize, SocketError>; 
 }
