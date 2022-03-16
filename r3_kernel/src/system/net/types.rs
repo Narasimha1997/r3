@@ -4,6 +4,8 @@ extern crate log;
 extern crate smoltcp;
 extern crate spin;
 
+use crate::mm;
+
 use alloc::{collections::BTreeSet, vec, vec::Vec};
 use lazy_static::lazy_static;
 use smoltcp::socket::SocketSet;
@@ -102,7 +104,7 @@ pub struct NetworkSocketAddress {
 #[derive(Debug, Clone, Copy)]
 #[repr(C, packed)]
 pub struct UnixSocketAddress {
-    // TODO
+    family: TransportSocketFlags
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -150,6 +152,53 @@ impl SocketAddr {
         };
 
         ep_addr
+    }
+
+    pub fn from_memory_view(vaddr: mm::VirtualAddress) -> Option<SocketAddr> {
+        // first we will typecast this to 
+        let sock_family: &TransportSocketFlags = unsafe { &*vaddr.get_ptr() };
+        match sock_family {
+            // AFInet
+            2 => {
+                let netsock_view: &NetworkSocketAddress = unsafe { &*vaddr.get_ptr() };
+                let net_addr = NetworkSocketAddress {
+                    family: *sock_family,
+                    port: netsock_view.port,
+                    address: netsock_view.address,
+                    padding: [0; 8]
+                };
+
+                return Some(SocketAddr::Network(net_addr));
+            }
+            1 => {
+                // TODO:
+                let unix_addr = UnixSocketAddress {
+                    family: *sock_family
+                };
+
+                return Some(SocketAddr::Unix(unix_addr));
+            }
+            _ => {
+                return None;
+            }
+        }
+    }
+
+    pub fn write_to_memory(&self, vaddr: mm::VirtualAddress) {
+        // writes self to memory
+        match self {
+            SocketAddr::Network(net_addr) => {
+                let mem_view: &mut NetworkSocketAddress = unsafe { &mut *vaddr.get_mut_ptr() };
+                mem_view.family = net_addr.family;
+                mem_view.padding = net_addr.padding;
+                mem_view.port = net_addr.port;
+                mem_view.address = net_addr.address;
+            }
+            SocketAddr::Unix(unix_addr) => {
+                let mem_view: &mut UnixSocketAddress = unsafe { &mut *vaddr.get_mut_ptr() };
+                mem_view.family = unix_addr.family;
+            }
+        }
     }
 }
 
