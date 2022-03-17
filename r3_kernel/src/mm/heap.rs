@@ -13,8 +13,8 @@ use crate::mm::paging;
 
 pub const HEAP_START_ADDRESS: u64 = 0xffffa00000000000;
 
-// 10 MB of heap initially
-pub const HEAP_SIZE: u64 = 10 * (mm::MemorySizes::OneMib as u64);
+// 50 MB of heap initially
+pub const HEAP_SIZE: u64 = 50 * (mm::MemorySizes::OneMib as u64);
 
 #[global_allocator]
 static KERNEL_HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();

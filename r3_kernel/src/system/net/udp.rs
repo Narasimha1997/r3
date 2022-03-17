@@ -111,7 +111,7 @@ impl types::SocketFn for UDPSocket {
             let recv_result = udp_socket.recv();
             match recv_result {
                 Ok((payload, ip_endpoint)) => {
-                    buffer.copy_from_slice(payload);
+                    buffer[0..payload.len()].copy_from_slice(payload);
                     let sock_addr = types::SocketAddr::from_inet_addr(&ip_endpoint);
                     return Ok(Some((payload.len(), sock_addr)))
                 }
