@@ -206,6 +206,9 @@ impl SocketAddr {
 pub enum SocketError {
     InvalidAddress,
     PortAlreadyInUse,
+    SendError,
+    WIP,
+    BindError,
 }
 
 pub trait SocketFn {
