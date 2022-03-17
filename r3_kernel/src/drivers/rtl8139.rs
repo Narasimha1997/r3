@@ -87,7 +87,7 @@ impl DeviceTx {
                 Port::new(io_base + 0x2C, false),
             ],
             config: Port::new(io_base + 0x040, false),
-            tx_id: 0,
+            tx_id: RTL_N_TX_BUFFERS - 1,
         }
     }
 }
@@ -339,7 +339,7 @@ impl Realtek8139Device {
 
 impl iface::PhysicalNetworkDevice for Realtek8139Device {
     fn get_current_tx_buffer(&mut self) -> Result<&'static mut [u8], iface::PhyNetdevError> {
-        let tx_id = self.tx_line.tx_id;
+        let tx_id = (self.tx_line.tx_id + 1) % RTL_N_TX_BUFFERS;
         if tx_id >= RTL_N_TX_BUFFERS {
             return Err(iface::PhyNetdevError::NoTxBuffer);
         }
@@ -352,26 +352,31 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         _buffer: &mut [u8],
         length: usize,
     ) -> Result<(), iface::PhyNetdevError> {
-        let tx_id = self.tx_line.tx_id;
-        if tx_id >= RTL_N_TX_BUFFERS {
-            return Err(iface::PhyNetdevError::NoTxBuffer);
-        }
+
+        self.tx_line.tx_id = (self.tx_line.tx_id + 1) % RTL_N_TX_BUFFERS;
+        
+        self.ack_probable_isr();
+
+        let current_imr = self.config.imr.read_u16();
+
+        // disable interrupts: (This is not required later)
+        self.config.imr.write_u16(0x0000);
 
         // get current command port
-        let tx_cmd_port = self.tx_line.cmds[tx_id];
+        let tx_cmd_port = self.tx_line.cmds[self.tx_line.tx_id];
         // write the length:
         tx_cmd_port.write_u32((RTL_LENGTH_BITS & length) as u32);
+
         // wait for packet to be moved from DMA to FIFO queue
         while (tx_cmd_port.read_u32() as usize & RTL_DMA_COMPLETE) != RTL_DMA_COMPLETE {}
         // wait for Tx to complete
         while (tx_cmd_port.read_u32() as usize & RTL_TX_OK) != RTL_TX_OK {}
 
-        // increment tx_id
-        self.tx_line.tx_id = (tx_id + 1) % RTL_N_TX_BUFFERS;
         // Tx is not complete
+        // write back the current imr
+        self.config.imr.write_u16(current_imr);
 
         self.ack_probable_isr();
-
         Ok(())
     }
 
@@ -391,13 +396,11 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
         // Transmit OK signal, we have already handled it
         if interrupt_code & RTL_INTERRUPT_TXOK == RTL_INTERRUPT_TXOK {
             self.ack_probable_isr();
-            log::debug!("served network interrupt TX");
             return Ok(());
         }
         // Receive OK signal, receive the packet and process it
         if interrupt_code & RTL_INTERRUPT_RECVOK == RTL_INTERRUPT_RECVOK {
             let recv_result = self.receive_packet();
-            log::debug!("served network interrupt RX");
             self.ack_probable_isr();
             if recv_result.is_err() {
                 return Err(recv_result.unwrap_err());
@@ -418,7 +421,7 @@ impl iface::PhysicalNetworkDevice for Realtek8139Device {
     }
 
     fn set_polling_mode(&mut self, enable: bool) -> Result<(), iface::PhyNetdevError> {
-        // disable receive ok
+
         if enable {
             self.config.imr.write_u16(0x0000);
             self.is_polling = true;

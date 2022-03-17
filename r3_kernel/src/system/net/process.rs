@@ -12,11 +12,8 @@ use net::iface::ETHERNET_INTERFACE;
 use net::types::SOCKETS_SET;
 
 pub fn process_network_packet_event() {
-
     let mut iface_lock = ETHERNET_INTERFACE.lock();
-
     let mut dhcp_lock = DHCP_CLIENT.lock();
-
     let mut sockets_lock = SOCKETS_SET.lock();
 
     let mut sockets = sockets_lock.as_mut().unwrap();
@@ -54,7 +51,6 @@ pub fn process_network_packet_event() {
                 break;
             }
         }
-
     }
 
     DHCPClient::dhcp_next_poll(&mut dhcp_lock, instant);

@@ -331,19 +331,21 @@ pub fn setup_network_interface() {
 }
 
 pub fn network_interrupt_handler() {
-    let mut net_dev_lock = PHY_ETHERNET_DRIVER.lock();
-    if net_dev_lock.is_some() {
-        let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
-        if result.is_err() {
-            log::debug!(
-                "failed to handle device interrupt: {:?}",
-                result.unwrap_err()
-            );
-        }
-    }
 
-    drop(net_dev_lock);
-    process_network_packet_event();
+    if let Some(mut net_dev_lock) = PHY_ETHERNET_DRIVER.try_lock() {
+        if net_dev_lock.is_some() {
+            let result = net_dev_lock.as_mut().unwrap().handle_interrupt();
+            if result.is_err() {
+                log::debug!(
+                    "failed to handle device interrupt: {:?}",
+                    result.unwrap_err()
+                );
+            }
+        }
+    
+        drop(net_dev_lock);
+        process_network_packet_event();
+    }
 }
 
 pub fn get_formatted_mac() -> Option<String> {
@@ -369,7 +371,7 @@ pub fn set_polling_mode() {
 }
 
 pub fn set_interrupt_mode() {
-    log::debug!("set interrupt mode!");
+
     let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
     if phy_lock.is_some() {
         let result = phy_lock.as_mut().unwrap().set_polling_mode(false);

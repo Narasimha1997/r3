@@ -93,6 +93,8 @@ impl types::SocketFn for UDPSocket {
         drop(udp_socket);
         drop(sockets_lock);
 
+        log::debug!("sent!");
+
         // process packets
         process_network_packet_event();
 
