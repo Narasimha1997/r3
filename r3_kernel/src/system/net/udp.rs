@@ -2,6 +2,9 @@ extern crate smoltcp;
 extern crate alloc;
 
 use crate::system::net::{types, process::process_network_packet_event};
+use crate::cpu;
+use crate::system::tasking;
+
 use smoltcp::socket;
 use alloc::vec;
 
@@ -77,8 +80,8 @@ impl types::SocketFn for UDPSocket {
         let mut sockets_lock = types::SOCKETS_SET.lock();
         let all_socks = sockets_lock.as_mut().unwrap();
 
-        let mut socket = all_socks.get::<socket::UdpSocket>(self.sock_handle);
-        let send_res = socket.send(buffer.len(), ip_endpoint);
+        let mut udp_socket = all_socks.get::<socket::UdpSocket>(self.sock_handle);
+        let send_res = udp_socket.send(buffer.len(), ip_endpoint);
         if send_res.is_err() {
             return Err(types::SocketError::SendError);
         }
@@ -87,7 +90,7 @@ impl types::SocketFn for UDPSocket {
         dest_buffer_region.copy_from_slice(buffer);
 
         // release locks
-        drop(socket);
+        drop(udp_socket);
         drop(sockets_lock);
 
         // process packets
@@ -96,7 +99,29 @@ impl types::SocketFn for UDPSocket {
         Ok(buffer.len())
     }
 
-    fn recvfrom(&self, _addr: types::SocketAddr, _buffer: &[u8]) -> Result<usize, types::SocketError> {
-        Err(types::SocketError::WIP)
+    fn recvfrom(&self, buffer: &mut [u8]) -> Result<(usize, types::SocketAddr), types::SocketError> {
+        cpu::enable_interrupts();
+        let wait_res = tasking::wait_until_return(|| {
+            let mut sock_lock = types::SOCKETS_SET.lock();
+            let all_socks = sock_lock.as_mut().unwrap();
+
+            let mut udp_socket = all_socks.get::<socket::UdpSocket>(self.sock_handle);
+            let recv_result = udp_socket.recv();
+            match recv_result {
+                Ok((payload, ip_endpoint)) => {
+                    buffer.copy_from_slice(payload);
+                    let sock_addr = types::SocketAddr::from_inet_addr(&ip_endpoint);
+                    return Ok(Some((payload.len(), sock_addr)))
+                }
+                // this buffer is empty, No data
+                Err(smoltcp::Error::Exhausted) => Ok(None),
+                Err(_) => {
+                    return Err(types::SocketError::RecvError)
+                } 
+            }
+        });
+
+        // handle the error
+        wait_res
     }
 }

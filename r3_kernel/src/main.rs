@@ -49,6 +49,7 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
 }
 
 fn ideal_k_thread() {
+    // ideal k-thread will just send some UDP sockets on dummy port 800
     loop {
         
     }

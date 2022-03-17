@@ -207,8 +207,9 @@ pub enum SocketError {
     InvalidAddress,
     PortAlreadyInUse,
     SendError,
-    WIP,
+    RecvError,
     BindError,
+    WIP
 }
 
 pub trait SocketFn {
@@ -217,5 +218,5 @@ pub trait SocketFn {
     /// send data to the destination address, throw SocketError if not possible 
     fn sendto(&self, addr: SocketAddr, buffer: &[u8]) -> Result<usize, SocketError>;
     /// receive data from the destination address, throw SocketError if not possible 
-    fn recvfrom(&self, addr: SocketAddr, buffer: &[u8]) -> Result<usize, SocketError>; 
+    fn recvfrom(&self, buffer: &mut [u8]) -> Result<(usize, SocketAddr), SocketError>; 
 }
