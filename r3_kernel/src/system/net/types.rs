@@ -114,6 +114,26 @@ pub enum SocketAddr {
 }
 
 impl SocketAddr {
+
+    #[inline]
+    pub fn from_values(sock_type: TransportType, ip: [u8; 4], port: u16) -> SocketAddr {
+        match sock_type {
+            TransportType::AFInet => {
+                return SocketAddr::Network(NetworkSocketAddress {
+                    family: sock_type as u16,
+                    port: port.to_be_bytes(),
+                    address: ip,
+                    padding: [0; 8]
+                });
+            }
+            TransportType::AFUnix => {
+                return SocketAddr::Unix(UnixSocketAddress {
+                    family: sock_type as u16
+                });
+            }
+        }
+    }
+
     #[inline]
     pub fn from_inet_addr(ep: &IpEndpoint) -> SocketAddr {
         let ip_addr = match ep.addr {
