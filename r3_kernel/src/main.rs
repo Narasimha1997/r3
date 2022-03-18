@@ -50,11 +50,16 @@ fn init_basic_setup(boot_info: &'static BootInfo) {
     log::info!("Initial stage booted properly.");
 }
 
-fn ideal_k_thread() {
+fn ideal_k_thread () {
+    cpu::halt_with_interrupts();
+}
+
+
+fn sample_network_thread() {
     // ideal k-thread will just send some UDP sockets on dummy port 800
     let sock_addr_dest = SocketAddr::from_values(TransportType::AFInet, [192, 168, 0, 105], 8000);
 
-    let sock_addr_src = SocketAddr::from_values(TransportType::AFInet, [192, 168, 0, 108], 8000);
+    let sock_addr_src = SocketAddr::from_values(TransportType::AFInet, [192, 168, 0, 104], 8000);
 
     log::debug!("Created UDP socket");
 
@@ -69,14 +74,30 @@ fn ideal_k_thread() {
 
     if let Ok(_) = bind_res {
         loop {
-            let send_res = udp_socket.sendto(sock_addr_dest, to_send_data);
-            log::debug!("send res: {:?}", send_res);
+            let send_result = udp_socket.sendto(sock_addr_dest, to_send_data);
+            log::debug!("send result: {:?}", send_result);
+
             let recv_result = udp_socket.recvfrom(&mut recv_buffer);
             log::debug!("recv result: {:?}", recv_result);
         }
     } else {
         log::error!("failed to create udp socket");
         loop {}
+    }
+}
+
+fn start_sample_network_thread() {
+    let process = system::process::new(format!("net_sample"), false, "");
+
+    let k_thread_result = system::thread::new_from_function(
+        &process,
+        format!("idle_thread"),
+        mm::VirtualAddress::from_u64(sample_network_thread as fn() as u64),
+    );
+
+    if k_thread_result.is_err() {
+        log::error!("Failed to run system sample network thread, threading not working!!!");
+        return;
     }
 }
 
@@ -134,6 +155,9 @@ fn init_functionalities() {
 
     // start the idle thread that just keeps the scheduler filled.
     start_idle_kthread();
+
+    // start network thread
+    start_sample_network_thread();
 
     // initialize the terminal
     drivers::tty::initialize();

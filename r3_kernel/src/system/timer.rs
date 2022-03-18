@@ -1,6 +1,7 @@
 extern crate log;
 extern crate spin;
 
+use crate::cpu::{enable_interrupts, disable_interrupts};
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use crate::mm::Alignment;
 use crate::system::abi;
@@ -16,7 +17,7 @@ pub enum Time {
 }
 
 /// each tick contains these many time nanoseconds.
-const SYSTEM_TICK_DURATION: u64 = 15 * 1000000;
+const SYSTEM_TICK_DURATION: u64 = 100 * 1000000;
 
 /// SystemTicker that keeps tracks of number of
 /// ticks and provides few functions to manage timer.
@@ -179,3 +180,16 @@ pub fn resume_events() {
     TSCTimerShot::reset_current_shot();
     TSCTimerShot::create_shot_after_ns(SYSTEM_TICK_DURATION);
 }
+
+#[inline]
+pub fn hold_cpu_lock() {
+    pause_events();
+    disable_interrupts();
+}
+
+#[inline]
+pub fn release_cpu_lock() {
+    enable_interrupts();
+    resume_events();
+}
+

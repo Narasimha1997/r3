@@ -40,9 +40,11 @@ macro_rules! print_uart {
     ($fmt:expr, $($arg:tt)*) => (
         if UART_DRIVER.is_some() {
             let mutexed_uart = UART_DRIVER.as_ref().unwrap();
-            mutexed_uart.lock().write_fmt(
-                format_args!(concat!($fmt, "\n"), $($arg)*)
-            ).unwrap();
+            if let Some(mut uart) = mutexed_uart.try_lock() {
+                uart.write_fmt(
+                    format_args!(concat!($fmt, "\n"), $($arg)*)
+                ).unwrap();
+            }
         }
     );
 }
@@ -58,6 +60,8 @@ macro_rules! print_framebuffer {
 }
 
 impl log::Log for KernelLogger {
+
+    #[inline]
     fn enabled(&self, _meta: &Metadata) -> bool {
         // TOOD: Add level based filtering
         true

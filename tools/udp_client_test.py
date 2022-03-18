@@ -1,5 +1,6 @@
 import socket
 import sys
+import time
 
 
 ip = sys.argv[1]
@@ -12,8 +13,9 @@ to_send = "hello, from ubuntu"
 
 while True:
 
-    data, addr = test_sock.recvfrom(1024)
-    print(data.decode("utf-8"), addr)
+    # data, recv_addr = test_sock.recvfrom(1024)
+    # print(data.decode('utf-8'), recv_addr)
 
     # send the packet
     test_sock.sendto(to_send.encode("utf-8"), (ip, int(port)))
+    time.sleep(1)

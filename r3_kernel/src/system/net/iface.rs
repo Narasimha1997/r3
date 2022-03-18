@@ -112,9 +112,14 @@ impl TxToken for VirtualTx {
     where
         F: FnOnce(&mut [u8]) -> NetResult<R>,
     {
+
+        // hold CPU lock, so no events can occur during this time
+        // timer::hold_cpu_lock();
+
         let mut phy_lock = PHY_ETHERNET_DRIVER.lock();
         if phy_lock.is_none() {
             log::error!("no physical interface found.");
+            // timer::release_cpu_lock();
             return Err(NetError::Illegal);
         }
 
@@ -122,6 +127,7 @@ impl TxToken for VirtualTx {
         let buffer_res = phy_dev.get_current_tx_buffer();
         if buffer_res.is_err() {
             log::error!("interface error: {:?}", buffer_res.unwrap_err());
+            // timer::release_cpu_lock();
             return Err(NetError::Illegal);
         }
 
@@ -130,15 +136,18 @@ impl TxToken for VirtualTx {
 
         if buffer_copy_res.is_err() {
             log::error!("interface error: failed to copy packet to DMA buffer");
+            // timer::release_cpu_lock();
             return Err(NetError::Illegal);
         }
 
         let transmit_result = phy_dev.transmit_and_wait(buffer, len);
         if transmit_result.is_err() {
             log::error!("interface error: {:?}", transmit_result.unwrap_err());
+            // timer::release_cpu_lock();
             return Err(NetError::Illegal);
         }
 
+        // timer::release_cpu_lock();
         Ok(buffer_copy_res.unwrap())
     }
 }
