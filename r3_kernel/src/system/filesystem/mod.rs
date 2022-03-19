@@ -45,12 +45,12 @@ pub struct FStatInfo {
     pub gid: u32,
     pub pad0: u32,
     pub rdev: usize,
-    pub file_size: isize,
-    pub block_size: isize,
-    pub blocks: isize,
-    pub atime: isize,
-    pub mtime: isize,
-    pub ctime: isize,
+    pub file_size: usize,
+    pub block_size: usize,
+    pub blocks: usize,
+    pub atime: usize,
+    pub mtime: usize,
+    pub ctime: usize,
 }
 
 impl fmt::Debug for FStatInfo {

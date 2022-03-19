@@ -31,13 +31,25 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
 
     let mut fd = fd_res.unwrap();
 
-    // read this until we hit the end
+    let fstat_info_res = FILESYSTEM.lock().fstat(&mut fd);
+
+    if fstat_info_res.is_err() {
+        return Err(LoadError::FileReadError);
+    }
+
+    let fstat_info = fstat_info_res.unwrap();
+
+    // allocate a temp buffer to read one block at a time
     let mut temp_buffer: Vec<u8> = Vec::new();
-    temp_buffer.resize(512, 0);
+    temp_buffer.resize(fstat_info.block_size, 0);
 
+    // data will be copied to this buffer
     let mut binary_buffer: Vec<u8> = Vec::new();
+    binary_buffer.resize(fstat_info.file_size, 0);
 
-    loop {
+    // log::debug!("FSTAT: {} {} {}", fstat_info.file_size, fstat_info.blocks, fstat_info.block_size);
+
+    for idx in 0..fstat_info.blocks {
         let read_res = FILESYSTEM.lock().read(&mut fd, &mut temp_buffer);
         if read_res.is_err() {
             log::debug!("ELF load failed, {:?}", read_res.unwrap_err());
@@ -45,7 +57,10 @@ pub fn read_executable(path: &str) -> Result<Vec<u8>, LoadError> {
         }
 
         let n_read = read_res.unwrap();
-        binary_buffer.extend_from_slice(&temp_buffer[0..n_read]);
+        let slice_ref: &mut [u8] = binary_buffer.as_mut();
+
+        let current_start = idx * fstat_info.block_size;
+        slice_ref[current_start..current_start + n_read].copy_from_slice(&temp_buffer[0..n_read]);
 
         if n_read < 512 {
             break;

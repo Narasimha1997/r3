@@ -6,6 +6,7 @@ use crate::system::filesystem::vfs::FILESYSTEM;
 use crate::system::filesystem::MountInfo;
 use crate::system::filesystem::{FDOps, FSOps};
 use crate::system::filesystem::{FSError, FileDescriptor, SeekType, FStatInfo};
+use crate::mm::Alignment;
 
 use alloc::{format, string::String};
 use core::mem;
@@ -260,8 +261,10 @@ impl FDOps for TarFSDriver {
             FileDescriptor::TarFSNode(tarfd) => {
                 // TODO: fill in all the descriptors, as of now, they will be zeroes
                 let mut fstat_info = FStatInfo::default();
-                fstat_info.file_size = tarfd.size as isize;
-                fstat_info.blocks = fstat_info.file_size / 512;
+                fstat_info.file_size = tarfd.size;
+
+                let aligned_size = Alignment::align_up(tarfd.size as u64, 512);
+                fstat_info.blocks = (aligned_size / 512) as usize;
                 fstat_info.block_size = 512;
 
                 return Ok(fstat_info);

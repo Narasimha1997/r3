@@ -4,7 +4,7 @@ extern crate spin;
 use crate::system::filesystem::devfs::DevFSDriver;
 use crate::system::filesystem::paths;
 use crate::system::filesystem::ustar::TarFSDriver;
-use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo, SeekType};
+use crate::system::filesystem::{FDOps, FSError, FSOps, FileDescriptor, MountInfo, SeekType, FStatInfo};
 
 use alloc::{boxed::Box, string::String, vec::Vec};
 use spin::Mutex;
@@ -222,6 +222,18 @@ impl FDOps for VFS {
             FileDescriptor::TarFSNode(tarfd) => {
                 let tar_driver = TarFSDriver::new_from_drive(&tarfd.driver_name);
                 return tar_driver.seek(fd, offset, st);
+            }
+            _ => {
+                return Err(FSError::NotYetImplemented);
+            }
+        }
+    }
+
+    fn fstat(&self, fd: &mut FileDescriptor) -> Result<FStatInfo, FSError> {
+        match fd {
+            FileDescriptor::TarFSNode(tarfd) => {
+                let trafs_driver = TarFSDriver::new_from_drive(&tarfd.driver_name);
+                return trafs_driver.fstat(fd);
             }
             _ => {
                 return Err(FSError::NotYetImplemented);
