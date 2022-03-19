@@ -5,7 +5,7 @@ use crate::system::filesystem::devfs::DevFSDriver;
 use crate::system::filesystem::vfs::FILESYSTEM;
 use crate::system::filesystem::MountInfo;
 use crate::system::filesystem::{FDOps, FSOps};
-use crate::system::filesystem::{FSError, FileDescriptor, SeekType};
+use crate::system::filesystem::{FSError, FileDescriptor, SeekType, FStatInfo};
 
 use alloc::{format, string::String};
 use core::mem;
@@ -253,6 +253,23 @@ impl FDOps for TarFSDriver {
         }
 
         return Err(FSError::NotFound);
+    }
+
+    fn fstat(&self, fd: &mut FileDescriptor) -> Result<FStatInfo, FSError> {
+        match fd {
+            FileDescriptor::TarFSNode(tarfd) => {
+                // TODO: fill in all the descriptors, as of now, they will be zeroes
+                let mut fstat_info = FStatInfo::default();
+                fstat_info.file_size = tarfd.size as isize;
+                fstat_info.blocks = fstat_info.file_size / 512;
+                fstat_info.block_size = 512;
+
+                return Ok(fstat_info);
+            }
+            _ => {}
+        }
+
+        Err(FSError::NotFound)
     }
 
     fn ioctl(
