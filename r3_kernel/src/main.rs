@@ -54,53 +54,6 @@ fn ideal_k_thread () {
     cpu::halt_with_interrupts();
 }
 
-
-fn sample_network_thread() {
-    // ideal k-thread will just send some UDP sockets on dummy port 800
-    let sock_addr_dest = SocketAddr::from_values(TransportType::AFInet, [192, 168, 0, 105], 8000);
-
-    let sock_addr_src = SocketAddr::from_values(TransportType::AFInet, [192, 168, 0, 104], 8000);
-
-    log::debug!("Created UDP socket");
-
-    let udp_socket = UDPSocket::empty();
-    let to_send_data = "Hello, From R3".as_bytes();
-
-    let mut recv_buffer: [u8; 1024] = [0; 1024];
-
-    // bind:
-    let bind_res = udp_socket.bind(sock_addr_src);
-    log::debug!("bind result: {:?}", bind_res);
-
-    if let Ok(_) = bind_res {
-        loop {
-            let send_result = udp_socket.sendto(sock_addr_dest, to_send_data);
-            log::debug!("send result: {:?}", send_result);
-
-            let recv_result = udp_socket.recvfrom(&mut recv_buffer);
-            log::debug!("recv result: {:?}", recv_result);
-        }
-    } else {
-        log::error!("failed to create udp socket");
-        loop {}
-    }
-}
-
-fn start_sample_network_thread() {
-    let process = system::process::new(format!("net_sample"), false, "");
-
-    let k_thread_result = system::thread::new_from_function(
-        &process,
-        format!("idle_thread"),
-        mm::VirtualAddress::from_u64(sample_network_thread as fn() as u64),
-    );
-
-    if k_thread_result.is_err() {
-        log::error!("Failed to run system sample network thread, threading not working!!!");
-        return;
-    }
-}
-
 fn start_idle_kthread() {
     // this will always run in the background and keep atleast
     // one task running in the kernel with CPU interrupts enabled.
@@ -122,7 +75,7 @@ fn start_idle_kthread() {
     log::info!("Started system idle thread in background.");
 
     // start the echo client process
-    let pid = system::process::new(format!("test"), true, "/sbin/write");
+    let pid = system::process::new(format!("test"), true, "/sbin/echo_cli");
     let thread_result = system::thread::new_main_thread(&pid, format!("main"));
     if thread_result.is_err() {
         log::error!("Failed to run /sbin/write thread, threading not working!!!");
@@ -155,9 +108,6 @@ fn init_functionalities() {
 
     // start the idle thread that just keeps the scheduler filled.
     start_idle_kthread();
-
-    // start network thread
-    start_sample_network_thread();
 
     // initialize the terminal
     drivers::tty::initialize();

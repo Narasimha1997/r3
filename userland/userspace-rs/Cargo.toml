@@ -1,0 +1,9 @@
+[package]
+name = "userspace_rs"
+version = "0.0.1"
+authors = ["Narasimha1997 <yogaimpression@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "echo_cli"
+path = "src/bin/echo_cli.rs"
