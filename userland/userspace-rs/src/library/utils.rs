@@ -34,6 +34,12 @@ pub fn get_uname() -> Result<UTSName, usize> {
     Err(result)
 }
 
+pub fn power_off_machine() {
+    unsafe {
+        syscalls::sys_shutdown();
+    }
+}
+
 pub unsafe fn str_from_c_like_buffer(utf8_src: &[u8]) -> &str {
     let mut nul_range_end = 1_usize;
     for b in utf8_src {

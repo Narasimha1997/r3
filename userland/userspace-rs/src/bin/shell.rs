@@ -5,7 +5,7 @@ use core::fmt::Write;
 use core::str;
 use userspace_rs::library;
 
-use library::utils::{get_uname, read_stdin, str_from_c_like_buffer};
+use library::utils::{get_uname, read_stdin, str_from_c_like_buffer, power_off_machine};
 use userspace_rs::{print, println};
 
 #[inline]
@@ -39,6 +39,11 @@ fn uname(_arg_str: &str) {
     }
 }
 
+#[inline]
+fn shutdown(_arg_str: &str) {
+    power_off_machine();
+}
+
 #[inline(always)]
 fn get_string_view(buffer: &[u8], length: usize) -> &str {
     if let Ok(string) = str::from_utf8(&buffer[0..length]) {
@@ -62,6 +67,9 @@ fn exec_command(string: &str) {
         }
         "echo" => {
             echo(&string[command_str.len()..string.len()]);
+        }
+        "shutdown" => {
+            shutdown(&string[command_str.len()..string.len()]);
         }
         _ => {
             println!("unknown command {}", command_str);

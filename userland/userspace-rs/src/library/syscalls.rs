@@ -3,7 +3,20 @@ use crate::library::types::UTSName;
 pub enum SyscallNumbers {
     Read = 0,
     Write = 1,
+    Shutdown = 48,
     Uname = 63,
+}
+
+#[inline(always)]
+unsafe fn syscall_0(sys_no: usize) -> usize {
+    let syscall_result: usize;
+    asm!(
+        "int 0x80",
+        in("rax") sys_no,
+        lateout("rax") syscall_result
+    );
+
+    syscall_result
 }
 
 #[inline(always)]
@@ -48,3 +61,7 @@ pub unsafe fn sys_uname(uts: &mut UTSName) -> usize {
     let addr = (uts as *const _) as usize;
     syscall_1(addr, SyscallNumbers::Uname as usize)
 } 
+
+pub unsafe fn sys_shutdown() -> usize {
+    syscall_0(SyscallNumbers::Shutdown as usize)
+}
