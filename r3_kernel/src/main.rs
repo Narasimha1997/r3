@@ -20,8 +20,7 @@ pub mod system;
 
 use boot_proto::BootProtocol;
 use bootloader::BootInfo;
-use system::net::types::{SocketAddr, SocketFn, TransportType};
-use system::net::udp::UDPSocket;
+
 
 use alloc::format;
 
