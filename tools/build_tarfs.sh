@@ -21,7 +21,9 @@ pushd userland/test
 popd
 
 pushd userland/userspace-rs
+    cargo xbuild
     cp target/x86_64/debug/echo_cli $proj_root/storage/tarfs/echo_cli
+    cp target/x86_64/debug/sys_shell $proj_root/storage/tarfs/sys_shell
 popd
 
 # build tarfs

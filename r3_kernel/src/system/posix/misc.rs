@@ -7,7 +7,7 @@ use core::ptr;
 
 // these strings are null terminated to make sure they are processed
 // properly by usespace C libraries which uses null terminated strings.
-const UNAME_STRINGS: &'static [&'static str] = &["LINUX", "", "0.0.1", "r3", "x86_64", ""];
+const UNAME_STRINGS: &'static [&'static str] = &["r3-os", "unknown", "0.0.1", "r3", "x86_64", "unknown"];
 
 const FIELD_LEN: usize = 65;
 

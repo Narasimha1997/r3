@@ -7,3 +7,7 @@ edition = "2018"
 [[bin]]
 name = "echo_cli"
 path = "src/bin/echo_cli.rs"
+
+[[bin]]
+name = "sys_shell"
+path = "src/bin/shell.rs"
