@@ -2,7 +2,7 @@ use crate::library;
 
 use core::{fmt, str};
 use library::syscalls;
-use library::types::{Stdio, UTSName};
+use library::types::{Stdio, UTSName, FStatInfo};
 
 pub struct SysStdout;
 
@@ -38,6 +38,16 @@ pub fn power_off_machine() {
     unsafe {
         syscalls::sys_shutdown();
     }
+}
+
+pub fn lstat(path: &str) -> Result<FStatInfo, usize> {
+    let mut stat = FStatInfo::default();
+    let result = unsafe { syscalls::sys_lstat(path, &mut stat) };
+    if result == 0 {
+        return Ok(stat);
+    }
+
+    Err(result)
 }
 
 pub unsafe fn str_from_c_like_buffer(utf8_src: &[u8]) -> &str {

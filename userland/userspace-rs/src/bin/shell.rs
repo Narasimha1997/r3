@@ -5,7 +5,10 @@ use core::fmt::Write;
 use core::str;
 use userspace_rs::library;
 
-use library::utils::{get_uname, read_stdin, str_from_c_like_buffer, power_off_machine};
+use library::utils::{
+    get_uname, read_stdin, str_from_c_like_buffer, power_off_machine,
+    lstat,
+};
 use userspace_rs::{print, println};
 
 #[inline]
@@ -44,6 +47,21 @@ fn shutdown(_arg_str: &str) {
     power_off_machine();
 }
 
+#[inline]
+fn sizeof(arg_str: &str) {
+    let lstat_result = lstat(&arg_str);
+    if let Ok(lstat_buffer) = lstat_result {
+        let f_size = lstat_buffer.file_size;
+        println!("size of {}: {}bytes", arg_str, f_size);
+    } else {
+        let lstat_err_code = lstat_result.unwrap_err() as usize;
+        println!(
+            "'sizeof' exited with invalid code: {}",
+            lstat_err_code
+        );
+    }
+}
+
 #[inline(always)]
 fn get_string_view(buffer: &[u8], length: usize) -> &str {
     if let Ok(string) = str::from_utf8(&buffer[0..length]) {
@@ -58,18 +76,23 @@ fn exec_command(string: &str) {
     if let Some(end_index) = string.find(' ') {
         command_str = &string[0..end_index];
     } else {
-        command_str = string;
+        command_str = string.trim();
     }
+
+    let remaining_str = string[command_str.len()..string.len()].trim();
 
     match command_str {
         "uname" => {
-            uname(&string[command_str.len()..string.len()]);
+            uname(&remaining_str);
         }
         "echo" => {
-            echo(&string[command_str.len()..string.len()]);
+            echo(&remaining_str);
         }
         "shutdown" => {
-            shutdown(&string[command_str.len()..string.len()]);
+            shutdown(&remaining_str);
+        }
+        "sizeof" => {
+            sizeof(&remaining_str);
         }
         _ => {
             println!("unknown command {}", command_str);
@@ -84,6 +107,10 @@ pub extern "C" fn _start() {
     loop {
         print!("[root@root]~# ");
         let read_length = read_stdin(&mut data_buffer, 1024);
+
+        // replace last character with null
+        data_buffer[read_length - 1] = '\0' as u8;
+
         let str_view = get_string_view(&data_buffer, read_length - 1);
         exec_command(str_view);
 

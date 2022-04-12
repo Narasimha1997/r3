@@ -30,3 +30,23 @@ impl UTSName {
         }
     }
 }
+
+#[allow(unaligned_references)]
+#[derive(Default, Debug)]
+#[repr(C, packed)]
+pub struct FStatInfo {
+    pub st_dev: usize,
+    pub inode_no: usize,
+    pub n_link: usize,
+    pub mode: usize,
+    pub uid: u32,
+    pub gid: u32,
+    pub pad0: u32,
+    pub rdev: usize,
+    pub file_size: usize,
+    pub block_size: usize,
+    pub blocks: usize,
+    pub atime: usize,
+    pub mtime: usize,
+    pub ctime: usize,
+}

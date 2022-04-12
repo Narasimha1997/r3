@@ -27,7 +27,7 @@ pub fn sys_open(path: &str, flags: POSIXOpenFlags) -> Result<isize, abi::Errno> 
 
     let fd_result = FILESYSTEM.lock().open(&path, flags.bits());
     if fd_result.is_err() {
-        log::error!("File {} not found.", path);
+        log::error!("File {} not found {:?}.", path, fd_result.unwrap_err());
         return Err(abi::Errno::EEXIST);
     }
 
@@ -210,7 +210,7 @@ pub fn sys_fstat(fd_index: usize, stat_buf: VirtualAddress) -> Result<isize, abi
     }
 
     // copy the status buffer to this location:
-    abi::copy_to_buffer(fd, stat_buf);
+    abi::copy_to_buffer(stat_result.unwrap(), stat_buf);
     Ok(0 as isize)
 }
 
