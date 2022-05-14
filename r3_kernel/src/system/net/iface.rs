@@ -27,7 +27,7 @@ const MAX_POLL_CYCLES: usize = 100;
 
 // TODO: Make these as variables passed from boot-info
 const DEFAULT_GATEWAY: &str = "192.168.0.1";
-const DEFAULT_STATIC_IP: &str = "192.168.0.24/24";
+const DEFAULT_STATIC_IP: &str = "192.168.0.6/24";
 
 use alloc::{boxed::Box, collections::BTreeMap, format, string::String, vec::Vec};
 
@@ -281,6 +281,8 @@ fn create_static_ip_interface(
     .routes(routes)
     .finalize();
 
+    log::debug!("configure static IP complete");
+
     Some(iface)
 }
 
@@ -406,8 +408,14 @@ pub fn is_in_loopback() -> bool {
 
 pub fn switch_to_static_ip() {
     let phy_dev_lock = PHY_ETHERNET_DRIVER.lock();
-    if let Ok(mac_bytes) = phy_dev_lock.as_ref().unwrap().get_mac_address() {
-        *ETHERNET_INTERFACE.lock() =
-            create_static_ip_interface(&mac_bytes, &DEFAULT_GATEWAY, &DEFAULT_STATIC_IP);
+    let mac_bytes_res = phy_dev_lock.as_ref().unwrap().get_mac_address();
+    if mac_bytes_res.is_err() {
+        log::error!("failed to get device MAC address");
+        return;
     }
+    let mac_bytes = mac_bytes_res.unwrap();
+    drop(phy_dev_lock);
+    // create an interface with static IP assigned
+    let net_device = create_static_ip_interface(&mac_bytes, DEFAULT_GATEWAY, DEFAULT_STATIC_IP);
+    *ETHERNET_INTERFACE.lock() = net_device;
 }

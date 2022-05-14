@@ -18,6 +18,7 @@ use crate::system::net::types::SOCKETS_SET;
 use crate::system::timer::{wait_ns, PosixTimeval};
 
 const DHCP_BUFFER_SIZE: usize = 2048;
+const MAX_DHCP_POLL_CYCLES: usize = 100;
 
 lazy_static! {
     pub static ref DHCP_CLIENT: Mutex<Option<Dhcpv4Client>> = Mutex::new(None);
@@ -53,9 +54,11 @@ impl DHCPClient {
         log::info!("initialized DHCPv4 client")
     }
 
-    fn poll_dhcp_over_iface(
+
+    fn bounded_poll_dhcp_over_iface(
         iface_lock: &mut iface::LockedEthernetInterface,
         dhcp_lock: &mut LockedDHCPClient,
+        n: usize
     ) -> Result<Dhcpv4Config, DHCPError> {
         if iface_lock.as_ref().is_none() {
             log::error!("cannot poll DHCP over empty interface");
@@ -74,7 +77,7 @@ impl DHCPClient {
         let mut sockets_lock = SOCKETS_SET.lock();
         let mut sockets = sockets_lock.as_mut().unwrap();
 
-        loop {
+        for _ in 0..n {
             match iface.poll(&mut sockets, instant) {
                 Ok(false) => {}
                 Ok(true) => {}
@@ -106,6 +109,9 @@ impl DHCPClient {
                 wait_ns(d.as_nanos() as u64);
             }
         }
+
+        log::error!("DHCP poll error, could not configure network at boot time");
+        Err(DHCPError::PollingError)
     }
 
     /// this function polls using DHCP client and returns the DHCPConfig
@@ -191,7 +197,7 @@ impl DHCPClient {
         let mut iface_lock = iface::get_virtual_interface().lock();
         let mut dhcp_lock = DHCP_CLIENT.lock();
 
-        let poll_result = Self::poll_dhcp_over_iface(&mut iface_lock, &mut dhcp_lock);
+        let poll_result = Self::bounded_poll_dhcp_over_iface(&mut iface_lock, &mut dhcp_lock, MAX_DHCP_POLL_CYCLES);
         if let Ok(dhcp_config) = poll_result {
             return Self::update_config(dhcp_config, &mut iface_lock);
         } else {
