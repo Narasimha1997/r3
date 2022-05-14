@@ -18,7 +18,7 @@ use crate::system::net::types::SOCKETS_SET;
 use crate::system::timer::{wait_ns, PosixTimeval};
 
 const DHCP_BUFFER_SIZE: usize = 2048;
-const MAX_DHCP_POLL_CYCLES: usize = 100;
+const MAX_DHCP_POLL_CYCLES: usize = 2000;
 
 lazy_static! {
     pub static ref DHCP_CLIENT: Mutex<Option<Dhcpv4Client>> = Mutex::new(None);
