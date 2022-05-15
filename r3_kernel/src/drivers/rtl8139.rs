@@ -12,7 +12,7 @@ const RTL_RX_SIZE_FACTOR: usize = 0;
 const RTL_VENDOR_ID: u16 = 0x10EC;
 const RTL_DEVICE_ID: u16 = 0x8139;
 
-// RTL packet type falgs
+// RTL packet type flags
 
 #[allow(unused)]
 /// use this flag while configuring Rx settings, enabling this will make the
@@ -22,7 +22,7 @@ const RTL_ENABLE_ALL_PACKETS: usize = 1 << 0;
 /// Receive packets that match the interface MAC address
 const RTL_ENABLE_MATCH_PACKETS: usize = 1 << 1;
 
-/// Receive multicast packets (Ex: ICMP multicasts)
+/// Receive multicast packets (Ex: ICMP multicast)
 const RTL_ENABLE_MULTICAST: usize = 1 << 2;
 
 /// Receive broadcast packets
