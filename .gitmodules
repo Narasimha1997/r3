@@ -1,6 +1,6 @@
 [submodule "third_party/crates/bootloader"]
 	path = third_party/crates/bootloader
-	url = https://github.com/rust-osdev/bootloader.git
+	url = https://github.com/Narasimha1997/bootloader.git
 	branch = main
 
 [submodule "third_party/crates/linked-list-allocator"]
