@@ -1,3 +1,4 @@
+use core::arch::asm;
 use crate::library::types::{UTSName, FStatInfo};
 
 pub enum SyscallNumbers {
