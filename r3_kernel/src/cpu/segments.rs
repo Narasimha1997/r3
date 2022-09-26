@@ -1,6 +1,8 @@
 extern crate bit_field;
 extern crate spin;
 
+use core::arch::asm;
+
 use bit_field::BitField;
 use core::mem;
 use lazy_static::lazy_static;

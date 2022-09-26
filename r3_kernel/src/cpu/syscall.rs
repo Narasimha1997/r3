@@ -1,3 +1,5 @@
+use core::arch::asm;
+
 use crate::cpu::exceptions::IDT;
 use crate::cpu::interrupt_stacks::load_default_syscall_stack;
 use crate::cpu::interrupts::{prepare_syscall_interrupt, InterruptStackFrame};

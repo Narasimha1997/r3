@@ -2,6 +2,8 @@ extern crate bitflags;
 
 use bitflags::bitflags;
 
+use core::arch::asm;
+
 bitflags! {
     /// The RFLAGS register.
     pub struct RFlagsStruct: u64 {

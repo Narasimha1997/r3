@@ -1,4 +1,6 @@
 extern crate log;
+
+use core::arch::asm;
 // Provide state management functions
 
 // TODO: Add SSE and AVX registers

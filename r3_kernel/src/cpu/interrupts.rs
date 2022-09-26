@@ -1,5 +1,7 @@
 extern crate bit_field;
 
+use core::arch::asm;
+
 use crate::cpu::mmu::PageFaultExceptionTypes;
 use crate::cpu::segments;
 

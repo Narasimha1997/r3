@@ -1,6 +1,8 @@
 extern crate log;
 extern crate spin;
 
+use core::arch::asm;
+
 use crate::cpu::{enable_interrupts, disable_interrupts};
 use crate::cpu::tsc::{safe_ticks_from_ns, TSCTimerShot, TSC};
 use crate::mm::Alignment;

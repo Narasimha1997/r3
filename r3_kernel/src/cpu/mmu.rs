@@ -1,5 +1,7 @@
 extern crate bitflags;
 
+use core::arch::asm;
+
 use crate::mm::PhysicalAddress;
 use bitflags::bitflags;
 

@@ -1,5 +1,7 @@
 extern crate log;
 
+use core::arch::asm;
+
 use crate::acpi::lapic::LAPICUtils;
 use crate::cpu::exceptions;
 use crate::cpu::interrupts;

@@ -1,3 +1,7 @@
+
+use core::arch::asm;
+
+
 const IO_WAIT_PORT: usize = 0x80;
 
 #[derive(Clone, Copy, Debug)]

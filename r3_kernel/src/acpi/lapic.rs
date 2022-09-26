@@ -1,5 +1,8 @@
 extern crate log;
 
+
+use core::arch::asm;
+
 use crate::acpi::madt;
 use crate::mm::{io::MemoryIO, VirtualAddress};
 

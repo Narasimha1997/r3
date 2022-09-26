@@ -1,3 +1,5 @@
+use core::arch::asm;
+
 use core::sync::atomic::{AtomicU64, Ordering};
 
 use crate::cpu::pit;

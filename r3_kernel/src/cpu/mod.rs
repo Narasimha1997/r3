@@ -1,5 +1,7 @@
 extern crate log;
 
+use core::arch::asm;
+
 pub mod cpuid;
 pub mod exceptions;
 pub mod hw_interrupts;
